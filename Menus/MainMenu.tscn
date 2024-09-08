@@ -1,0 +1,54 @@
+[gd_scene load_steps=5 format=3 uid="uid://dfdn0rcv2oo6k"]
+
+[ext_resource type="Script" path="res://Menus/MainMenu.cs" id="1_gmfx3"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_irumt"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_pqe8i"]
+sky_material = SubResource("ProceduralSkyMaterial_irumt")
+
+[sub_resource type="Environment" id="Environment_bfeig"]
+background_mode = 2
+sky = SubResource("Sky_pqe8i")
+tonemap_mode = 2
+glow_enabled = true
+
+[node name="MainMenu" type="Node3D"]
+script = ExtResource("1_gmfx3")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_bfeig")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.80263, -0.128908, 0.582381, 0, 0.976368, 0.216116, -0.596477, -0.173461, 0.783662, 6.73479, 1.51175, 8.05561)
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PlayButton" type="Button" parent="Control"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -4.0
+offset_top = -4.0
+offset_right = 4.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Generate"
+
+[connection signal="pressed" from="Control/PlayButton" to="." method="_on_play_button_pressed"]
