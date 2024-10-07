@@ -3,6 +3,9 @@ using System;
 
 public partial class GameLoop : Node3D
 {
+
+
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -11,12 +14,10 @@ public partial class GameLoop : Node3D
 		ChunkMeshManager.Instance();
 
 		uint[] data = ChunkGeneratorManager.Instance().GenerateChunk(0, 0, 0);
-		ChunkMeshManager.GenerateMesh(data);
-
-
-
-
+		Face[] faces = ChunkMeshManager.GenerateMesh(data);
+		
 		Chunk ch = new Chunk();
+		ch.ProcessFaces(faces);
 		AddChild(ch);
 	}
 

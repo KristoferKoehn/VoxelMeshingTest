@@ -1,7 +1,9 @@
 shader_type spatial;
 
+varying flat int ID;
+
 void vertex() {
-	// Called for every vertex the material is visible on.
+	
 }
 
 void fragment() {
