@@ -185,7 +185,7 @@ void EastFace() {
 					EastVertices.data[FaceSpacing + 1] = vec4(-0.5f + (y - OFFSET), -0.5f + (z - OFFSET), -0.5f + (x - OFFSET),  0.5f + (y - OFFSET));
 					EastVertices.data[FaceSpacing + 2] = vec4(-0.5f + (z - OFFSET), -0.5f + (x - OFFSET),  0.5f + (y - OFFSET),  0.5f + (z - OFFSET));
 					
-					vec3 norms = vec3(1, 0, 0);
+					vec3 norms = vec3(-1, 0, 0);
 					EastNormals.data[FaceSpacing]     = norms.xyzx;
 					EastNormals.data[FaceSpacing + 1] = norms.yzxy;
 					EastNormals.data[FaceSpacing + 2] = norms.zxyz;
@@ -251,7 +251,7 @@ void WestFace() {
 					WestVertices.data[FaceSpacing + 1] = vec4(-0.5f + (y - OFFSET),  0.5f + (z - OFFSET),  0.5f + (x - OFFSET),  0.5f + (y - OFFSET));
 					WestVertices.data[FaceSpacing + 2] = vec4( 0.5f + (z - OFFSET),  0.5f + (x - OFFSET),  0.5f + (y - OFFSET),  -0.5f + (z - OFFSET));
 					
-					vec3 norms = vec3(-1, 0, 0);
+					vec3 norms = vec3(1, 0, 0);
 					WestNormals.data[FaceSpacing]     = norms.xyzx;
 					WestNormals.data[FaceSpacing + 1] = norms.yzxy;
 					WestNormals.data[FaceSpacing + 2] = norms.zxyz;
@@ -284,14 +284,27 @@ void BottomFace() {
 					BottomVertices.data[FaceSpacing + 1] = vec4(-0.5f + (y - OFFSET),  -0.5f + (z - OFFSET),  -0.5f + (x - OFFSET),  -0.5f + (y - OFFSET));
 					BottomVertices.data[FaceSpacing + 2] = vec4( 0.5f + (z - OFFSET),  0.5f + (x - OFFSET),  -0.5f + (y - OFFSET),  0.5f + (z - OFFSET));
 					
-					vec3 norms = vec3(-1, 0, 0);
+					vec3 norms = vec3(0, -1, 0);
 					BottomNormals.data[FaceSpacing]     = norms.xyzx;
 					BottomNormals.data[FaceSpacing + 1] = norms.yzxy;
 					BottomNormals.data[FaceSpacing + 2] = norms.zxyz;
 					
-					BottomUVs.data[FaceSpacing]     = vec4(1,1,0,0);
-					BottomUVs.data[FaceSpacing + 1] = vec4(1,0,0,0);
-					BottomUVs.data[FaceSpacing + 2] = vec4(0,1,0,0);
+					
+					mat4 uv;
+					if (ChunkData.data[x][y][z] == 1) {
+						BottomUVs.data[FaceSpacing]     = vec4(1,1,0,0);
+						BottomUVs.data[FaceSpacing + 1] = vec4(0.5,0,0,0);
+						BottomUVs.data[FaceSpacing + 2] = vec4(0,0.5,0,0);
+					} else {
+						BottomUVs.data[FaceSpacing]     = vec4(1,1,0,0);
+						BottomUVs.data[FaceSpacing + 1] = vec4(1,0,0,0);
+						BottomUVs.data[FaceSpacing + 2] = vec4(0,1,0,0);
+					}
+					
+					
+					
+					
+
 					
 					FaceSpacing += 3;
 				}

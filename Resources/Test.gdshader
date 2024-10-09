@@ -1,14 +1,15 @@
 shader_type spatial;
-render_mode cull_disabled, shadows_disabled;
 
 varying flat int ID;
 
+uniform sampler2D TextureAtlas;
+
 void vertex() {
-	
+
 }
 
 void fragment() {
-	ALBEDO = vec3(UV, 0);
+	ALBEDO = texture(TextureAtlas, UV).rgb;
 	// Called for every pixel the material is visible on.
 }
 

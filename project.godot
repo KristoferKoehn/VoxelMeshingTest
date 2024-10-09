@@ -22,3 +22,7 @@ window/vsync/vsync_mode=0
 [dotnet]
 
 project/assembly_name="VoxelMeshingTest"
+
+[editor]
+
+movie_writer/movie_file="C:/Users/Kristofer/Documents/GodotMovieSave/test.avi"

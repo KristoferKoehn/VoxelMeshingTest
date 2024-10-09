@@ -1,7 +1,9 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://pjlbdrjc0a5l"]
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://pjlbdrjc0a5l"]
 
 [ext_resource type="Shader" path="res://Resources/Test.gdshader" id="1_u4ve8"]
+[ext_resource type="Texture2D" uid="uid://dyxh0hl8o6qu" path="res://assets/Test.png" id="2_am1hg"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_u4ve8")
+shader_parameter/TextureAtlas = ExtResource("2_am1hg")
