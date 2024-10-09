@@ -38,10 +38,14 @@ public partial class ChunkGeneratorManager : Node
 
 	public uint[] GenerateChunk(int x, int y, int z) {
 		//get the data from some bullshit elsewhere. 
+		int side = 128;
 
-		uint[] chunkData = new uint[256];
+		int ChunkSize = side*side*side;
 
-		for (int i = 0; i < 256; i++)
+
+		uint[] chunkData = new uint[ChunkSize];
+
+		for (int i = 0; i < ChunkSize; i++)
 		{
 			chunkData[i] = RNGManager.Instance().rng.Randi() % 2;
 		}

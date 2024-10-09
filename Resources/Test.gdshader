@@ -1,4 +1,5 @@
 shader_type spatial;
+render_mode cull_disabled, shadows_disabled;
 
 varying flat int ID;
 

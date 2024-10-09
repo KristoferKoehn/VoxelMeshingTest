@@ -13,13 +13,24 @@ public partial class GameLoop : Node3D
 		ChunkGeneratorManager.Instance();
 		ChunkMeshManager.Instance();
 
-		uint[] data = ChunkGeneratorManager.Instance().GenerateChunk(0, 0, 0);
-		Face[] faces = ChunkMeshManager.GenerateMesh(data);
-		
-		Chunk ch = new Chunk();
-		ch.ProcessFaces(faces);
-		AddChild(ch);
-	}
+
+
+		for(int i  = 0; i < 1; i++)
+		{
+			for (int j = 0; j < 1; j++)
+			{
+                uint[] data = ChunkGeneratorManager.Instance().GenerateChunk(i, 0, j);
+                Face[] faces = ChunkMeshManager.GenerateMesh(data);
+
+                Chunk ch = new Chunk();
+                ch.ProcessFaces(faces);
+                AddChild(ch);
+				ch.MeshInstance.GlobalPosition = new Vector3(i * 128, 0, j * 128);
+            }
+		}
+
+
+    }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
