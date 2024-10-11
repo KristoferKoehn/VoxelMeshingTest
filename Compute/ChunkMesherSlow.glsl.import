@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://ctwopxirucw67"
+path="res://.godot/imported/ChunkMesherSlow.glsl-12741837908b48b6eb364b90dfe4ea09.res"
+
+[deps]
+
+source_file="res://Compute/ChunkMesherSlow.glsl"
+dest_files=["res://.godot/imported/ChunkMesherSlow.glsl-12741837908b48b6eb364b90dfe4ea09.res"]
+
+[params]
+

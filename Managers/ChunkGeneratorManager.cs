@@ -8,6 +8,7 @@ public partial class ChunkGeneratorManager : Node
 
 	private ChunkGeneratorManager() { }
 
+	public static FastNoiseLite Terrain {  get; set; }
 	
 	public static ChunkGeneratorManager Instance()
 	{
@@ -38,17 +39,40 @@ public partial class ChunkGeneratorManager : Node
 
 	public uint[] GenerateChunk(int x, int y, int z) {
 		//get the data from some bullshit elsewhere. 
-		int side = 128;
+		int side = 64;
 
 		int ChunkSize = side*side*side;
 
 
 		uint[] chunkData = new uint[ChunkSize];
 
+
+		
+		for(int i = 0; i < side; i++)
+		{
+            for (int j = 0; j < side; j++)
+            {
+				for(int k = 0; k < side; k++)
+				{
+
+					if (Terrain.GetNoise3D(i + (x * side), j ,k + (z * side)) > 0.5)
+					{
+                        chunkData[k + j * side + i * side * side] = 1;
+                    }
+				
+                    //chunkData[i + j * side + k*side*side] = 1;
+                }
+            }
+        }
+		
+
+		/*
 		for (int i = 0; i < ChunkSize; i++)
 		{
-			chunkData[i] = RNGManager.Instance().rng.Randi() % 2;
-		}
+			//chunkData[i] = (uint)i % 2;
+			//chunkData[i] = (uint)RNGManager.Instance().rng.Randi() % 2;
+        }
+		*/
 		
 		return chunkData;
 	}

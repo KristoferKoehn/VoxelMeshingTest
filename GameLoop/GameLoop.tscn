@@ -1,7 +1,15 @@
-[gd_scene load_steps=6 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=7 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="2_v4uk4"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_bi2te"]
+noise_type = 4
+frequency = 0.1376
+fractal_type = 3
+fractal_octaves = 10
+fractal_ping_pong_strength = 2.465
+metadata/_preview_in_3d_space_ = true
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_qi0ou"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -18,6 +26,7 @@ glow_enabled = true
 
 [node name="GameLoop" type="Node3D"]
 script = ExtResource("1_aic3m")
+Terrain = SubResource("FastNoiseLite_bi2te")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_fngh7")
@@ -27,5 +36,5 @@ transform = Transform3D(-0.610948, -0.659848, -0.437427, -0.613792, 0.0458311, 0
 shadow_enabled = true
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.80844, 7.86525)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.03224, 1.60797, 67.583)
 script = ExtResource("2_v4uk4")

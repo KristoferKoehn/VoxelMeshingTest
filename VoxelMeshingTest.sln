@@ -1,12 +1,15 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelMeshingTest", "VoxelMeshingTest.csproj", "{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}"
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelMeshingTest", "VoxelMeshingTest.csproj", "{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-	Debug|Any CPU = Debug|Any CPU
-	ExportDebug|Any CPU = ExportDebug|Any CPU
-	ExportRelease|Any CPU = ExportRelease|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		ExportDebug|Any CPU = ExportDebug|Any CPU
+		ExportRelease|Any CPU = ExportRelease|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -15,5 +18,8 @@ Global
 		{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}.ExportDebug|Any CPU.Build.0 = ExportDebug|Any CPU
 		{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}.ExportRelease|Any CPU.ActiveCfg = ExportRelease|Any CPU
 		{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}.ExportRelease|Any CPU.Build.0 = ExportRelease|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

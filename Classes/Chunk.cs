@@ -3,17 +3,33 @@ using Godot.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+
+
+
 public struct Face
 {
     public Vector3[] Vertices = new Vector3[4];
     public Vector3[] Normals = new Vector3[4];
     public Vector3[] UVs = new Vector3[4];
-    public int[] Indices = new int[6];
+    public int[] Indices = new int[]
+    {
+            0, 1, 2, 0, 2, 3
+    };
 
     public Face()
     {
     }
 }
+
+[StructLayout(layoutKind: LayoutKind.Sequential)]
+public struct Quad
+{
+    public Vector4[] Vertices;
+    public Vector3 Normals;
+    public int UVIndex;
+}
+
+
 
 public partial class Chunk : Node
 {
@@ -22,15 +38,20 @@ public partial class Chunk : Node
     [Export] bool generate = false;
     public MeshInstance3D MeshInstance;
 
+    int[] INDICES = new int[] { 0, 1, 2, 0, 2, 3 };
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready()
 	{
 
 
         //GenerateBlock(new Vector3(0,0,0));
 
-        MeshInstance.MaterialOverride = GD.Load<ShaderMaterial>("res://Resources/Test.tres");
+        if (MeshInstance != null)
+        {
+            MeshInstance.MaterialOverride = GD.Load<ShaderMaterial>("res://Resources/Test.tres");
+        }
+        
     }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -71,7 +92,6 @@ public partial class Chunk : Node
             }
             TotalVertexIndexCount += 4;
         }
-        GD.Print(faces.Length);
 
         surfaceArray[(int)Mesh.ArrayType.Vertex] = Vertices.ToArray();
         surfaceArray[(int)Mesh.ArrayType.Normal] = Normals.ToArray();
@@ -81,8 +101,128 @@ public partial class Chunk : Node
         AssignMesh(surfaceArray);
     }
 
+    public void ProcessQuads(Quad[] faces)
+    {
+        Array surfaceArray = new Array();
+        surfaceArray.Resize((int)Mesh.ArrayType.Max);
+
+        List<Vector3> Vertices = new List<Vector3>();
+        List<Vector3> Normals = new List<Vector3>();
+        List<Vector3> UVs = new List<Vector3>();
+        List<int> Indices = new List<int>();
+
+        int TotalVertexIndexCount = 0;
+        foreach (Quad face in faces)
+        {
+
+            Vertices.Add(new Vector3(face.Vertices[0].X, face.Vertices[0].Y, face.Vertices[0].Z));
+            Vertices.Add(new Vector3(face.Vertices[0].W, face.Vertices[1].X, face.Vertices[1].Y));
+            Vertices.Add(new Vector3(face.Vertices[1].Z, face.Vertices[1].W, face.Vertices[2].X));
+            Vertices.Add(new Vector3(face.Vertices[2].Y, face.Vertices[2].Z, face.Vertices[2].W));
+
+            Normals.Add(face.Normals);
+            Normals.Add(face.Normals);
+            Normals.Add(face.Normals);
+            Normals.Add(face.Normals);
+
+            Vector3 UVindex = new Vector3(face.UVIndex % 32, face.UVIndex / 32, 0) / 32.0f;
+
+            Vector3 uva = new Vector3(0.03125f, 0.03125f, 0) + UVindex;
+            Vector3 uvb = new Vector3(0, 0.03125f, 0) + UVindex;
+            Vector3 uvc = new Vector3(0, 0, 0) + UVindex;
+            Vector3 uvd = new Vector3(0.03125f, 0, 0) + UVindex;
+
+            UVs.Add(uva);
+            UVs.Add(uvb);
+            UVs.Add(uvc);
+            UVs.Add(uvd);
+
+            foreach (int index in INDICES)
+            {
+                Indices.Add(TotalVertexIndexCount + index);
+            }
+            TotalVertexIndexCount += 4;
+        }
+
+        surfaceArray[(int)Mesh.ArrayType.Vertex] = Vertices.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = Normals.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.TexUV] = UVs.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Index] = Indices.ToArray();
+
+        AssignMesh(surfaceArray);
+    }
+
+    public void ProcessBytes(float[] data)
+    {
+
+        Array surfaceArray = new Array();
+        surfaceArray.Resize((int)Mesh.ArrayType.Max);
+
+        List<Vector3> Vertices = new List<Vector3>();
+        List<Vector3> Normals = new List<Vector3>();
+        List<Vector3> UVs = new List<Vector3>();
+        List<int> Indices = new List<int>();
+
+        int TotalVertexIndexCount = 0;
+
+        GD.Print($"Length of float data {data.Length}");
+
+        if ( data == null || data.Length == 0)
+        {
+            AssignMesh(null); 
+            return;
+        }
+
+        for (int j = 0, i = 0; j < data.Length/16; j++, i += 16)
+        {
+
+            Vertices.Add(new Vector3(data[i], data[i + 1], data[i + 2]));
+            Vertices.Add(new Vector3(data[i + 3], data[i + 4], data[i + 5]));
+            Vertices.Add(new Vector3(data[i + 6], data[i + 7], data[i + 8]));
+            Vertices.Add(new Vector3(data[i + 9], data[i + 10], data[i + 11]));
+
+            Vector3 norms = new Vector3(data[i + 13], data[i + 14], data[i + 15]);
+
+            Normals.Add(norms);
+            Normals.Add(norms);
+            Normals.Add(norms);
+            Normals.Add(norms);
+
+            Vector3 UVindex = new Vector3((int)data[i + 12] % 32, (int)data[i + 12] / 32, 0) / 32.0f;
+
+            Vector3 uva = new Vector3(0.03125f, 0.03125f, 0) + UVindex;
+            Vector3 uvb = new Vector3(0, 0.03125f, 0) + UVindex;
+            Vector3 uvc = new Vector3(0, 0, 0) + UVindex;
+            Vector3 uvd = new Vector3(0.03125f, 0, 0) + UVindex;
+
+            UVs.Add(uva);
+            UVs.Add(uvb);
+            UVs.Add(uvc);
+            UVs.Add(uvd);
+
+            foreach (int index in INDICES)
+            {
+                Indices.Add(TotalVertexIndexCount + index);
+            }
+            TotalVertexIndexCount += 4;
+
+        }
+
+        surfaceArray[(int)Mesh.ArrayType.Vertex] = Vertices.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Normal] = Normals.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.TexUV] = UVs.ToArray();
+        surfaceArray[(int)Mesh.ArrayType.Index] = Indices.ToArray();
+
+        AssignMesh(surfaceArray);
+    }
+
+
+
+
     public void AssignMesh(Array SurfaceArray)
     {
+
+
         if (MeshInstance != null)
         {
             MeshInstance.QueueFree();
@@ -90,6 +230,11 @@ public partial class Chunk : Node
         MeshInstance = new MeshInstance3D();
         MeshInstance.Mesh = new ArrayMesh();
         AddChild(MeshInstance);
+
+        if (SurfaceArray == null)
+        {
+            return;
+        }
 
         ArrayMesh arrMesh = MeshInstance.Mesh as ArrayMesh;
         if (arrMesh != null)

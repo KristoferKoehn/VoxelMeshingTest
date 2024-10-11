@@ -1,8 +1,6 @@
 #[compute]
 #version 450
 
-
-
 layout(local_size_x = 6, local_size_y = 1, local_size_z = 1) in;
 
 layout(set = 0, binding = 0, std430) buffer topvertices{
@@ -108,6 +106,13 @@ const int OFFSET = CHUNK_SIZE/2;
 layout(set = 0, binding = 4, std430) buffer chunkData{
 	uint data[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 } ChunkData;
+
+struct face {
+	vec4[3] vertices;
+	vec4[3] normals;
+	vec4[3] UVs;
+};
+
 
 void TopFace() { 
 	int FaceSpacing = 0;
@@ -290,7 +295,8 @@ void BottomFace() {
 					BottomNormals.data[FaceSpacing + 2] = norms.zxyz;
 					
 					
-					mat4 uv;
+					//find some better way to do this
+					
 					if (ChunkData.data[x][y][z] == 1) {
 						BottomUVs.data[FaceSpacing]     = vec4(1,1,0,0);
 						BottomUVs.data[FaceSpacing + 1] = vec4(0.5,0,0,0);
@@ -300,12 +306,6 @@ void BottomFace() {
 						BottomUVs.data[FaceSpacing + 1] = vec4(1,0,0,0);
 						BottomUVs.data[FaceSpacing + 2] = vec4(0,1,0,0);
 					}
-					
-					
-					
-					
-
-					
 					FaceSpacing += 3;
 				}
 			}
