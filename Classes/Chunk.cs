@@ -119,19 +119,19 @@ public partial class Chunk : Node
 
             switch ((int)data[i + 12])
             {
-                case 0:
-                    Colors.Add(Color.Color8(8, 147, 0));
-                    Colors.Add(Color.Color8(8, 147, 0));
-                    Colors.Add(Color.Color8(8, 147, 0));
-                    Colors.Add(Color.Color8(8, 147, 0));
-                    break;
                 case 1:
-                    Colors.Add(Color.Color8(219, 168, 96));
-                    Colors.Add(Color.Color8(219, 168, 96));
-                    Colors.Add(Color.Color8(219, 168, 96));
-                    Colors.Add(Color.Color8(219, 168, 96));
+                    Colors.Add(Color.Color8(8, 147, 0));
+                    Colors.Add(Color.Color8(8, 147, 0));
+                    Colors.Add(Color.Color8(8, 147, 0));
+                    Colors.Add(Color.Color8(8, 147, 0));
                     break;
                 case 2:
+                    Colors.Add(Color.Color8(219, 168, 96));
+                    Colors.Add(Color.Color8(219, 168, 96));
+                    Colors.Add(Color.Color8(219, 168, 96));
+                    Colors.Add(Color.Color8(219, 168, 96));
+                    break;
+                case 3:
                     Colors.Add(Color.Color8(128, 128, 128));
                     Colors.Add(Color.Color8(128, 128, 128));
                     Colors.Add(Color.Color8(128, 128, 128));

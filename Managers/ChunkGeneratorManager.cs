@@ -38,7 +38,22 @@ public partial class ChunkGeneratorManager : Node
 
 	}
 
-	public int[] GenerateChunk(int x, int y, int z) {
+    int ModifyByteInInt(int currentInt, int z, byte newValue)
+    {
+        // Calculate the bit shift amount based on the byte index
+        int shiftAmount = (3 - z % 4) * 8;
+
+        // Clear the byte at the specified index
+        int mask = ~(0xFF << shiftAmount);
+        currentInt &= mask;
+
+        // Set the new byte value at the specified index
+        currentInt |= (newValue << shiftAmount);
+
+        return currentInt;
+    }
+
+    public int[] GenerateChunk(int x, int y, int z) {
 		//get the data from some bullshit elsewhere. 
 		int side = 128;
 
@@ -63,8 +78,6 @@ public partial class ChunkGeneratorManager : Node
 					if (j > 32 + cutoffmod) // && j < 96 + cutoffmod)
                     {
                         chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 0;
-
-
                     }
                     else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
                     //else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
