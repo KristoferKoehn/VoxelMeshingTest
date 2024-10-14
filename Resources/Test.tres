@@ -1,9 +1,17 @@
-[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://pjlbdrjc0a5l"]
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://pjlbdrjc0a5l"]
 
 [ext_resource type="Shader" path="res://Resources/Test.gdshader" id="1_u4ve8"]
-[ext_resource type="Texture2D" uid="uid://dwjhtygbkab7q" path="res://assets/soyjack texture pack.png" id="2_bhx6k"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_40jjn"]
+noise_type = 3
+frequency = 0.0488
+fractal_octaves = 1
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_qn8no"]
+seamless = true
+noise = SubResource("FastNoiseLite_40jjn")
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_u4ve8")
-shader_parameter/TextureAtlas = ExtResource("2_bhx6k")
+shader_parameter/WaterNoise = SubResource("NoiseTexture2D_qn8no")

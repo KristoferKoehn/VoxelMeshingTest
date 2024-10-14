@@ -1,40 +1,71 @@
-[gd_scene load_steps=7 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=10 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
-[ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="2_v4uk4"]
+[ext_resource type="PackedScene" uid="uid://dlbkch6iuy8gn" path="res://addons/fp_controller/player.tscn" id="3_kpwlr"]
+[ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
+[ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_bi2te"]
-noise_type = 4
-frequency = 0.1376
-fractal_type = 3
-fractal_octaves = 10
+noise_type = 3
+frequency = 0.035
+fractal_type = 2
+fractal_octaves = 1
 fractal_ping_pong_strength = 2.465
 metadata/_preview_in_3d_space_ = true
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_qi0ou"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gi2x0"]
+noise_type = 3
+fractal_type = 3
+fractal_octaves = 1
+
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_j18j3"]
 
 [sub_resource type="Sky" id="Sky_ir56b"]
-sky_material = SubResource("ProceduralSkyMaterial_qi0ou")
+sky_material = SubResource("PhysicalSkyMaterial_j18j3")
 
 [sub_resource type="Environment" id="Environment_fngh7"]
 background_mode = 2
 sky = SubResource("Sky_ir56b")
 tonemap_mode = 2
-glow_enabled = true
+ssao_enabled = true
+sdfgi_enabled = true
+sdfgi_use_occlusion = true
+volumetric_fog_density = 0.012
+volumetric_fog_emission = Color(0.2484, 0.2484, 0.2484, 1)
+volumetric_fog_temporal_reprojection_enabled = false
 
 [node name="GameLoop" type="Node3D"]
 script = ExtResource("1_aic3m")
 Terrain = SubResource("FastNoiseLite_bi2te")
+SurfaceCutoff = SubResource("FastNoiseLite_gi2x0")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_fngh7")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.610948, -0.659848, -0.437427, -0.613792, 0.0458311, 0.788137, -0.500003, 0.75, -0.43301, 0, 0, 0)
+transform = Transform3D(0.977416, -0.179214, 0.111985, 0, 0.529919, 0.848048, -0.211325, -0.828896, 0.517952, 0, 0, 0)
 shadow_enabled = true
+shadow_normal_bias = 3.782
+shadow_blur = 0.3
+directional_shadow_mode = 1
+directional_shadow_max_distance = 758.0
+
+[node name="Player" parent="." instance=ExtResource("3_kpwlr")]
+visible = false
+walk_back_speed = 5.0
+walk_speed = 5.0
+sprint_speed = 10.0
+jump_height = 3.0
+acceleration = 20.0
+camera_sensitivity = 4.0
+camera_start_deadzone = 0.0
+camera_end_deadzone = 0.0
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.03224, 1.60797, 67.583)
-script = ExtResource("2_v4uk4")
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0)
+current = true
+script = ExtResource("3_o0vww")
+
+[node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
+script = ExtResource("4_cg07s")
+TrackingItem = NodePath("../Camera3D")

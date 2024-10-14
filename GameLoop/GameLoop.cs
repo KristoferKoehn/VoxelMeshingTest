@@ -1,24 +1,35 @@
 using Godot;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 public partial class GameLoop : Node3D
 {
     [Export]
     public FastNoiseLite Terrain { get; set; }
+    [Export]
+    public FastNoiseLite SurfaceCutoff { get; set; }
+
+    [Export]
+    public Vector2 CutoffOffset { get; set; }
+
+    public List<Chunk> Chunks { get; set; } = new List<Chunk>();
 
     // Called when the node enters the scene tree for the first time.
-    public override async void _Ready()
-	{
+    public override void _Ready()
+    {
 
 
-		RNGManager.Instance();
-		ChunkGeneratorManager.Instance();
+        RNGManager.Instance();
+        ChunkGeneratorManager.Instance();
+        ChunkSpawnManager.Instance();
+
         ChunkGeneratorManager.Terrain = Terrain;
-		ChunkMeshManager.Instance();
-
-
-		Face face = new Face();
-
+        ChunkGeneratorManager.SurfaceCutoff = SurfaceCutoff;
+        ChunkGeneratorManager.CutoffOffset = CutoffOffset;
+        ChunkMeshManager.Instance();
 
         /*
 		for(int i  = 0; i < 1; i++)
@@ -36,33 +47,7 @@ public partial class GameLoop : Node3D
 		}
 		*/
 
-
-        for (int i = 0; i < 8; i++)
-        {
-            for (int j = 0; j < 8; j++)
-            {
-                
-                //Quad[] faces = ChunkMeshManager.GenerateMeshFast(data);
-                //float[] meshBytes = ChunkMeshManager.GenerateMeshFastBytes(data);
-
-                Task<Chunk> getData = Task.Run(() =>
-                {
-
-                    uint[] data = ChunkGeneratorManager.Instance().GenerateChunk(i, 0, j);
-                    float[] meshBytes = ChunkMeshManager.GenerateMeshFastBytes(data);
-
-                    Chunk chunk = new Chunk();
-                    chunk.ProcessBytes(meshBytes);
-                    
-                    return chunk;
-                });
-
-                Chunk ch = await getData;
-                AddChild(ch);
-                ch.MeshInstance.GlobalPosition = new Vector3(i * 64, 0, j * 64);
-                //ch.ProcessQuads(faces);
-            }
-        }
+        ChunkSpawnManager.Instance().GenerateWorld();
 
     }
 
@@ -70,4 +55,14 @@ public partial class GameLoop : Node3D
 	public override void _Process(double delta)
 	{
 	}
+
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (@event.IsActionPressed("regenerate"))
+        {
+            ChunkSpawnManager.Instance().GenerateWorld();
+        }
+    }
+
+
 }

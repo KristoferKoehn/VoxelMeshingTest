@@ -1,15 +1,25 @@
 shader_type spatial;
 
-varying flat int ID;
-
-uniform sampler2D TextureAtlas;
+uniform sampler2D WaterNoise;
 
 void vertex() {
-
+	/*
+	
+	if (COLOR.b == 1.0f) {
+		COLOR = vec4(0.3, 0.3, 0.9, 0.4);
+		VERTEX.y += texture(WaterNoise, UV / 10.0f + TIME/10.0f).r;
+	} else {
+		
+	}
+	*/
 }
 
 void fragment() {
-	ALBEDO = texture(TextureAtlas, UV).rgb;
+
+	
+	
+	ALBEDO = COLOR.rgb;
+	//ALPHA = COLOR.a;
 	// Called for every pixel the material is visible on.
 }
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://dfdn0rcv2oo6k"]
+[gd_scene load_steps=9 format=3 uid="uid://dfdn0rcv2oo6k"]
 
 [ext_resource type="Script" path="res://Menus/MainMenu.cs" id="1_gmfx3"]
 
@@ -14,6 +14,19 @@ background_mode = 2
 sky = SubResource("Sky_pqe8i")
 tonemap_mode = 2
 glow_enabled = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_unl0s"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_axgaw"]
+transparency = 1
+shading_mode = 0
+albedo_color = Color(0, 1, 0.337255, 0.129412)
+
+[sub_resource type="BoxMesh" id="BoxMesh_qopod"]
+material = SubResource("StandardMaterial3D_axgaw")
+size = Vector3(1.05, 1.05, 1.05)
+
+[sub_resource type="BoxMesh" id="BoxMesh_bgn7n"]
 
 [node name="MainMenu" type="Node3D"]
 script = ExtResource("1_gmfx3")
@@ -50,5 +63,33 @@ offset_bottom = 4.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "Generate"
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3.09707)
+mesh = SubResource("BoxMesh_unl0s")
+skeleton = NodePath("../MeshInstance3D3/MeshInstance3D")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_qopod")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D3"]
+mesh = SubResource("BoxMesh_bgn7n")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.982452, 0, 0)
+mesh = SubResource("BoxMesh_qopod")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D5"]
+mesh = SubResource("BoxMesh_bgn7n")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -1.00034)
+mesh = SubResource("BoxMesh_qopod")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="MeshInstance3D4"]
+mesh = SubResource("BoxMesh_bgn7n")
+skeleton = NodePath("../..")
 
 [connection signal="pressed" from="Control/PlayButton" to="." method="_on_play_button_pressed"]

@@ -1,5 +1,5 @@
 using Godot;
-using System;
+using System.Collections.Generic;
 
 public partial class ChunkGeneratorManager : Node
 {
@@ -9,8 +9,12 @@ public partial class ChunkGeneratorManager : Node
 	private ChunkGeneratorManager() { }
 
 	public static FastNoiseLite Terrain {  get; set; }
-	
-	public static ChunkGeneratorManager Instance()
+	public static FastNoiseLite SurfaceCutoff {  get; set; }
+
+	public static Vector2 CutoffOffset { get; set; }
+
+
+    public static ChunkGeneratorManager Instance()
 	{
 		if (instance == null)
 		{
@@ -21,8 +25,6 @@ public partial class ChunkGeneratorManager : Node
 
 		return instance;
 	}
-
-
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -36,35 +38,50 @@ public partial class ChunkGeneratorManager : Node
 
 	}
 
-
-	public uint[] GenerateChunk(int x, int y, int z) {
+	public int[] GenerateChunk(int x, int y, int z) {
 		//get the data from some bullshit elsewhere. 
-		int side = 64;
+		int side = 128;
 
-		int ChunkSize = side*side*side;
+		int dataSideLength = side + 2;
+		int ChunkSize = dataSideLength * dataSideLength * dataSideLength;
 
+		int[] chunkData = new int[ChunkSize];
 
-		uint[] chunkData = new uint[ChunkSize];
-
-
-		
-		for(int i = 0; i < side; i++)
+        for (int i = 0; i < dataSideLength; i++)
 		{
-            for (int j = 0; j < side; j++)
+            for (int j = 0; j < dataSideLength; j++)
             {
-				for(int k = 0; k < side; k++)
+				for(int k = 0; k < dataSideLength; k++)
 				{
 
-					if (Terrain.GetNoise3D(i + (x * side), j ,k + (z * side)) > 0.5)
-					{
-                        chunkData[k + j * side + i * side * side] = 1;
+                    float cutoffmod = (SurfaceCutoff.GetNoise2D(i + (x * side) + CutoffOffset.X, k + (z * side) + CutoffOffset.Y) * 512) / 30;
+
+					//chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = (uint)RNGManager.Instance().rng.Randi() % 2;
+
+					//if (j > 32 + cutoffmod && j < 96 + cutoffmod)
+
+					if (j > 32 + cutoffmod) // && j < 96 + cutoffmod)
+                    {
+                        chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 0;
+
+
                     }
-				
+                    else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
+                    //else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
+                    {
+						if (j + cutoffmod > 10)
+						{
+                            chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 1;
+                        } else
+						{
+                            chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 2;
+                        }
+
+                    } 
                     //chunkData[i + j * side + k*side*side] = 1;
                 }
             }
         }
-		
 
 		/*
 		for (int i = 0; i < ChunkSize; i++)

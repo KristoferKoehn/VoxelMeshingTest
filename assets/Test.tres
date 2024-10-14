@@ -1,0 +1,8 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3 uid="uid://oud6lrkomlfr"]
+
+[ext_resource type="Texture2D" uid="uid://dwjhtygbkab7q" path="res://assets/soyjack texture pack.png" id="1_a30tn"]
+
+[resource]
+atlas = ExtResource("1_a30tn")
+region = Rect2(1, 1, 384, 63)
+filter_clip = true
