@@ -28,8 +28,7 @@ background_mode = 2
 sky = SubResource("Sky_ir56b")
 tonemap_mode = 2
 ssao_enabled = true
-sdfgi_enabled = true
-sdfgi_use_occlusion = true
+ssil_enabled = true
 volumetric_fog_density = 0.012
 volumetric_fog_emission = Color(0.2484, 0.2484, 0.2484, 1)
 volumetric_fog_temporal_reprojection_enabled = false
@@ -51,7 +50,6 @@ directional_shadow_mode = 1
 directional_shadow_max_distance = 758.0
 
 [node name="Player" parent="." instance=ExtResource("3_kpwlr")]
-visible = false
 walk_back_speed = 5.0
 walk_speed = 5.0
 sprint_speed = 10.0

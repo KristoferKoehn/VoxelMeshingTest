@@ -1,9 +1,5 @@
 using Godot;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 public partial class GameLoop : Node3D
 {
@@ -21,33 +17,17 @@ public partial class GameLoop : Node3D
     public override void _Ready()
     {
 
-
         RNGManager.Instance();
         ChunkGeneratorManager.Instance();
-        ChunkSpawnManager.Instance();
 
         ChunkGeneratorManager.Terrain = Terrain;
         ChunkGeneratorManager.SurfaceCutoff = SurfaceCutoff;
         ChunkGeneratorManager.CutoffOffset = CutoffOffset;
         ChunkMeshManager.Instance();
+        //ChunkGeneratorManager.Instance().PreGenerate();
+        ChunkSpawnManager.Instance();
 
-        /*
-		for(int i  = 0; i < 1; i++)
-		{
-			for (int j = 0; j < 1; j++)
-			{
-                uint[] data = ChunkGeneratorManager.Instance().GenerateChunk(i, 0, j);
-                Face[] faces = ChunkMeshManager.GenerateMeshSlow(data);
-
-                Chunk ch = new Chunk();
-                ch.ProcessFaces(faces);
-                AddChild(ch);
-				ch.MeshInstance.GlobalPosition = new Vector3(i * 128, 0, j * 128);
-            }
-		}
-		*/
-
-        ChunkSpawnManager.Instance().GenerateWorld();
+        //ChunkSpawnManager.Instance().GenerateWorld();
 
     }
 
@@ -60,7 +40,7 @@ public partial class GameLoop : Node3D
     {
         if (@event.IsActionPressed("regenerate"))
         {
-            ChunkSpawnManager.Instance().GenerateWorld();
+            //ChunkSpawnManager.Instance().GenerateWorld();
         }
     }
 

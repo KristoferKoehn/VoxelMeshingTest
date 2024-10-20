@@ -17,6 +17,13 @@ struct Quad {
 	float Normx;
 	float Normy;
 	float Normz;
+	
+	/*
+	custom time!!
+	float metallicity
+	emissiveness
+	
+	*/
 };
 
 layout(set = 0, binding = 0, std430) buffer quads{
@@ -113,89 +120,6 @@ void main () {
 	for (int x = Gx * WorkGroupDataLength + 1; x < (Gx + 1) * WorkGroupDataLength + 1; x++) {
 		for (int y = Gy * WorkGroupDataLength + 1; y < (Gy + 1) * WorkGroupDataLength + 1; y++) {
 			for (int z = Gz * WorkGroupDataLength + 1; z < (Gz + 1) * WorkGroupDataLength + 1; z++) {
-				
-				/*
-				if(GetBlockID(x,y,z,ChunkData.data) == 0) {
-					continue;
-				}
-				
-				if (GetBlockID(x + 1,y,z,ChunkData.data) == 0) {
-					Quad f;
-					f.vertices = AddPosition(WestQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = WestNormal.xyzx;
-					f.Normx = WestNormal.x;
-					f.Normy = WestNormal.y;
-					f.Normz = WestNormal.z;
-					f.UVIndex = GetBlockID(x, y, z, ChunkData.data);
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
-				}
-				
-				if (GetBlockID(x - 1,y,z,ChunkData.data) == 0) {
-					Quad f;
-					f.vertices = AddPosition( EastQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = EastNormal.xyzx;
-					f.Normx = EastNormal.x;
-					f.Normy = EastNormal.y;
-					f.Normz = EastNormal.z;
-					f.UVIndex = GetBlockID(x, y, z, ChunkData.data);
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
-				}	
-				
-				if (GetBlockID(x , y, z + 1,ChunkData.data) == 0) {
-					Quad f;
-					f.vertices = AddPosition( SouthQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = SouthNormal.xyzx;
-					f.Normx = SouthNormal.x;
-					f.Normy = SouthNormal.y;
-					f.Normz = SouthNormal.z;
-					f.UVIndex = GetBlockID(x, y, z, ChunkData.data);
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
-				}
-				
-				
-				if (GetBlockID(x , y, z - 1,ChunkData.data) == 0) {
-					Quad f;
-					f.vertices = AddPosition( NorthQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = NorthNormal.xyzx;
-					f.Normx = NorthNormal.x;
-					f.Normy = NorthNormal.y;
-					f.Normz = NorthNormal.z;
-					f.UVIndex = GetBlockID(x, y, z, ChunkData.data);
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
-				}
-			
-				
-				if (GetBlockID(x , y + 1, z,ChunkData.data) == 0) {
-					Quad f;
-					f.vertices = AddPosition( TopQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = TopNormal.xyzx;
-					f.Normx = TopNormal.x;
-					f.Normy = TopNormal.y;
-					f.Normz = TopNormal.z;
-					f.UVIndex = GetBlockID(x, y, z, ChunkData.data);
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
-				} 
-				
-								
-				if (GetBlockID(x , y - 1, z,ChunkData.data) == 0) {
-					Quad f;
-					f.vertices = AddPosition( BottomQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = BottomNormal.xyzx;
-					f.Normx = BottomNormal.x;
-					f.Normy = BottomNormal.y;
-					f.Normz = BottomNormal.z;
-					f.UVIndex = GetBlockID(x, y, z, ChunkData.data);
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
-				}
-				*/
-			
-				
 				if(ChunkData.data[x][y][z] == 0) {
 					continue;
 				}

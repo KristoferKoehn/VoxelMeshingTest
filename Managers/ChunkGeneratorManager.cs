@@ -13,6 +13,7 @@ public partial class ChunkGeneratorManager : Node
 
 	public static Vector2 CutoffOffset { get; set; }
 
+	public Dictionary<int, Dictionary<int, int[]>> GeneratedChunks { get; set; } = new Dictionary<int, Dictionary<int, int[]>>();
 
     public static ChunkGeneratorManager Instance()
 	{
@@ -38,19 +39,17 @@ public partial class ChunkGeneratorManager : Node
 
 	}
 
-    int ModifyByteInInt(int currentInt, int z, byte newValue)
-    {
-        // Calculate the bit shift amount based on the byte index
-        int shiftAmount = (3 - z % 4) * 8;
-
-        // Clear the byte at the specified index
-        int mask = ~(0xFF << shiftAmount);
-        currentInt &= mask;
-
-        // Set the new byte value at the specified index
-        currentInt |= (newValue << shiftAmount);
-
-        return currentInt;
+	public void PreGenerate()
+	{
+        GeneratedChunks = new Dictionary<int, Dictionary<int, int[]>>();
+        for (int i = -4; i < 4; i++)
+        {
+            GeneratedChunks.Add(i, new Dictionary<int, int[]>());
+            for (int j = -4; j < 4; j++)
+            {
+                GeneratedChunks[i].Add(j, GenerateChunk(i, 0, j));
+            }
+        }
     }
 
     public int[] GenerateChunk(int x, int y, int z) {
@@ -62,6 +61,18 @@ public partial class ChunkGeneratorManager : Node
 
 		int[] chunkData = new int[ChunkSize];
 
+
+		if (GeneratedChunks.ContainsKey(x))
+		{
+			if (GeneratedChunks[x].ContainsKey(z))
+			{
+				return GeneratedChunks[x][z];
+			}
+		} else
+		{
+			GeneratedChunks[x] = new Dictionary<int, int[]>();
+		}
+
         for (int i = 0; i < dataSideLength; i++)
 		{
             for (int j = 0; j < dataSideLength; j++)
@@ -69,7 +80,7 @@ public partial class ChunkGeneratorManager : Node
 				for(int k = 0; k < dataSideLength; k++)
 				{
 
-                    float cutoffmod = (SurfaceCutoff.GetNoise2D(i + (x * side) + CutoffOffset.X, k + (z * side) + CutoffOffset.Y) * 512) / 30;
+                    float cutoffmod = (SurfaceCutoff.GetNoise2D(i + (x * side) + CutoffOffset.X, k + (z * side) + CutoffOffset.Y) * 128) / 30;
 
 					//chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = (uint)RNGManager.Instance().rng.Randi() % 2;
 
@@ -103,6 +114,8 @@ public partial class ChunkGeneratorManager : Node
 			//chunkData[i] = (uint)RNGManager.Instance().rng.Randi() % 2;
         }
 		*/
+
+		GeneratedChunks[x][z] = chunkData;
 		
 		return chunkData;
 	}

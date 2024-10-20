@@ -8,6 +8,8 @@ public partial class PlayerTrackingManager : Node
 
     private static PlayerTrackingManager instance;
 
+    public Vector3 TrackerPosition { get; set; } = Vector3.Zero;
+
     public static PlayerTrackingManager Instance()
     {
         if (instance == null)
@@ -19,9 +21,9 @@ public partial class PlayerTrackingManager : Node
         return instance;
     }
 
-    public static Vector3 GetPlayerLocation()
+    public Vector3 GetPlayerLocation()
     {
-        return instance.TrackingItem.GlobalPosition;
+        return instance.TrackerPosition;
     }
 
     // Called when the node enters the scene tree for the first time.
@@ -36,5 +38,7 @@ public partial class PlayerTrackingManager : Node
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+        TrackerPosition = TrackingItem.GlobalPosition;
+
 	}
 }

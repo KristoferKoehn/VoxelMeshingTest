@@ -2,7 +2,7 @@ using Godot;
 using Godot.Collections;
 using System.Collections.Generic;
 using System.Threading;
-
+using System.Threading.Tasks;
 
 enum CullDirection
 {
@@ -16,19 +16,21 @@ enum CullDirection
     East,
     None
 }
-public partial class Chunk : Node
+public partial class Chunk : Node3D
 {
     public int[] ChunkData;
-    public Vector3 GlobalPosition = Vector3.Zero;
 
-
-    [Export] bool generate = false;
+    public bool Generated = false;
     public MeshInstance3D MeshInstance;
     public StaticBody3D SB;
     public CollisionShape3D CollisionShape;
     ConcavePolygonShape3D ConcavePolygon;
     public VisibleOnScreenEnabler3D VisibleOnScreenEnabler;
     public VisibleOnScreenNotifier3D VisibleOnScreenNotifier;
+    public Vector3 ChunkPosition { get; set; }
+    public Vector3I ChunkCoordinates { get; set; }
+
+
 
     int[] INDICES = new int[] { 0, 1, 2, 0, 2, 3 };
 
@@ -46,33 +48,30 @@ public partial class Chunk : Node
         CollisionShape.Shape = ConcavePolygon;
     }
 
-
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
+        this.GlobalPosition = ChunkPosition;
+        /*
         MeshInstance.GlobalPosition = GlobalPosition;
         SB.GlobalPosition = GlobalPosition;
         //GenerateBlock(new Vector3(0,0,0));
-
+        */
         if (MeshInstance != null)
         {
             MeshInstance.MaterialOverride = GD.Load<ShaderMaterial>("res://Resources/Test.tres");
+        } else
+        {
+            GD.Print("material fucked");
         }
+        Visible = true;
+
     }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-        if (generate)
-        {
-            generate = false;
-            MeshInstance.QueueFree();
-            MeshInstance = new MeshInstance3D();
-            MeshInstance.Mesh = new ArrayMesh();
-            AddChild(MeshInstance);
 
-            //GenerateBlock(new Vector3(0, 0, 0));
-        }
     }
 
     public void ProcessBytes(float[] data)
@@ -173,7 +172,7 @@ public partial class Chunk : Node
         //surfaceArray[(int)Mesh.ArrayType.TexUV] = UVs.ToArray();
         surfaceArray[(int)Mesh.ArrayType.Index] = Indices.ToArray();
         surfaceArray[(int)Mesh.ArrayType.Color] = Colors.ToArray();
-
+        
         AssignMesh(surfaceArray);
     }
 
@@ -214,5 +213,24 @@ public partial class Chunk : Node
         //let's wait on this a beat lmao
         //the mesh is far too unoptimized for this to be anywhere near good enough
         //MeshInstance.CreateTrimeshCollision();
+    }
+
+    async public void PChunkByteIngestion(byte[] quadbytes, byte[] countBytes)
+    {
+        await Task.Run(() =>
+        {
+            if (MeshInstance != null)
+            {
+                MeshInstance.QueueFree();
+            }
+
+            var PChunk = ClassDB.Instantiate("PChunk");
+            PChunk.AsGodotObject().Call("set_bytes", quadbytes, countBytes);
+            CallDeferred("add_child", PChunk);
+            MeshInstance = (MeshInstance3D)PChunk;
+            MeshInstance.Mesh.CallDeferred(Mesh.MethodName.SurfaceSetMaterial, 0, GD.Load<ShaderMaterial>("res://Resources/Test.tres"));
+            //ConcavePolygon.CallDeferred("set_faces", MeshInstance.Mesh.GetFaces());
+
+        });
     }
 }

@@ -1,5 +1,6 @@
 using Godot;
 using Godot.Collections;
+using Godot.NativeInterop;
 using System;
 using System.Collections.Generic;
 
@@ -73,14 +74,14 @@ public partial class ChunkMeshManager : Node
         Buffer.BlockCopy(Data, 0, inputBytes, 0, inputBytes.Length);
 
         int ChunkSize = 128;
-        int WorkGroupSide = 2;
+        int WorkGroupSide = 32;
         int WorkGroups = WorkGroupSide * WorkGroupSide * WorkGroupSide;
 
         byte[] DimensionBytes = new byte[sizeof(int) * 2];
         Buffer.BlockCopy(new int[] {ChunkSize, WorkGroupSide}, 0, DimensionBytes, 0, DimensionBytes.Length);
 
         byte[] PlayerPositionBytes = new byte[sizeof(float) * 3];
-        Vector3 pp = PlayerTrackingManager.GetPlayerLocation() - ChunkPosition;
+        Vector3 pp = PlayerTrackingManager.Instance().GetPlayerLocation() - ChunkPosition;
         //Buffer.BlockCopy(new float[] {pp.X, pp.Y, pp.Z }, 0, PlayerPositionBytes, 0, sizeof(float) * 3);
         Buffer.BlockCopy(new float[] {0, 0, 0 }, 0, PlayerPositionBytes, 0, sizeof(float) * 3);
 
@@ -190,7 +191,103 @@ public partial class ChunkMeshManager : Node
         return data; 
     }
 
+    public void GeneratePChunkMesh(int[] Data, Vector3 ChunkPosition, Chunk ch)
+    {
+        RenderingDevice rd = RenderingServer.CreateLocalRenderingDevice();
+        RDShaderFile shaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkMesherFast.glsl");
+        RDShaderSpirV shaderBytecode = shaderFile.GetSpirV();
+        Rid ShaderRID = rd.ShaderCreateFromSpirV(shaderBytecode);
+        Rid pipelineRID = rd.ComputePipelineCreate(ShaderRID);
 
+        long ComputeList = rd.ComputeListBegin();
+
+        //compute uniform
+        byte[] inputBytes = new byte[Data.Length * sizeof(int)];
+        Buffer.BlockCopy(Data, 0, inputBytes, 0, inputBytes.Length);
+
+        int ChunkSize = 128;
+        int WorkGroupSide = 2;
+        int WorkGroups = WorkGroupSide * WorkGroupSide * WorkGroupSide;
+
+        byte[] DimensionBytes = new byte[sizeof(int) * 2];
+        Buffer.BlockCopy(new int[] { ChunkSize, WorkGroupSide }, 0, DimensionBytes, 0, DimensionBytes.Length);
+
+        byte[] PlayerPositionBytes = new byte[sizeof(float) * 3];
+        //Vector3 pp = PlayerTrackingManager.GetPlayerLocation() - ChunkPosition;
+        //Buffer.BlockCopy(new float[] {pp.X, pp.Y, pp.Z }, 0, PlayerPositionBytes, 0, sizeof(float) * 3);
+        Buffer.BlockCopy(new float[] { 0, 0, 0 }, 0, PlayerPositionBytes, 0, sizeof(float) * 3);
+
+        uint BufferSize = 402653184;
+
+        Rid QuadBuffer = rd.StorageBufferCreate(BufferSize);
+        Rid QuadCountBuffer = rd.StorageBufferCreate((uint)(sizeof(int) * WorkGroups));
+        Rid ChunkDataBuffer = rd.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
+        Rid ChunkDimensionalBuffer = rd.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
+        Rid PlayerPositionBuffer = rd.StorageBufferCreate(sizeof(float) * 3, PlayerPositionBytes);
+
+        Array<RDUniform> Uniforms = new Array<RDUniform>();
+
+        //output quad uniform
+        RDUniform QuadUniform = new RDUniform();
+        Uniforms.Add(QuadUniform);
+        QuadUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        QuadUniform.Binding = 0;
+        QuadUniform.AddId(QuadBuffer);
+
+        //output quad count uniform
+        RDUniform QuadCountUniform = new RDUniform();
+        Uniforms.Add(QuadCountUniform);
+        QuadCountUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        QuadCountUniform.Binding = 1;
+        QuadCountUniform.AddId(QuadCountBuffer);
+
+        //chunk data input uniform
+        RDUniform ChunkDataUniform = new RDUniform();
+        Uniforms.Add(ChunkDataUniform);
+        ChunkDataUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        ChunkDataUniform.Binding = 2;
+        ChunkDataUniform.AddId(ChunkDataBuffer);
+
+        //chunk data input uniform
+        RDUniform ChunkDimensionalUniform = new RDUniform();
+        Uniforms.Add(ChunkDimensionalUniform);
+        ChunkDimensionalUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        ChunkDimensionalUniform.Binding = 3;
+        ChunkDimensionalUniform.AddId(ChunkDimensionalBuffer);
+
+        //chunk data input uniform
+        RDUniform PlayerPositionUniform = new RDUniform();
+        Uniforms.Add(PlayerPositionUniform);
+        PlayerPositionUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        PlayerPositionUniform.Binding = 4;
+        PlayerPositionUniform.AddId(PlayerPositionBuffer);
+
+        Rid UniformSet = rd.UniformSetCreate(Uniforms, ShaderRID, 0);
+
+        rd.ComputeListBindUniformSet(ComputeList, UniformSet, 0);
+        rd.ComputeListBindComputePipeline(ComputeList, pipelineRID);
+        rd.ComputeListDispatch(ComputeList, (uint)WorkGroupSide, (uint)WorkGroupSide, (uint)WorkGroupSide);
+        rd.ComputeListEnd();
+
+        rd.Submit();
+        rd.Sync();
+
+        byte[] countBytes = rd.BufferGetData(QuadCountBuffer);
+        byte[] QBytes = rd.BufferGetData(QuadBuffer, 0, BufferSize);
+
+        ch.PChunkByteIngestion(QBytes, countBytes);
+
+        rd.FreeRid(pipelineRID);
+        rd.FreeRid(QuadBuffer);
+        rd.FreeRid(ChunkDataBuffer);
+        rd.FreeRid(QuadCountBuffer);
+        rd.FreeRid(ShaderRID);
+        rd.FreeRid(ChunkDimensionalBuffer);
+        rd.FreeRid(PlayerPositionBuffer);
+        rd.Free();
+
+        return;
+    }
 
 
 }
