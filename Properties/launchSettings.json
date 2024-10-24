@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "VoxelMeshingTest": {
+      "commandName": "Project"
+    },
+    "Profile 1": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\Kristofer\\Downloads\\Godot_v4.3-stable_mono_win64\\Godot_v4.3-stable_mono_win64\\Godot_v4.3-stable_mono_win64_console.exe",
+      "commandLineArgs": "--path . --verbose",
+      "workingDirectory": ".",
+      "nativeDebugging": true,
+      "remoteDebugEnabled": false
+    }
+  }
+}

@@ -3,7 +3,7 @@
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-const int CHUNK_SIZE = 128;
+const int CHUNK_SIZE = 256;
 const int MAX_BUFFER = 402653184;
 
 struct Quad {
@@ -19,7 +19,7 @@ layout(set = 0, binding = 0, std430) buffer quads{
 } Quads;
 
 layout(set = 0, binding = 1, std430) buffer quadcount{
-	int count[2024];
+	int count;
 } QuadCount;
 
 layout(set = 0, binding = 2, std430) buffer chunkdata{
@@ -68,18 +68,7 @@ int CountOffset(int x, int y, int z) {
 	return Scale;
 }
 
-//the greedy mesher.
-
-//how is it going to work????
-//need to prioritize concurrency 
-//normal sub-blocks but they place their fkin shit in a big structure that holds doubles (half-chunk boolean representations)
-//each layer will have 2d grid of two doubles. so 128*128*2. each *2 will be the boolean data. and that's repeated per side.
-//I don't think that this needs to be exported at all, maybe for testing?
-//then we do the bit shifting on it. how are we going to split that up??
-//32*32*32 = 32,768, which is only 750 iterations per? not bad. pretty bad.
-
 void main () {
-
 	int WorkGroupDataLength = ChunkDimensions.ChunkSize / ChunkDimensions.WorkGroupSide;
 
 	int Gx = int(gl_GlobalInvocationID.x);
@@ -88,10 +77,6 @@ void main () {
 
 	//Find the offset index IN *QUAD* ARRAY
 	//based on the Gx Gy Gz
-
-	int CountIndex = CountOffset(Gx, Gy, Gz);  
-	int WorkGroupOffset = OffsetQuadDataIndex(Gx, Gy, Gz);
-	QuadCount.count[CountIndex] = 0;
 
 	for (int x = Gx * WorkGroupDataLength + 1; x < (Gx + 1) * WorkGroupDataLength + 1; x++) {
 		for (int y = Gy * WorkGroupDataLength + 1; y < (Gy + 1) * WorkGroupDataLength + 1; y++) {
@@ -109,8 +94,8 @@ void main () {
 					f.Normy = WestNormal.y;
 					f.Normz = WestNormal.z;
 					f.UVIndex = ChunkData.data[x][y][z];
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Quads.data[IndexTicket] = f;
 				}
 				
 				//do east face?
@@ -122,8 +107,8 @@ void main () {
 					f.Normy = EastNormal.y;
 					f.Normz = EastNormal.z;
 					f.UVIndex = ChunkData.data[x][y][z];
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Quads.data[IndexTicket] = f;
 				}	
 
 				
@@ -136,8 +121,8 @@ void main () {
 					f.Normy = SouthNormal.y;
 					f.Normz = SouthNormal.z;
 					f.UVIndex = ChunkData.data[x][y][z];
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Quads.data[IndexTicket] = f;
 				}
 
 				
@@ -149,8 +134,8 @@ void main () {
 					f.Normy = NorthNormal.y;
 					f.Normz = NorthNormal.z;
 					f.UVIndex = ChunkData.data[x][y][z];
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Quads.data[IndexTicket] = f;
 				}
 			
 				
@@ -162,8 +147,8 @@ void main () {
 					f.Normy = TopNormal.y;
 					f.Normz = TopNormal.z;
 					f.UVIndex = ChunkData.data[x][y][z];
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Quads.data[IndexTicket] = f;
 				} 
 				
 				if (ChunkData.data[x][y - 1][z] == 0) {
@@ -174,8 +159,8 @@ void main () {
 					f.Normy = BottomNormal.y;
 					f.Normz = BottomNormal.z;
 					f.UVIndex = ChunkData.data[x][y][z];
-					Quads.data[WorkGroupOffset + QuadCount.count[CountIndex]] = f;
-					QuadCount.count[CountIndex]++;
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Quads.data[IndexTicket] = f;
 				}
 			}
 		}

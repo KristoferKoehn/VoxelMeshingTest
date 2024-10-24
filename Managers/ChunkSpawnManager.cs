@@ -13,6 +13,15 @@ public partial class ChunkSpawnManager : Node
      * 
      * 
      * 
+     * Building out the system such that:
+     * Chunks initialize and know their own data in a large range
+     * within a smaller range, the chunks become meshed
+     * 
+     * outside the initialization range, dispose of the chunk. !! BE CAREFUL, DELETING CHUNKS WHILE WORKING IN ANOTHER STEP IS A HAZARD
+     * 
+     * I think these three things can happen on their own threads, just need lockout booleans. 
+     * 
+     * 
      * 
      * gotta spawn in chunks around the player.
      * 
@@ -52,14 +61,25 @@ public partial class ChunkSpawnManager : Node
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
-        HandleChunkLoading();
-        
+
+        /*
+        for (int i = -3; i < 3; i++)
+        {
+            for (int j = -3; j < 3; j++)
+            {
+                if ((new Vector3I(0,0,0) - new Vector3(i, 0, j)).Length() < 5)
+                {
+                    InitializeChunk(i, 0, j);
+                }
+            }
+        }*/
+
+        HandleChunkLoading();        
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
-        
 
     }
 
@@ -79,7 +99,6 @@ public partial class ChunkSpawnManager : Node
                 {
                     for (int k = 0; k < 4; k++)
                     {
-
                         int xCopy = i;
                         int yCopy = j;
                         int zCopy = k;
@@ -92,24 +111,11 @@ public partial class ChunkSpawnManager : Node
         });
     }
 
-    void GenerateChunk(Chunk ch, int x, int y, int z)
-    {
-        int[] data = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
-        float[] meshBytes = ChunkMeshManager.GenerateMeshFastBytes(data, new Vector3(x,y,z));
-        
-        ChunkList.Add(ch);
-        ch.ProcessBytes(meshBytes);
-        //AddChild(chunk);
-        /*
-        CallDeferred("add_child", chunk);
-        chunk.GlobalPosition = new Vector3(x * 128, y * 128, z * 128);
-        */
-    }
-
     void GeneratePChunk(int x, int y, int z)
     {
         int[] data = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
-        ChunkMeshManager.Instance().GeneratePChunkMesh(data, new Vector3(x,y,z), Chunks[x][y][z]);
+        Chunks[x][y][z].ChunkData = data;
+        ChunkMeshManager.Instance().RequestChunkMeshUpdate(Chunks[x][y][z]);
     }
 
     void AddChunk(Chunk chunk, int x, int y, int z)
@@ -125,7 +131,7 @@ public partial class ChunkSpawnManager : Node
         if (!Chunks[x][y].ContainsKey(z))
         {
             Chunks[x][y][z] = chunk;
-            chunk.ChunkPosition = new Vector3(x * 128, y * 128, z * 128);
+            chunk.ChunkPosition = new Vector3(x * 256, y * 256, z * 256);
             //chunk.Visible = false;
         }
 
@@ -159,13 +165,13 @@ public partial class ChunkSpawnManager : Node
             return;
         }
 
+        GD.Print($"initializing chunk {x}, {z}...");
+
         Chunk ch = new Chunk();
-        AddChunk(ch, x, y, z);
+        AddChunk(ch, x, y, z); //adds chunk as child in here
 
 
         ch.ChunkData = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
-
-        //AddChild(ch);
     }
 
     void GenerateChunkMesh(int x, int y, int z)
@@ -175,15 +181,16 @@ public partial class ChunkSpawnManager : Node
             if (!Chunks[x][y][z].Generated)
             {
                 Chunks[x][y][z].Generated = true;
-                ThreadPool.QueueUserWorkItem(state =>
+                ThreadPool.QueueUserWorkItem(async state =>
                 {
-                    int xC = x;
-                    int yC = y;
-                    int zC = z;
+                    await Task.Run(() => {
+                        int xC = x;
+                        int yC = y;
+                        int zC = z;
 
-                    GeneratePChunk(xC, yC, zC);
+                        GeneratePChunk(xC, yC, zC);
+                    });
                 });
-
             } else
             {
                 //already generated
@@ -200,31 +207,29 @@ public partial class ChunkSpawnManager : Node
     {
         await Task.Run(() =>
         {
-
             GD.Print("Chunk Loading thread start");
             while (true)
             {
                 Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
-                Vector3 ChunkPos = pos / 128;
+                Vector3 ChunkPos = (pos + new Vector3(128, 0, 128)) / 256;
 
-                for (int i = (int)ChunkPos.X - 6; i < (int)ChunkPos.X + 6; i++)
+                for (int i = (int)ChunkPos.X - 4; i < (int)ChunkPos.X + 4; i++)
                 {
-                    for (int j = (int)ChunkPos.Z - 6; j < (int)ChunkPos.Z + 6; j++)
+                    for (int j = (int)ChunkPos.Z - 4; j < (int)ChunkPos.Z + 4; j++)
                     {
-                        if ((ChunkPos - new Vector3(i, 0, j)).Length() < 5)
+                        if ((ChunkPos - new Vector3(i, 0, j)).Length() < 4)
                         {
-                            GD.Print($"initializing chunk {i}, {j}...");
+                            
                             InitializeChunk(i, 0, j);
                         }
                     }
                 }
 
-
                 Vector3 ChunkPosCopy = ChunkPos;
 
-                for (int i = (int)ChunkPosCopy.X - 4; i < (int)ChunkPosCopy.X + 4; i++)
+                for (int i = (int)ChunkPosCopy.X - 3; i < (int)ChunkPosCopy.X + 3; i++)
                 {
-                    for (int j = (int)ChunkPosCopy.Z - 4; j < (int)ChunkPosCopy.Z + 4; j++)
+                    for (int j = (int)ChunkPosCopy.Z - 3; j < (int)ChunkPosCopy.Z + 3; j++)
                     {
                         if ((ChunkPosCopy - new Vector3(i, 0, j)).Length() < 3)
                         {
@@ -233,8 +238,6 @@ public partial class ChunkSpawnManager : Node
                     }
                 }
             }
-
-            
         });
     }
 }

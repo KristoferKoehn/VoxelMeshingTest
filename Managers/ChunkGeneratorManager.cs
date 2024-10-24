@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public partial class ChunkGeneratorManager : Node
 {
@@ -54,7 +55,7 @@ public partial class ChunkGeneratorManager : Node
 
     public int[] GenerateChunk(int x, int y, int z) {
 		//get the data from some bullshit elsewhere. 
-		int side = 128;
+		int side = 256;
 
 		int dataSideLength = side + 2;
 		int ChunkSize = dataSideLength * dataSideLength * dataSideLength;
@@ -73,47 +74,42 @@ public partial class ChunkGeneratorManager : Node
 			GeneratedChunks[x] = new Dictionary<int, int[]>();
 		}
 
-        for (int i = 0; i < dataSideLength; i++)
+
+        Parallel.For (0, dataSideLength, i =>
 		{
-            for (int j = 0; j < dataSideLength; j++)
-            {
-				for(int k = 0; k < dataSideLength; k++)
+			Parallel.For(0, dataSideLength, j =>
+			{
+				Parallel.For(0, dataSideLength, k =>
 				{
 
-                    float cutoffmod = (SurfaceCutoff.GetNoise2D(i + (x * side) + CutoffOffset.X, k + (z * side) + CutoffOffset.Y) * 128) / 30;
+					float cutoffmod = (SurfaceCutoff.GetNoise2D(i + (x * side) + CutoffOffset.X, k + (z * side) + CutoffOffset.Y) * 128) / 30;
 
 					//chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = (uint)RNGManager.Instance().rng.Randi() % 2;
 
 					//if (j > 32 + cutoffmod && j < 96 + cutoffmod)
 
 					if (j > 32 + cutoffmod) // && j < 96 + cutoffmod)
-                    {
-                        chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 0;
-                    }
-                    else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
-                    //else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
-                    {
+					{
+						chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 0;
+					}
+					else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
+					//else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
+					{
 						if (j + cutoffmod > 10)
 						{
-                            chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 1;
-                        } else
+							chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 1;
+						}
+						else
 						{
-                            chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 2;
-                        }
+							chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 2;
+						}
 
-                    } 
-                    //chunkData[i + j * side + k*side*side] = 1;
-                }
-            }
-        }
+					}
+					//chunkData[i + j * side + k*side*side] = 1;
+				});
+			});
+        });
 
-		/*
-		for (int i = 0; i < ChunkSize; i++)
-		{
-			//chunkData[i] = (uint)i % 2;
-			//chunkData[i] = (uint)RNGManager.Instance().rng.Randi() % 2;
-        }
-		*/
 
 		GeneratedChunks[x][z] = chunkData;
 		

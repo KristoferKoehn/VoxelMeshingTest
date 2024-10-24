@@ -5,7 +5,7 @@ public partial class SceneSwitcher : Node
 {
 
     public Stack<Node> SceneStack = new Stack<Node>();
-    public static Node root;
+    public static Window root;
     private static SceneSwitcher instance = null;
 
     public override void _Ready()
