@@ -3,7 +3,7 @@
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-const int CHUNK_SIZE = 256;
+const int CHUNK_SIZE = 32;
 const int MAX_BUFFER = 402653184;
 
 struct Quad {
@@ -20,6 +20,7 @@ layout(set = 0, binding = 0, std430) buffer quads{
 
 layout(set = 0, binding = 1, std430) buffer quadcount{
 	int count;
+	int WorkgroupCounter;
 } QuadCount;
 
 layout(set = 0, binding = 2, std430) buffer chunkdata{
@@ -165,4 +166,9 @@ void main () {
 			}
 		}
 	}
+	
+	
+	QuadCount.WorkgroupCounter = atomicAdd(QuadCount.WorkgroupCounter, 1);
+	
+	
 }

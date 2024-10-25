@@ -1,9 +1,12 @@
-[gd_scene load_steps=10 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=17 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="PackedScene" uid="uid://dlbkch6iuy8gn" path="res://addons/fp_controller/player.tscn" id="3_kpwlr"]
 [ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
 [ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
+[ext_resource type="Shader" path="res://Resources/mobius.gdshader" id="4_hfeiy"]
+[ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
+[ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_bi2te"]
 noise_type = 3
@@ -27,9 +30,34 @@ sky_material = SubResource("PhysicalSkyMaterial_j18j3")
 background_mode = 2
 sky = SubResource("Sky_ir56b")
 tonemap_mode = 2
-volumetric_fog_density = 0.012
-volumetric_fog_emission = Color(0.2484, 0.2484, 0.2484, 1)
 volumetric_fog_temporal_reprojection_enabled = false
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2lcjd"]
+render_priority = 0
+shader = ExtResource("4_hfeiy")
+shader_parameter/zNear = 981.74
+shader_parameter/zFar = 1000.0
+shader_parameter/outlineThickness = 1.5
+shader_parameter/outlineColor = Color(0, 0, 0, 1)
+shader_parameter/wiggleFrequency = 0.08
+shader_parameter/wiggleAmplitude = 2.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_dirhm"]
+material = SubResource("ShaderMaterial_2lcjd")
+flip_faces = true
+orientation = 2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4s3p8"]
+render_priority = 0
+shader = ExtResource("5_8dgh4")
+shader_parameter/_char_size = 8.0
+shader_parameter/_char_count = 10.0
+shader_parameter/_ascii_tex = ExtResource("6_b6r5k")
+
+[sub_resource type="QuadMesh" id="QuadMesh_hty1b"]
+material = SubResource("ShaderMaterial_4s3p8")
+flip_faces = true
+size = Vector2(2, 2)
 
 [node name="GameLoop" type="Node3D"]
 script = ExtResource("1_aic3m")
@@ -48,7 +76,6 @@ directional_shadow_mode = 1
 directional_shadow_max_distance = 758.0
 
 [node name="Player" parent="." instance=ExtResource("3_kpwlr")]
-visible = false
 walk_back_speed = 5.0
 walk_speed = 5.0
 sprint_speed = 10.0
@@ -62,6 +89,16 @@ camera_end_deadzone = 0.0
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0)
 current = true
 script = ExtResource("3_o0vww")
+
+[node name="mobius" type="MeshInstance3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+visible = false
+mesh = SubResource("PlaneMesh_dirhm")
+
+[node name="ascii" type="MeshInstance3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+visible = false
+mesh = SubResource("QuadMesh_hty1b")
 
 [node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
 script = ExtResource("4_cg07s")

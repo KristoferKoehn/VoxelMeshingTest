@@ -1,4 +1,5 @@
 using Godot;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -131,7 +132,7 @@ public partial class ChunkSpawnManager : Node
         if (!Chunks[x][y].ContainsKey(z))
         {
             Chunks[x][y][z] = chunk;
-            chunk.ChunkPosition = new Vector3(x * 256, y * 256, z * 256);
+            chunk.ChunkPosition = new Vector3(x * 32, y * 32, z * 32);
             //chunk.Visible = false;
         }
 
@@ -164,8 +165,6 @@ public partial class ChunkSpawnManager : Node
         {
             return;
         }
-
-        GD.Print($"initializing chunk {x}, {z}...");
 
         Chunk ch = new Chunk();
         AddChunk(ch, x, y, z); //adds chunk as child in here
@@ -207,17 +206,16 @@ public partial class ChunkSpawnManager : Node
     {
         await Task.Run(() =>
         {
-            GD.Print("Chunk Loading thread start");
             while (true)
             {
                 Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
-                Vector3 ChunkPos = (pos + new Vector3(128, 0, 128)) / 256;
+                Vector3 ChunkPos = (pos + new Vector3(16, 0, 16)) / 32;
 
-                for (int i = (int)ChunkPos.X - 4; i < (int)ChunkPos.X + 4; i++)
+                for (int i = (int)ChunkPos.X - 8; i < (int)ChunkPos.X + 8; i++)
                 {
-                    for (int j = (int)ChunkPos.Z - 4; j < (int)ChunkPos.Z + 4; j++)
+                    for (int j = (int)ChunkPos.Z - 8; j < (int)ChunkPos.Z + 8; j++)
                     {
-                        if ((ChunkPos - new Vector3(i, 0, j)).Length() < 4)
+                        if ((ChunkPos - new Vector3(i, 0, j)).Length() < 8)
                         {
                             
                             InitializeChunk(i, 0, j);
@@ -227,11 +225,11 @@ public partial class ChunkSpawnManager : Node
 
                 Vector3 ChunkPosCopy = ChunkPos;
 
-                for (int i = (int)ChunkPosCopy.X - 3; i < (int)ChunkPosCopy.X + 3; i++)
+                for (int i = (int)ChunkPosCopy.X - 5; i < (int)ChunkPosCopy.X + 5; i++)
                 {
-                    for (int j = (int)ChunkPosCopy.Z - 3; j < (int)ChunkPosCopy.Z + 3; j++)
+                    for (int j = (int)ChunkPosCopy.Z - 5; j < (int)ChunkPosCopy.Z + 5; j++)
                     {
-                        if ((ChunkPosCopy - new Vector3(i, 0, j)).Length() < 3)
+                        if ((ChunkPosCopy - new Vector3(i, 0, j)).Length() < 5)
                         {
                             GenerateChunkMesh(i, 0, j);
                         }

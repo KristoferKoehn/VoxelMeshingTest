@@ -55,7 +55,7 @@ public partial class ChunkGeneratorManager : Node
 
     public int[] GenerateChunk(int x, int y, int z) {
 		//get the data from some bullshit elsewhere. 
-		int side = 256;
+		int side = 32;
 
 		int dataSideLength = side + 2;
 		int ChunkSize = dataSideLength * dataSideLength * dataSideLength;
@@ -88,7 +88,7 @@ public partial class ChunkGeneratorManager : Node
 
 					//if (j > 32 + cutoffmod && j < 96 + cutoffmod)
 
-					if (j > 32 + cutoffmod) // && j < 96 + cutoffmod)
+					if (j > 32 + cutoffmod)// && j < 96 + cutoffmod)
 					{
 						chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 0;
 					}
