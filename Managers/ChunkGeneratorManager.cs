@@ -1,6 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using VoxelMeshingTest.Classes;
 
 public partial class ChunkGeneratorManager : Node
 {
@@ -14,7 +15,7 @@ public partial class ChunkGeneratorManager : Node
 
 	public static Vector2 CutoffOffset { get; set; }
 
-	public Dictionary<int, Dictionary<int, int[]>> GeneratedChunks { get; set; } = new Dictionary<int, Dictionary<int, int[]>>();
+	public Dictionary<Vector3I, int[]> GeneratedChunks { get; set; } = new Dictionary<Vector3I, int[]>();
 
     public static ChunkGeneratorManager Instance()
 	{
@@ -40,42 +41,24 @@ public partial class ChunkGeneratorManager : Node
 
 	}
 
-	public void PreGenerate()
-	{
-        GeneratedChunks = new Dictionary<int, Dictionary<int, int[]>>();
-        for (int i = -4; i < 4; i++)
-        {
-            GeneratedChunks.Add(i, new Dictionary<int, int[]>());
-            for (int j = -4; j < 4; j++)
-            {
-                GeneratedChunks[i].Add(j, GenerateChunk(i, 0, j));
-            }
-        }
-    }
-
     public int[] GenerateChunk(int x, int y, int z) {
 		//get the data from some bullshit elsewhere. 
-		int side = 32;
+		int side = GameConstants.CHUNK_SIZE;
+		Vector3I pos = new Vector3I(x, y, z);
 
-		int dataSideLength = side + 2;
+		int dataSideLength = GameConstants.CHUNK_DATA_SIZE;
 		int ChunkSize = dataSideLength * dataSideLength * dataSideLength;
 
-		int[] chunkData = new int[ChunkSize];
+		int[] chunkData;
 
-
-		if (GeneratedChunks.ContainsKey(x))
-		{
-			if (GeneratedChunks[x].ContainsKey(z))
-			{
-				return GeneratedChunks[x][z];
-			}
-		} else
-		{
-			GeneratedChunks[x] = new Dictionary<int, int[]>();
+		GeneratedChunks.TryGetValue(pos, out chunkData);
+		if (chunkData != null) { 
+			return chunkData;
 		}
 
-
-        Parallel.For (0, dataSideLength, i =>
+        chunkData = new int[ChunkSize];
+        
+		Parallel.For (0, dataSideLength, i =>
 		{
 			Parallel.For(0, dataSideLength, j =>
 			{
@@ -88,12 +71,11 @@ public partial class ChunkGeneratorManager : Node
 
 					//if (j > 32 + cutoffmod && j < 96 + cutoffmod)
 
-					if (j > 32 + cutoffmod)// && j < 96 + cutoffmod)
+					if (j > 17 + cutoffmod)// && j < 96 + cutoffmod)
 					{
 						chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 0;
 					}
 					else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
-					//else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
 					{
 						if (j + cutoffmod > 10)
 						{
@@ -103,15 +85,25 @@ public partial class ChunkGeneratorManager : Node
 						{
 							chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 2;
 						}
-
 					}
-					//chunkData[i + j * side + k*side*side] = 1;
 				});
 			});
         });
+		
+		/*
+        for (int i = 0; i < dataSideLength; i++)
+		{
+			for (int j = 0; j < dataSideLength; j++)
+			{
+				for (int k = 0; k < dataSideLength; k++)
+				{
+					
+					//chunkData[i + j * side + k*side*side] = 1;
+				}
+			}
+        } */
 
-
-		GeneratedChunks[x][z] = chunkData;
+		GeneratedChunks[pos] = chunkData;
 		
 		return chunkData;
 	}

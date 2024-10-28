@@ -1,5 +1,6 @@
 using Godot;
 using System.Collections.Generic;
+using VoxelMeshingTest.Classes;
 
 public partial class GameLoop : Node3D
 {
@@ -10,6 +11,9 @@ public partial class GameLoop : Node3D
 
     [Export]
     public Vector2 CutoffOffset { get; set; }
+
+    [Export]
+    RayCast3D RayCast { get; set; }
 
     public List<Chunk> Chunks { get; set; } = new List<Chunk>();
 
@@ -26,7 +30,6 @@ public partial class GameLoop : Node3D
         ChunkMeshManager.Instance();
         //ChunkGeneratorManager.Instance().PreGenerate();
         ChunkSpawnManager.Instance();
-
         //ChunkSpawnManager.Instance().GenerateWorld();
 
     }
@@ -46,4 +49,24 @@ public partial class GameLoop : Node3D
     }
 
 
+    public override void _Input(InputEvent @event)
+    {
+        if (@event.IsActionPressed("click"))
+        {
+            if (RayCast.IsColliding())
+            {
+                Chunk ch = ((Node)RayCast.GetCollider()).GetParent() as Chunk;
+                if (ch != null)
+                {
+                    Vector3 pos = new Vector3(0.5f, 0.5f, 0.5f) + RayCast.GetCollisionPoint() - ch.GlobalPosition - RayCast.GetCollisionNormal() * 0.1f;
+
+                    Vector3I block = new Vector3I(Mathf.FloorToInt(pos.X), Mathf.FloorToInt(pos.Y), Mathf.FloorToInt(pos.Z)) + new Vector3I(1, 1, 1) * GameConstants.CHUNK_SIZE/2;
+                    GD.Print($"{block}, {ch.GlobalPosition}, {RayCast.GetCollisionPoint()}, block data: {ch.ChunkData[(block.Z + 1) + (block.Y + 1) * GameConstants.CHUNK_DATA_SIZE + (block.X + 1) * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE]}");
+
+                    ch.ChunkData[(block.Z + 1) + (block.Y + 1) * GameConstants.CHUNK_DATA_SIZE + (block.X + 1) * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE] = 0;
+                    ch.Generated = false;
+                }
+            }
+        }
+    }
 }

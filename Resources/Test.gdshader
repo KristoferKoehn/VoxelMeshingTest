@@ -3,7 +3,7 @@ shader_type spatial;
 uniform sampler2D WaterNoise;
 
 void vertex() {
-	
+
 }
 
 void fragment() {

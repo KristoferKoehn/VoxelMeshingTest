@@ -3,7 +3,7 @@
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-const int CHUNK_SIZE = 32;
+const int CHUNK_SIZE = 64;
 const int MAX_BUFFER = 402653184;
 
 struct Quad {
@@ -15,7 +15,7 @@ struct Quad {
 };
 
 layout(set = 0, binding = 0, std430) buffer quads{
-	Quad data[402653184 / 64];
+	Quad data[1048576 / 64];
 } Quads;
 
 layout(set = 0, binding = 1, std430) buffer quadcount{
@@ -87,88 +87,67 @@ void main () {
 				}
 				
 				//do west face?
-				if (ChunkData.data[x+1][y][z] == 0) {
-					Quad f;
-					f.vertices = AddPosition(WestQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = WestNormal.xyzx;
-					f.Normx = WestNormal.x;
-					f.Normy = WestNormal.y;
-					f.Normz = WestNormal.z;
-					f.UVIndex = ChunkData.data[x][y][z];
+				if (ChunkData.data[x+1][y][z] == 0) {					
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Quads.data[IndexTicket] = f;
+					Quads.data[IndexTicket].vertices = AddPosition(WestQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].Normx = WestNormal.x;
+					Quads.data[IndexTicket].Normy = WestNormal.y;
+					Quads.data[IndexTicket].Normz = WestNormal.z;
+					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
 				}
 				
 				//do east face?
 				if (ChunkData.data[x-1][y][z] == 0) {
-					Quad f;
-					f.vertices = AddPosition( EastQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = EastNormal.xyzx;
-					f.Normx = EastNormal.x;
-					f.Normy = EastNormal.y;
-					f.Normz = EastNormal.z;
-					f.UVIndex = ChunkData.data[x][y][z];
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Quads.data[IndexTicket] = f;
+					Quads.data[IndexTicket].vertices = AddPosition( EastQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].Normx = EastNormal.x;
+					Quads.data[IndexTicket].Normy = EastNormal.y;
+					Quads.data[IndexTicket].Normz = EastNormal.z;
+					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
 				}	
 
 				
 				//do south face
 				if (ChunkData.data[x][y][z+1] == 0) {
-					Quad f;
-					f.vertices = AddPosition( SouthQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = SouthNormal.xyzx;
-					f.Normx = SouthNormal.x;
-					f.Normy = SouthNormal.y;
-					f.Normz = SouthNormal.z;
-					f.UVIndex = ChunkData.data[x][y][z];
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Quads.data[IndexTicket] = f;
+					Quads.data[IndexTicket].vertices = AddPosition( SouthQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].Normx = SouthNormal.x;
+					Quads.data[IndexTicket].Normy = SouthNormal.y;
+					Quads.data[IndexTicket].Normz = SouthNormal.z;
+					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
 				}
 
 				
 				if (ChunkData.data[x][y][z-1] == 0) {
-					Quad f;
-					f.vertices = AddPosition( NorthQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = NorthNormal.xyzx;
-					f.Normx = NorthNormal.x;
-					f.Normy = NorthNormal.y;
-					f.Normz = NorthNormal.z;
-					f.UVIndex = ChunkData.data[x][y][z];
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Quads.data[IndexTicket] = f;
+					Quads.data[IndexTicket].vertices = AddPosition( NorthQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].Normx = NorthNormal.x;
+					Quads.data[IndexTicket].Normy = NorthNormal.y;
+					Quads.data[IndexTicket].Normz = NorthNormal.z;
+					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
 				}
 			
 				
 				if (ChunkData.data[x][y+1][z] == 0) {
-					Quad f;
-					f.vertices = AddPosition( TopQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = TopNormal.xyzx;
-					f.Normx = TopNormal.x;
-					f.Normy = TopNormal.y;
-					f.Normz = TopNormal.z;
-					f.UVIndex = ChunkData.data[x][y][z];
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Quads.data[IndexTicket] = f;
+					Quads.data[IndexTicket].vertices = AddPosition( TopQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].Normx = TopNormal.x;
+					Quads.data[IndexTicket].Normy = TopNormal.y;
+					Quads.data[IndexTicket].Normz = TopNormal.z;
+					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
 				} 
 				
 				if (ChunkData.data[x][y - 1][z] == 0) {
-					Quad f;
-					f.vertices = AddPosition( BottomQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					//f.normals = BottomNormal.xyzx;
-					f.Normx = BottomNormal.x;
-					f.Normy = BottomNormal.y;
-					f.Normz = BottomNormal.z;
-					f.UVIndex = ChunkData.data[x][y][z];
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Quads.data[IndexTicket] = f;
+					Quads.data[IndexTicket].vertices = AddPosition( BottomQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].Normx = BottomNormal.x;
+					Quads.data[IndexTicket].Normy = BottomNormal.y;
+					Quads.data[IndexTicket].Normz = BottomNormal.z;
+					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
 				}
 			}
 		}
 	}
 	
-	
-	QuadCount.WorkgroupCounter = atomicAdd(QuadCount.WorkgroupCounter, 1);
-	
-	
+	QuadCount.WorkgroupCounter++;
 }

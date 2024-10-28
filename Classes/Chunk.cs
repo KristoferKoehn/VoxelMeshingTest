@@ -55,11 +55,7 @@ public partial class Chunk : Node3D
     public override void _Ready()
     {
         this.GlobalPosition = ChunkPosition;
-        /*
-        MeshInstance.GlobalPosition = GlobalPosition;
-        SB.GlobalPosition = GlobalPosition;
-        //GenerateBlock(new Vector3(0,0,0));
-        */
+
         if (MeshInstance != null)
         {
             MeshInstance.MaterialOverride = GD.Load<ShaderMaterial>("res://Resources/Test.tres");
@@ -68,7 +64,6 @@ public partial class Chunk : Node3D
             GD.Print("material fucked");
         }
         Visible = true;
-
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -89,27 +84,10 @@ public partial class Chunk : Node3D
         }
     }
 
-    async public void PChunkByteIngestion(byte[] quadbytes, byte[] countBytes)
-    {
-        await Task.Run(() =>
-        {
-            if (MeshInstance != null)
-            {
-                MeshInstance.QueueFree();
-            }
-
-            var PChunk = ClassDB.Instantiate("PChunk");
-            PChunk.AsGodotObject().Call("set_bytes", quadbytes);
-            CallDeferred("add_child", PChunk);
-            MeshInstance = (MeshInstance3D)PChunk;
-            MeshInstance.Mesh.CallDeferred(Mesh.MethodName.SurfaceSetMaterial, 0, GD.Load<ShaderMaterial>("res://Resources/Test.tres"));
-            ConcavePolygon.CallDeferred("set_faces", MeshInstance.Mesh.GetFaces());
-        });
-    }
-
     public void PChunkByteAssignment(byte[] quadbytes)
     {
         meshbytes = quadbytes;
+        Meshed = false;
     }
 
     public void PChunkByteIngestion(byte[] quadbytes)
@@ -120,11 +98,11 @@ public partial class Chunk : Node3D
         }
 
         var PChunk = ClassDB.Instantiate("PChunk");
-        PChunk.AsGodotObject().Call("set_bytes", quadbytes);
+        PChunk.AsGodotObject().Call("set_bytes", quadbytes, true);
         AddChild((MeshInstance3D)PChunk);
         MeshInstance = (MeshInstance3D)PChunk;
         MeshInstance.Mesh.CallDeferred(Mesh.MethodName.SurfaceSetMaterial, 0, GD.Load<ShaderMaterial>("res://Resources/Test.tres"));
-        GD.Print("setting collision...");
         Meshed = true;
+        Collision = false;
     }
 }

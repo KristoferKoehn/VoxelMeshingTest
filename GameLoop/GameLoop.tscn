@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=19 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="PackedScene" uid="uid://dlbkch6iuy8gn" path="res://addons/fp_controller/player.tscn" id="3_kpwlr"]
@@ -59,10 +59,16 @@ material = SubResource("ShaderMaterial_4s3p8")
 flip_faces = true
 size = Vector2(2, 2)
 
-[node name="GameLoop" type="Node3D"]
+[sub_resource type="BoxMesh" id="BoxMesh_ep0ea"]
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xfmry"]
+points = PackedVector3Array(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5)
+
+[node name="GameLoop" type="Node3D" node_paths=PackedStringArray("RayCast")]
 script = ExtResource("1_aic3m")
 Terrain = SubResource("FastNoiseLite_bi2te")
 SurfaceCutoff = SubResource("FastNoiseLite_gi2x0")
+RayCast = NodePath("Camera3D/RayCast3D")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_fngh7")
@@ -76,6 +82,7 @@ directional_shadow_mode = 1
 directional_shadow_max_distance = 758.0
 
 [node name="Player" parent="." instance=ExtResource("3_kpwlr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2085.3, 0)
 walk_back_speed = 5.0
 walk_speed = 5.0
 sprint_speed = 10.0
@@ -86,7 +93,7 @@ camera_start_deadzone = 0.0
 camera_end_deadzone = 0.0
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0)
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 1.86513)
 current = true
 script = ExtResource("3_o0vww")
 
@@ -100,6 +107,17 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
 visible = false
 mesh = SubResource("QuadMesh_hty1b")
 
+[node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
+target_position = Vector3(0, 0, -10)
+
 [node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
 script = ExtResource("4_cg07s")
 TrackingItem = NodePath("../Camera3D")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_ep0ea")
+
+[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
+shape = SubResource("ConvexPolygonShape3D_xfmry")
