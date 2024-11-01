@@ -32,7 +32,7 @@
               "RelativeDocumentMoniker": "Classes\\Chunk.cs",
               "ToolTip": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Classes\\Chunk.cs",
               "RelativeToolTip": "Classes\\Chunk.cs",
-              "ViewState": "AgIAADUAAAAAAAAAAAAqwEoAAAAdAAAAAAAAAA==",
+              "ViewState": "AgIAAE8AAAAAAAAAAADwv2wAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-01T05:02:02.032Z",
               "EditorCaption": ""
@@ -47,8 +47,7 @@
               "RelativeToolTip": "Managers\\ChunkGeneratorManager.cs",
               "ViewState": "AgIAABgAAAAAAAAAAAAmwDQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-01T02:53:38.978Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-01T02:53:38.978Z"
             },
             {
               "$type": "Document",
@@ -60,8 +59,7 @@
               "RelativeToolTip": "GameLoop\\GameLoop.cs",
               "ViewState": "AgIAADEAAAAAAAAAAAAUwE4AAABzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-01T02:30:28.165Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-01T02:30:28.165Z"
             }
           ]
         }

@@ -71,8 +71,11 @@ public partial class Chunk : Node3D
     {
         if (!Collision && Meshed)
         {
-            //ConcavePolygon.SetFaces(MeshInstance.Mesh.GetFaces());
+            /*
+            Vector3[] vertices = (Vector3[])((Variant)MeshInstance).AsGodotObject().Call("GetCollisionMesh");
+            ConcavePolygon.SetFaces(vertices);
             Collision = true;
+            */
         }
 
         if (!Meshed)
@@ -103,6 +106,10 @@ public partial class Chunk : Node3D
         MeshInstance = (MeshInstance3D)PChunk;
         MeshInstance.Mesh.CallDeferred(Mesh.MethodName.SurfaceSetMaterial, 0, GD.Load<ShaderMaterial>("res://Resources/Test.tres"));
         Meshed = true;
-        Collision = false;
+
+        Vector3[] vertices = (Vector3[])PChunk.AsGodotObject().Call("GetCollisionMesh");
+        ConcavePolygon.SetFaces(vertices);
+        Collision = true;
+
     }
 }
