@@ -71,7 +71,7 @@ public partial class Chunk : Node3D
     {
         if (!Collision && Meshed)
         {
-            ConcavePolygon.SetFaces(MeshInstance.Mesh.GetFaces());
+            //ConcavePolygon.SetFaces(MeshInstance.Mesh.GetFaces());
             Collision = true;
         }
 
