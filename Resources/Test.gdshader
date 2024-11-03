@@ -1,6 +1,6 @@
 shader_type spatial;
 
-uniform sampler2D WaterNoise;
+uniform sampler2D WaterNoise : filter_nearest;
 
 void vertex() {
 
