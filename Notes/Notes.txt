@@ -36,8 +36,7 @@ CORE STRUCTURE:
 		
 		
 	GreedyStructure- must be atomic, it is being written to
-		-facelist index of face
-		-huge list of boolean faces. needs 128 * 128 * 128 * 6 representation in binary.
+		6 128*128*128 face arrays, 
 		
 	
 	
@@ -45,4 +44,5 @@ CORE STRUCTURE:
 	process- 
 		for each item in chunk data, check if applicable face. Search facetree with block ID, loop through facelist from that location and assign all non-stretch faces to quad list.
 		
-		once that's done, do greedy meshing step maybe? if applicable?
+		once that's done, do greedy meshing step maybe? if applicable? idk I think greedy meshing might be too much. Who knows, I sure don't. 
+		
