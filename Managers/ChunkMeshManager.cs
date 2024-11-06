@@ -160,8 +160,6 @@ public partial class ChunkMeshManager : Node
         rd.FreeRid(ChunkDimensionalBuffer);
         //rd.Free();
 
-        
-
         return;
     }
 

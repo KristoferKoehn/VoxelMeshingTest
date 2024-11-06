@@ -6,20 +6,15 @@ issues-
  * greedy meshing.
 	- in conjunction with multi-quad faces, *some* faces need to be greedy meshed. This may be a component of a face with multiple quads.
 	
-	
-	
+
  * greedy meshing consideration:
 	- some faces must be listed as "stretchable", others simply added to the face data output.
 	
-	
+
 CORE STRUCTURE:
 
-	FaceTree- array based binary search tree of structs that have an index pointing to Facelist, an array of linked list structs. 
-	FaceList will have:
-		-block ID int
-		-Left node
-		-Right Node
-		-FaceList Index
+	BlockID Array- 
+		-index is block ID, value is facelist index (the start of the list of faces)
 	
 	
 	FaceList- will have all face data for a voxel ID
@@ -29,20 +24,21 @@ CORE STRUCTURE:
 		-south
 		-west
 		-down
-		
-		greedy boolean?
-		
+		-greedy boolean
 		-index to next face (or -1 if none)
-		
-		
-	GreedyStructure- must be atomic, it is being written to
+
+	GreedyStructure- it is being written to
 		-facelist index of face
-		-huge list of boolean faces. needs 128 * 128 * 128 * 6 representation in binary.
-		
-	
-	
-	
+		-huge list of boolean faces. needs 128 * 128 * 128 * 6 representation 
+
 	process- 
-		for each item in chunk data, check if applicable face. Search facetree with block ID, loop through facelist from that location and assign all non-stretch faces to quad list.
+		* for each item in chunk data, check if applicable face. Search facetree with block ID, loop 
+		through facelist from that location and assign all non-stretch faces to quad list.
 		
-		once that's done, do greedy meshing step maybe? if applicable?
+			- Place all stretchable face IDs in 128*128*128*6 (6 for direction of faces)
+		
+		* Greedy Mesher Step
+			- for each slice of faces, get the position and stretch scale of like faces and place a modified quad
+			in the quad list
+			
+		* greedy workgroup split: 
