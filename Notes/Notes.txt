@@ -27,18 +27,18 @@ CORE STRUCTURE:
 		-greedy boolean
 		-index to next face (or -1 if none)
 
-	GreedyStructure- it is being written to
-		-facelist index of face
-		-huge list of boolean faces. needs 128 * 128 * 128 * 6 representation 
+	GreedyStructure- must be atomic, it is being written to
+		6 128*128*128 face arrays, 
+		
 
-	process- 
 		* for each item in chunk data, check if applicable face. Search facetree with block ID, loop 
 		through facelist from that location and assign all non-stretch faces to quad list.
 		
 			- Place all stretchable face IDs in 128*128*128*6 (6 for direction of faces)
-		
+
 		* Greedy Mesher Step
 			- for each slice of faces, get the position and stretch scale of like faces and place a modified quad
 			in the quad list
 			
 		* greedy workgroup split: 
+
