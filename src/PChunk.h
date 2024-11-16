@@ -8,8 +8,6 @@ namespace godot {
 	class PChunk : public MeshInstance3D {
 		GDCLASS(PChunk, MeshInstance3D)
 
-
-
 		private:
 			ArrayMesh* arrayMesh = nullptr;
 			PackedVector3Array* CollisionMesh;
@@ -22,6 +20,7 @@ namespace godot {
 			~PChunk();
 			void _process(double delta) override;
 			void PChunk::set_bytes(PackedByteArray face_bytes, bool GenerateCollision);
+			void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision);
 	};
 
 }

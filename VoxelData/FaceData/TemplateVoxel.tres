@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="FaceData" load_steps=8 format=3 uid="uid://dqghkn4dwwi1b"]
+
+[ext_resource type="Script" path="res://Classes/FaceData.cs" id="1_k4cmr"]
+[ext_resource type="Resource" uid="uid://dk62n5ebbdx7f" path="res://VoxelData/QuadData/TemplateDown.tres" id="1_tu71j"]
+[ext_resource type="Resource" uid="uid://bgsfos5f3l647" path="res://VoxelData/QuadData/TemplateEast.tres" id="2_2u233"]
+[ext_resource type="Resource" uid="uid://crmqakh6dt675" path="res://VoxelData/QuadData/TemplateNorth.tres" id="3_mbphe"]
+[ext_resource type="Resource" uid="uid://ctkc63ik2itp1" path="res://VoxelData/QuadData/TemplateSouth.tres" id="4_4ua4p"]
+[ext_resource type="Resource" uid="uid://d3tdscuv02nay" path="res://VoxelData/QuadData/TemplateUp.tres" id="5_70grp"]
+[ext_resource type="Resource" uid="uid://cakcibk0mqs75" path="res://VoxelData/QuadData/TemplateWest.tres" id="6_3rimt"]
+
+[resource]
+script = ExtResource("1_k4cmr")
+ID = 1
+transparent = false
+UpFace = Array[Object]([ExtResource("5_70grp")])
+NorthFace = Array[Object]([ExtResource("3_mbphe")])
+EastFace = Array[Object]([ExtResource("2_2u233")])
+SouthFace = Array[Object]([ExtResource("4_4ua4p")])
+WestFace = Array[Object]([ExtResource("6_3rimt")])
+DownFace = Array[Object]([ExtResource("1_tu71j")])

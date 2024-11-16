@@ -50,23 +50,11 @@ const vec3 WestNormal = vec3(1, 0, 0);
 const vec4[3] BottomQuadVertices = vec4[3](vec4( 0.5f, -0.5f, -0.5f, -0.5f), vec4(-0.5f, -0.5f, -0.5f, -0.5f), vec4( 0.5f,  0.5f, -0.5f,  0.5f));
 const vec3 BottomNormal = vec3(0, -1, 0);
 
-int MaxQuads = 402653184 / 64;
-
 vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 	vert[0] = vert[0] + pos.xyzx;
 	vert[1] = vert[1] + pos.yzxy;
 	vert[2] = vert[2] + pos.zxyz;
 	return vert;
-}
-
-int OffsetQuadDataIndex(int x, int y, int z) {
-	int Scale = x + y * ChunkDimensions.WorkGroupSide + z * ChunkDimensions.WorkGroupSide * ChunkDimensions.WorkGroupSide;
-	return MaxQuads / (ChunkDimensions.WorkGroupSide * ChunkDimensions.WorkGroupSide * ChunkDimensions.WorkGroupSide) * Scale;
-}
-
-int CountOffset(int x, int y, int z) {
-	int Scale = x + y * ChunkDimensions.WorkGroupSide + z * ChunkDimensions.WorkGroupSide * ChunkDimensions.WorkGroupSide;
-	return Scale;
 }
 
 void main () {

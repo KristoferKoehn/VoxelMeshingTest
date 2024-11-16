@@ -54,7 +54,7 @@ public partial class Chunk : Node3D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        this.GlobalPosition = ChunkPosition;
+        GlobalPosition = ChunkPosition;
 
         if (MeshInstance != null)
         {
@@ -69,14 +69,6 @@ public partial class Chunk : Node3D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
-        if (!Collision && Meshed)
-        {
-            /*
-            Vector3[] vertices = (Vector3[])((Variant)MeshInstance).AsGodotObject().Call("GetCollisionMesh");
-            ConcavePolygon.SetFaces(vertices);
-            Collision = true;
-            */
-        }
 
         if (!Meshed)
         {

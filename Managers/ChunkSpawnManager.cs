@@ -130,7 +130,6 @@ public partial class ChunkSpawnManager : Node
         if (!Chunks[pos].Generated)
         {
             Chunks[pos].Generated = true;
-            GD.Print($"{pos} chunk updating");
             ThreadPool.QueueUserWorkItem(async state =>
             {
                 await Task.Run(() => {
@@ -181,6 +180,8 @@ public partial class ChunkSpawnManager : Node
                         }
                     }
                 }
+
+                Thread.Sleep(100);
             }
         });
     }

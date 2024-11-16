@@ -12,9 +12,7 @@ public partial class ChunkGeneratorManager : Node
 
 	public static FastNoiseLite Terrain {  get; set; }
 	public static FastNoiseLite SurfaceCutoff {  get; set; }
-
 	public static Vector2 CutoffOffset { get; set; }
-
 	public Dictionary<Vector3I, int[]> GeneratedChunks { get; set; } = new Dictionary<Vector3I, int[]>();
 
     public static ChunkGeneratorManager Instance()
@@ -76,7 +74,9 @@ public partial class ChunkGeneratorManager : Node
 						chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 0;
 					}
 					else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
-					{
+					{/*
+                        chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 1;
+                        */
 						if (j + cutoffmod > 10)
 						{
 							chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 1;
@@ -85,7 +85,8 @@ public partial class ChunkGeneratorManager : Node
 						{
 							chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 2;
 						}
-					}
+						
+                    }
 				});
 			});
         });

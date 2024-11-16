@@ -14,6 +14,7 @@ using namespace std;
 
 void PChunk::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_bytes"), &PChunk::set_bytes);
+	ClassDB::bind_method(D_METHOD("set_bytes2"), &PChunk::set_bytes2);
 	ClassDB::bind_method(D_METHOD("GetCollisionMesh"), &PChunk::GetCollisionMesh);
 }
 
@@ -54,7 +55,6 @@ void PChunk::set_bytes(PackedByteArray face_bytes, bool GenerateCollision)
 	arr.resize(godot::Mesh::ARRAY_MAX);
 	PackedVector3Array Vertices;
 
-
 	PackedVector3Array* UnpackedVertices = memnew(PackedVector3Array());
 	PackedVector3Array Normals;
 	PackedColorArray Colors;
@@ -66,6 +66,8 @@ void PChunk::set_bytes(PackedByteArray face_bytes, bool GenerateCollision)
 
 	int vertexCount = 0;
 	for (int i = 0, faceIndex = 0; i < face_bytes.size()/64; i++, faceIndex += 64) {
+
+		//vertex assignment (48 bytes)
 		Vector3 a = Vector3(face_bytes.decode_float(faceIndex),      face_bytes.decode_float(faceIndex + 4),  face_bytes.decode_float(faceIndex + 8));
 		Vector3 b = Vector3(face_bytes.decode_float(faceIndex + 12), face_bytes.decode_float(faceIndex + 16), face_bytes.decode_float(faceIndex + 20));
 		Vector3 c = Vector3(face_bytes.decode_float(faceIndex + 24), face_bytes.decode_float(faceIndex + 28), face_bytes.decode_float(faceIndex + 32));
@@ -83,6 +85,7 @@ void PChunk::set_bytes(PackedByteArray face_bytes, bool GenerateCollision)
 		UnpackedVertices->append(c);
 		UnpackedVertices->append(d);
 		
+		//normal assignment (12 bytes)
 		Vector3 normal = Vector3(face_bytes.decode_float(faceIndex + 52), face_bytes.decode_float(faceIndex + 56), face_bytes.decode_float(faceIndex + 60));
 
 		Normals.append(normal);
@@ -90,6 +93,7 @@ void PChunk::set_bytes(PackedByteArray face_bytes, bool GenerateCollision)
 		Normals.append(normal);
 		Normals.append(normal);
 		
+		//block ID (4 bytes)
 		switch ((int)face_bytes.decode_float(faceIndex + 48))
 		{
 			case 1:
@@ -139,12 +143,99 @@ void PChunk::set_bytes(PackedByteArray face_bytes, bool GenerateCollision)
 
 	MeshAssignment(arr);
 
-
-	/*
-	ArrayMesh* am = memnew(ArrayMesh());
 	
+	/*ArrayMesh* am = memnew(ArrayMesh());
 	am->add_surface_from_arrays(godot::Mesh::PRIMITIVE_TRIANGLES, arr);
-
-	this->set_mesh(am);
-	*/
+	this->set_mesh(am);*/
+	
 }
+
+void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
+{
+	Array arr;
+	arr.resize(godot::Mesh::ARRAY_MAX);
+	PackedVector3Array Vertices;
+
+	PackedVector3Array* UnpackedVertices = memnew(PackedVector3Array());
+	PackedVector3Array Normals;
+	PackedVector3Array UV;
+	PackedColorArray Colors;
+	PackedInt32Array Indices;
+	PackedVector4Array Custom0;
+	
+	//for every workgroup octant (count.size() / word_size)
+	//	for each face counted in octant
+	//		get face data, append 
+
+	int vertexCount = 0;
+	for (int i = 0, faceIndex = 0; i < face_bytes.size()/128; i++, faceIndex += 128) {
+
+		//vertex assignment (48 bytes)
+		Vector3 a = Vector3(face_bytes.decode_float(faceIndex),      face_bytes.decode_float(faceIndex + 4),  face_bytes.decode_float(faceIndex + 8));
+		Vector3 b = Vector3(face_bytes.decode_float(faceIndex + 12), face_bytes.decode_float(faceIndex + 16), face_bytes.decode_float(faceIndex + 20));
+		Vector3 c = Vector3(face_bytes.decode_float(faceIndex + 24), face_bytes.decode_float(faceIndex + 28), face_bytes.decode_float(faceIndex + 32));
+		Vector3 d = Vector3(face_bytes.decode_float(faceIndex + 36), face_bytes.decode_float(faceIndex + 40), face_bytes.decode_float(faceIndex + 44));
+
+		Vertices.append(a);
+		Vertices.append(b);
+		Vertices.append(c);
+		Vertices.append(d);
+
+		UnpackedVertices->append(a);
+		UnpackedVertices->append(b);
+		UnpackedVertices->append(c);
+		UnpackedVertices->append(a);
+		UnpackedVertices->append(c);
+		UnpackedVertices->append(d);
+
+		Color e = Color(face_bytes.decode_float(faceIndex + 48), face_bytes.decode_float(faceIndex + 52), face_bytes.decode_float(faceIndex + 56));
+		Color f = Color(face_bytes.decode_float(faceIndex + 60), face_bytes.decode_float(faceIndex + 64), face_bytes.decode_float(faceIndex + 68));
+		Color g = Color(face_bytes.decode_float(faceIndex + 72), face_bytes.decode_float(faceIndex + 76), face_bytes.decode_float(faceIndex + 80));
+		Color h = Color(face_bytes.decode_float(faceIndex + 84), face_bytes.decode_float(faceIndex + 88), face_bytes.decode_float(faceIndex + 92));
+
+		Colors.append(e);
+		Colors.append(f);
+		Colors.append(g);
+		Colors.append(h);
+
+		//append the crafted UVs (always (0,0) to (1,1)) rotate this if it's weird
+		UV.append(Vector3(1,1,0));
+		UV.append(Vector3(0,1,0));
+		UV.append(Vector3(0,0,0));
+		UV.append(Vector3(1,0,0));
+
+		Vector4 k = Vector4(face_bytes.decode_float(faceIndex + 96), face_bytes.decode_float(faceIndex + 100), face_bytes.decode_float(faceIndex + 104),  face_bytes.decode_float(faceIndex + 108));
+
+		Custom0.append(k);
+		Custom0.append(k);
+		Custom0.append(k);
+		Custom0.append(k);
+
+		Vector3 normal = Vector3(face_bytes.decode_float(faceIndex + 112), face_bytes.decode_float(faceIndex + 116), face_bytes.decode_float(faceIndex + 120));
+
+		Normals.append(normal);
+		Normals.append(normal);
+		Normals.append(normal);
+		Normals.append(normal);
+
+		Indices.append_array({0 + vertexCount, 1 + vertexCount, 2 + vertexCount, 0 + vertexCount, 2 + vertexCount, 3 + vertexCount});
+		vertexCount += 4;
+	}
+
+	CollisionMesh = UnpackedVertices;
+
+	arr[godot::Mesh::ARRAY_VERTEX] = Vertices;
+	arr[godot::Mesh::ARRAY_NORMAL] = Normals;
+	arr[godot::Mesh::ARRAY_COLOR] = Colors;
+	arr[godot::Mesh::ARRAY_INDEX] = Indices;
+	arr[godot::Mesh::ARRAY_CUSTOM0] = Custom0;
+	arr[godot::Mesh::ARRAY_TEX_UV] = UV;
+
+	MeshAssignment(arr);
+
+	/*ArrayMesh* am = memnew(ArrayMesh());
+	am->add_surface_from_arrays(godot::Mesh::PRIMITIVE_TRIANGLES, arr);
+	this->set_mesh(am);*/
+	
+}
+

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="QuadData" load_steps=2 format=3 uid="uid://dnkaq1mxu35qf"]
+
+[ext_resource type="Script" path="res://Classes/QuadData.cs" id="1_gu15p"]
+
+[resource]
+script = ExtResource("1_gu15p")
+vertices = PackedVector3Array(-0.5, -0.18, 0.5, -0.565, -0.31, -0.5, -2.71, 0.3, -0.5, -0.785, 0.345, 0.5)
+Color = PackedColorArray(0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0.447059, 0, 1)
+Normals = Vector3(-1, 0, 0)
+Greedy = true
+UVTextureIndex = 0
+UVMetallicityIndex = 0
+UVTransparencyIndex = 0
+UVEmissivenessIndex = 0

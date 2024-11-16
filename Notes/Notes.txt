@@ -6,12 +6,22 @@ issues-
  * greedy meshing.
 	- in conjunction with multi-quad faces, *some* faces need to be greedy meshed. This may be a component of a face with multiple quads.
 	
-	
-	
  * greedy meshing consideration:
 	- some faces must be listed as "stretchable", others simply added to the face data output.
 	
 	
+	
+*New Quad Struct!!
+
+
+
+//240 bytes
+vec4[3] positions
+vec4[4] color
+vec4[4] custom
+vec4[4] custom2
+
+
 CORE STRUCTURE:
 
 	FaceTree- array based binary search tree of structs that have an index pointing to Facelist, an array of linked list structs. 
@@ -20,8 +30,7 @@ CORE STRUCTURE:
 		-Left node
 		-Right Node
 		-FaceList Index
-	
-	
+
 	FaceList- will have all face data for a voxel ID
 		-up pos, color, UV, custom, etc
 		-North
@@ -36,13 +45,42 @@ CORE STRUCTURE:
 		
 		
 	GreedyStructure- must be atomic, it is being written to
-		6 128*128*128 face arrays, 
+		6*128*128*128 face arrays, 
 		
-	
-	
-	
 	process- 
 		for each item in chunk data, check if applicable face. Search facetree with block ID, loop through facelist from that location and assign all non-stretch faces to quad list.
 		
 		once that's done, do greedy meshing step maybe? if applicable? idk I think greedy meshing might be too much. Who knows, I sure don't. 
+		
+		
+	TO DO:
+		resource ingestion:
+			- make system to ingest and serialize resources
+				-need manager to scrape directories and generate byte arrays
+			- make system to quickly make resources?
+		
+		new compute shader pipeline:
+			-design structs
+			-do dynamic lookup on face quad system (from resources) once this works we will be pogging the fuck out
+			
+		new face ingestion C++ function
+			-can do UV just fine
+			-just gotta get the new quadout struct hammered out and assigned
+			-new transparency arraymesh with cool shader perhap? probably later, if transp > 0
+			
+		MOVE BACKWARDS FROM C++, determine what is needed, then flow backward. We need:
+			CUSTOM0 for every vertex
+			UV (0,0) to (1,1) for each quad. Unambiguous.
+			the rest should just be copied over (color, position) like it is now.
+			
+			Append that to working quad struct and let's move forward. Don't worry about getting cute with it. 
+			
+		later goals:
+			transp mesh (for water)
+			greedy meshing (can skip for now, theoretically)
+				- to work with baked AO, add 1000 to ID for first case, 2000 for 2nd case, so on,
+				to prevent greedying of baked AO
+			baked AO (would be super fucking cool)
+				-determine which vertices are affected, multiply by 0.8 or something
+			
 		
