@@ -93,7 +93,7 @@ public partial class Chunk : Node3D
         }
 
         var PChunk = ClassDB.Instantiate("PChunk");
-        PChunk.AsGodotObject().Call("set_bytes", quadbytes, true);
+        PChunk.AsGodotObject().Call("set_bytes2", quadbytes, true);
         AddChild((MeshInstance3D)PChunk);
         MeshInstance = (MeshInstance3D)PChunk;
         MeshInstance.Mesh.CallDeferred(Mesh.MethodName.SurfaceSetMaterial, 0, GD.Load<ShaderMaterial>("res://Resources/Test.tres"));

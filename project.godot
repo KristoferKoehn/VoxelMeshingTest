@@ -85,3 +85,8 @@ place={
 
 3d/run_on_separate_thread=true
 common/physics_interpolation=true
+
+[rendering]
+
+environment/volumetric_fog/volume_size=128
+environment/volumetric_fog/volume_depth=128

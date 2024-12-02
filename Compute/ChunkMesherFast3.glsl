@@ -15,7 +15,7 @@ struct Quad {
 	float Normz;
 };
 
-
+//256 bytes
 struct QuadIn {
 	//48bytes
 	vec4[3] vertices;
@@ -23,13 +23,14 @@ struct QuadIn {
 	vec4[3] color;
 	//16bytes
 	vec4 custom0;
-		//12bytes
+	//12bytes
 	float normX;
 	float normY;
 	float normZ;
 	//8 bytes
 	int greedy;
 	int next;
+	//124 bytes padding
 	int[31] padding;
 };
 
@@ -40,9 +41,9 @@ struct Quad2 {
 	//48 bytes
 	vec4[3] color;
 	//16 bytes
-	vec4 custom0;
+	vec4 custom0; //custom has... what? x is UV index? y is metallicity index? z is emissiveness index? w is transparency index?
 	//16 bytes
-	vec4 Normal;
+	vec4 normal;
 };
 
 struct Face {
@@ -57,7 +58,7 @@ struct Face {
 };
 
 layout(set = 0, binding = 0, std430) buffer quads{
-	Quad data[1048576 / 64];
+	Quad2 data[1048576 / 64];
 } Quads;
 
 layout(set = 0, binding = 1, std430) buffer quadcount{
@@ -78,8 +79,6 @@ layout(set = 0, binding = 4, std430) buffer voxeldata{
 	QuadIn QuadInput[4000];
 	Face FaceData[4000];
 } VoxelData;
-
-//split these into different buffers^
 
 const vec4[3] TopQuadVertices = vec4[3](vec4(-0.5f,  0.5f, -0.5f,  0.5f), vec4( 0.5f, -0.5f,  0.5f,  0.5f), vec4( 0.5f, -0.5f,  0.5f,  0.5f));
 const vec3 TopNormal = vec3(0, 1, 0);
@@ -128,62 +127,64 @@ void main () {
 				//do west face?
 				if (ChunkData.data[x+1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x+1][y][z]].transparent != 0) {					
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Quads.data[IndexTicket].vertices = AddPosition(WestQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					Quads.data[IndexTicket].Normx = WestNormal.x;
-					Quads.data[IndexTicket].Normy = WestNormal.y;
-					Quads.data[IndexTicket].Normz = WestNormal.z;
-					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.WestQuadIndex];
+					Quads.data[IndexTicket].vertices = AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
+					Quads.data[IndexTicket].custom0.x = ChunkData.data[x][y][z];
+					//Quads.data[IndexTicket].color = vec4(WestNormal.x,  WestNormal.y, WestNormal.z, 0);
 				}
 				
 				//do east face?
 				if (ChunkData.data[x-1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x-1][y][z]].transparent != 0) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.EastQuadIndex];
 
-					Quads.data[IndexTicket].vertices = AddPosition(EastQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					Quads.data[IndexTicket].Normx = EastNormal.x;
-					Quads.data[IndexTicket].Normy = EastNormal.y;
-					Quads.data[IndexTicket].Normz = EastNormal.z;
-					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
+					Quads.data[IndexTicket].vertices = AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
+					Quads.data[IndexTicket].color = q.color;
+					//Quads.data[IndexTicket].color = vec4(EastNormal.x,  EastNormal.y, EastNormal.z, 0);
 				}	
 				
 				//do south face
 				if (ChunkData.data[x][y][z+1] == 0) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
-					Quads.data[IndexTicket].vertices = AddPosition(VoxelData.QuadInput[f.SouthQuadIndex].vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					Quads.data[IndexTicket].Normx = SouthNormal.x;
-					Quads.data[IndexTicket].Normy = SouthNormal.y;
-					Quads.data[IndexTicket].Normz = SouthNormal.z;
-					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
+					QuadIn q = VoxelData.QuadInput[f.SouthQuadIndex];
+					Quads.data[IndexTicket].vertices = AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
+					Quads.data[IndexTicket].custom0 = q.custom0;
+					Quads.data[IndexTicket].color = q.color;
 				}
 
 				
 				if (ChunkData.data[x][y][z-1] == 0 || VoxelData.FaceData[ChunkData.data[x][y][z-1]].transparent != 0) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Quads.data[IndexTicket].vertices = AddPosition( NorthQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					Quads.data[IndexTicket].Normx = NorthNormal.x;
-					Quads.data[IndexTicket].Normy = NorthNormal.y;
-					Quads.data[IndexTicket].Normz = NorthNormal.z;
-					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.NorthQuadIndex];
+					Quads.data[IndexTicket].vertices = AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
+					Quads.data[IndexTicket].color = q.color;
 				}
 			
 				
 				if (ChunkData.data[x][y+1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y+1][z]].transparent != 0) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Quads.data[IndexTicket].vertices = AddPosition( TopQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					Quads.data[IndexTicket].Normx = TopNormal.x;
-					Quads.data[IndexTicket].Normy = TopNormal.y;
-					Quads.data[IndexTicket].Normz = TopNormal.z;
-					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.UpQuadIndex];
+					Quads.data[IndexTicket].vertices = AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
+					Quads.data[IndexTicket].color = q.color;
 				} 
 				
 				if (ChunkData.data[x][y - 1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y-1][z]].transparent != 0) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Quads.data[IndexTicket].vertices = AddPosition( BottomQuadVertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					Quads.data[IndexTicket].Normx = BottomNormal.x;
-					Quads.data[IndexTicket].Normy = BottomNormal.y;
-					Quads.data[IndexTicket].Normz = BottomNormal.z;
-					Quads.data[IndexTicket].UVIndex = ChunkData.data[x][y][z];
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.DownQuadIndex];
+					Quads.data[IndexTicket].vertices = AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
+					Quads.data[IndexTicket].color = q.color;
 				}
 			}
 		}

@@ -4,9 +4,9 @@
 
 [resource]
 script = ExtResource("1_ovck8")
-vertices = PackedVector3Array(0.5, -0.225, -0.5, 0.5, -0.285, 0.5, 0.5, 0.37, 0.5, 0.5, 0.245, -0.5)
+vertices = PackedVector3Array(0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5)
 Color = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-Normals = Vector3(-1, 0, 0)
+Normals = Vector3(1, 0, 0)
 Greedy = true
 UVTextureIndex = 0
 UVMetallicityIndex = 0

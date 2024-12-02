@@ -160,7 +160,6 @@ public partial class ChunkMeshManager : Node
         rd.BufferClear(QuadBuffer, 0, (uint)Count[0] * 64);
         rd.BufferClear(QuadCountBuffer, 0, 8);
 
-        //ch.PChunkByteIngestion(QBytes, countBytes);
         ch.PChunkByteAssignment(QBytes);
 
         rd.FreeRid(pipelineRID);
@@ -179,9 +178,9 @@ public partial class ChunkMeshManager : Node
         //rewrite this into a system that generates structs that mirror glsl structs
         Array<FaceData> faces = new Array<FaceData>();
 
-        byte[] QuadInData = new byte[528000];
-        byte[] FaceData = new byte[80000];
-        VoxelData = new byte[528000 + 80000];
+        byte[] QuadInData = new byte[256 * 4000];
+        byte[] FaceData = new byte[32 * 4000];
+        VoxelData = new byte[256 * 4000 + 32 * 4000];
         //get list of resources
         int QuadOffset = 0;
 
@@ -221,43 +220,35 @@ public partial class ChunkMeshManager : Node
                     QuadOffset += 1;
                 }
             }
-            foreach(int i in  quadIndices)
-            {
-                GD.Print(i);
-            }
-            GD.Print();
+
             Buffer.BlockCopy(quadIndices, 0, FaceData, faceData.ID * 32, 32);
         }
 
-        Buffer.BlockCopy(QuadInData, 0, VoxelData, 0, 528000);
-        Buffer.BlockCopy(FaceData, 0, VoxelData, 528000, 80000);
+        Buffer.BlockCopy(QuadInData, 0, VoxelData, 0, 256 * 4000);
+        Buffer.BlockCopy(FaceData, 0, VoxelData, 256 * 4000, 32 * 4000);
 
-        /*
+        
         for (int j = 0; j < 12 * 132; j += 132)
         {
-            for (int i = 0; i < 48; i += 4)
+            for (int i = 0; i < 124; i += 4)
             {
-                GD.Print($"{QuadInData[i + j]} {QuadInData[i + 1 + j]} {QuadInData[i + 2 + j]} {QuadInData[i + 3 + j]}");
+                GD.Print($"{VoxelData[i + j]} {VoxelData[i + 1 + j]} {VoxelData[i + 2 + j]} {VoxelData[i + 3 + j]}");
             }
             GD.Print();
         }
+        /*
+        GD.Print($"{FaceData[64 + 12]} {FaceData[64 + 12 + 1]} {FaceData[64 + 12 + 2]} {FaceData[64 + 12 + 3]}");
+        GD.Print($"{FaceData[64 + 16]} {FaceData[64 + 16 + 1]} {FaceData[64 + 16 + 2]} {FaceData[64 + 16 + 3]}");
+        GD.Print($"{FaceData[64 + 20]} {FaceData[64 + 20 + 1]} {FaceData[64 + 20 + 2]} {FaceData[64 + 20 + 3]}");
+        GD.Print($"{FaceData[64 + 24]} {FaceData[64 + 24 + 1]} {FaceData[64 + 24 + 2]} {FaceData[64 + 24 + 3]}");
+        GD.Print($"{FaceData[64 + 28]} {FaceData[64 + 28 + 1]} {FaceData[64 + 28 + 2]} {FaceData[64 + 28 + 3]}");
 
-        
-
-        
-
-        
-                GD.Print($"{FaceData[64 + 12]} {FaceData[64 + 12 + 1]} {FaceData[64 + 12 + 2]} {FaceData[64 + 12 + 3]}");
-                GD.Print($"{FaceData[64 + 16]} {FaceData[64 + 16 + 1]} {FaceData[64 + 16 + 2]} {FaceData[64 + 16 + 3]}");
-                GD.Print($"{FaceData[64 + 20]} {FaceData[64 + 20 + 1]} {FaceData[64 + 20 + 2]} {FaceData[64 + 20 + 3]}");
-                GD.Print($"{FaceData[64 + 24]} {FaceData[64 + 24 + 1]} {FaceData[64 + 24 + 2]} {FaceData[64 + 24 + 3]}");
-                GD.Print($"{FaceData[64 + 28]} {FaceData[64 + 28 + 1]} {FaceData[64 + 28 + 2]} {FaceData[64 + 28 + 3]}");
-
-                GD.Print($"{VoxelData[528000 + 64 + 8]} {VoxelData[528000 + 64 + 8 + 1]} {VoxelData[528000 + 64 + 8 + 2]} {VoxelData[528000 + 64 + 8 + 3]}");
-                GD.Print($"{VoxelData[80000 + 132 * 1]} {VoxelData[80000 + 132 * 1 + 1]} {VoxelData[80000 + 132 * 1 + 2]} {VoxelData[80000 + 132 * 1 + 3]}");
-                GD.Print($"{VoxelData[80000 + 132 * 1 + 4]} {VoxelData[80000 + 132 * 1 + 5]} {VoxelData[80000 + 132 * 1 + 6]} {VoxelData[80000 + 132 * 1 + 7]}");
-                GD.Print($"{VoxelData[80000 + 132 * 1 + 8]} {VoxelData[80000 + 132 * 1 + 9]} {VoxelData[80000 + 132 * 1 + 10]} {VoxelData[80000 + 132 * 1 + 11]}");
-                GD.Print($"{VoxelData[80000 + 132 * 1 + 12]} {VoxelData[80000 + 132 * 1 + 13]} {VoxelData[80000 + 132 * 1 + 14]} {VoxelData[80000 + 132 * 1 + 15]}");*/
+        GD.Print($"{VoxelData[528000 + 64 + 8]} {VoxelData[528000 + 64 + 8 + 1]} {VoxelData[528000 + 64 + 8 + 2]} {VoxelData[528000 + 64 + 8 + 3]}");
+        GD.Print($"{VoxelData[80000 + 132 * 1]} {VoxelData[80000 + 132 * 1 + 1]} {VoxelData[80000 + 132 * 1 + 2]} {VoxelData[80000 + 132 * 1 + 3]}");
+        GD.Print($"{VoxelData[80000 + 132 * 1 + 4]} {VoxelData[80000 + 132 * 1 + 5]} {VoxelData[80000 + 132 * 1 + 6]} {VoxelData[80000 + 132 * 1 + 7]}");
+        GD.Print($"{VoxelData[80000 + 132 * 1 + 8]} {VoxelData[80000 + 132 * 1 + 9]} {VoxelData[80000 + 132 * 1 + 10]} {VoxelData[80000 + 132 * 1 + 11]}");
+        GD.Print($"{VoxelData[80000 + 132 * 1 + 12]} {VoxelData[80000 + 132 * 1 + 13]} {VoxelData[80000 + 132 * 1 + 14]} {VoxelData[80000 + 132 * 1 + 15]}");
+        */
     }
 
     public void GeneratePChunkMesh4(int[] Data, Chunk ch)
@@ -285,7 +276,7 @@ public partial class ChunkMeshManager : Node
         Rid QuadCountBuffer = rd.StorageBufferCreate(sizeof(int) * 2);
         Rid ChunkDataBuffer = rd.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
         Rid ChunkDimensionalBuffer = rd.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
-        Rid VoxelDataBuffer = rd.StorageBufferCreate(528000 + 80000, VoxelData);
+        Rid VoxelDataBuffer = rd.StorageBufferCreate(256 * 4000 + 32 * 4000, VoxelData);
 
         Array<RDUniform> Uniforms = new Array<RDUniform>();
 
@@ -340,25 +331,22 @@ public partial class ChunkMeshManager : Node
         int[] Count = new int[2];
         Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 2);
 
-        byte[] QBytes = rd.BufferGetData(QuadBuffer, 0, (uint)Count[0] * 64);
+        byte[] QBytes = rd.BufferGetData(QuadBuffer, 0, (uint)Count[0] * 128);
 
-        rd.BufferClear(QuadBuffer, 0, (uint)Count[0] * 64);
+        rd.BufferClear(QuadBuffer, 0, (uint)Count[0] * 128);
         rd.BufferClear(QuadCountBuffer, 0, 8);
 
-        //ch.PChunkByteIngestion(QBytes, countBytes);
         ch.PChunkByteAssignment(QBytes);
 
         rd.FreeRid(pipelineRID);
-        rd.FreeRid(QuadBuffer);
+        //rd.FreeRid(QuadBuffer);
+        //rd.FreeRid(QuadCountBuffer);
         rd.FreeRid(ChunkDataBuffer);
-        rd.FreeRid(QuadCountBuffer);
-        rd.FreeRid(ShaderRID);
         rd.FreeRid(ChunkDimensionalBuffer);
         rd.FreeRid(VoxelDataBuffer);
+        //rd.FreeRid(ShaderRID);
         //rd.Free();
 
         return;
     }
-
-
 }

@@ -32,10 +32,10 @@ background_mode = 2
 sky = SubResource("Sky_ir56b")
 tonemap_mode = 2
 volumetric_fog_enabled = true
-volumetric_fog_density = 0.0091
+volumetric_fog_density = 0.005
 volumetric_fog_albedo = Color(0.301961, 0.403922, 0.6, 1)
 volumetric_fog_anisotropy = 0.4
-volumetric_fog_temporal_reprojection_enabled = false
+volumetric_fog_length = 89.6
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_2lcjd"]
 render_priority = 0
@@ -86,7 +86,7 @@ RayCast = NodePath("Camera3D/RayCast3D")
 environment = SubResource("Environment_fngh7")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.977416, -0.179214, 0.111985, 0, 0.529919, 0.848048, -0.211325, -0.828896, 0.517952, 0, 0, 0)
+transform = Transform3D(0.659333, 0.637606, -0.39842, -6.84009e-08, 0.529919, 0.848048, 0.751851, -0.559146, 0.349393, 0, 0, 0)
 shadow_enabled = true
 shadow_normal_bias = 3.782
 shadow_blur = 0.3
@@ -105,7 +105,7 @@ camera_start_deadzone = 0.0
 camera_end_deadzone = 0.0
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 1.86513)
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0)
 current = true
 script = ExtResource("3_o0vww")
 sensitivity = 0.2
@@ -128,9 +128,12 @@ script = ExtResource("4_cg07s")
 TrackingItem = NodePath("../Camera3D")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+visible = false
 mesh = SubResource("BoxMesh_ep0ea")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+visible = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
+visible = false
 shape = SubResource("ConvexPolygonShape3D_xfmry")

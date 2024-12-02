@@ -24,13 +24,6 @@ vec4[4] custom2
 
 CORE STRUCTURE:
 
-	FaceTree- array based binary search tree of structs that have an index pointing to Facelist, an array of linked list structs. 
-	FaceList will have:
-		-block ID int
-		-Left node
-		-Right Node
-		-FaceList Index
-
 	FaceList- will have all face data for a voxel ID
 		-up pos, color, UV, custom, etc
 		-North

@@ -85,7 +85,6 @@ public partial class ChunkGeneratorManager : Node
 						{
 							chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 2;
 						}
-						
                     }
 				});
 			});

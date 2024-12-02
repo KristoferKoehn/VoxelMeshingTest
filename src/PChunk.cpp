@@ -37,7 +37,20 @@ void PChunk::MeshAssignment(Array ArrayList) {
 		memdelete(arrayMesh);
 	}
 	arrayMesh = memnew(ArrayMesh());
-	arrayMesh->call_deferred("add_surface_from_arrays", godot::Mesh::PRIMITIVE_TRIANGLES, ArrayList);
+
+	//arrayMesh->add_surface_from_arrays()
+
+	godot::Mesh::ArrayFormat format = (godot::Mesh::ArrayFormat)(godot::Mesh::ArrayFormat::ARRAY_FORMAT_VERTEX |
+				godot::Mesh::ArrayFormat::ARRAY_FORMAT_NORMAL |
+				godot::Mesh::ArrayFormat::ARRAY_FORMAT_COLOR |
+				godot::Mesh::ArrayFormat::ARRAY_FORMAT_INDEX |
+				godot::Mesh::ArrayFormat::ARRAY_FORMAT_CUSTOM0 |
+				godot::Mesh::ArrayFormat::ARRAY_FORMAT_TEX_UV
+				);
+	
+	format = (godot::Mesh::ArrayFormat)(format | ((int)godot::Mesh::ARRAY_CUSTOM_RGBA_FLOAT << (int)godot::Mesh::ARRAY_FORMAT_CUSTOM0_SHIFT));
+
+	arrayMesh->call_deferred("add_surface_from_arrays", godot::Mesh::PRIMITIVE_TRIANGLES, ArrayList, godot::Array(), godot::Dictionary(), format);
 	this->set_mesh(arrayMesh);
 	return;
 }
@@ -161,7 +174,7 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 	PackedVector3Array UV;
 	PackedColorArray Colors;
 	PackedInt32Array Indices;
-	PackedVector4Array Custom0;
+	PackedFloat32Array Custom0;
 	
 	//for every workgroup octant (count.size() / word_size)
 	//	for each face counted in octant
@@ -204,12 +217,25 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 		UV.append(Vector3(0,0,0));
 		UV.append(Vector3(1,0,0));
 
+
+		/*
 		Vector4 k = Vector4(face_bytes.decode_float(faceIndex + 96), face_bytes.decode_float(faceIndex + 100), face_bytes.decode_float(faceIndex + 104),  face_bytes.decode_float(faceIndex + 108));
 
 		Custom0.append(k);
 		Custom0.append(k);
 		Custom0.append(k);
 		Custom0.append(k);
+		*/
+
+		PackedFloat32Array fl = {(float)face_bytes.decode_float(faceIndex + 96), 
+								 (float)face_bytes.decode_float(faceIndex + 100), 
+								 (float)face_bytes.decode_float(faceIndex + 104),  
+								 (float)face_bytes.decode_float(faceIndex + 108)};
+
+		Custom0.append_array(fl);
+		Custom0.append_array(fl);
+		Custom0.append_array(fl);
+		Custom0.append_array(fl);
 
 		Vector3 normal = Vector3(face_bytes.decode_float(faceIndex + 112), face_bytes.decode_float(faceIndex + 116), face_bytes.decode_float(faceIndex + 120));
 
@@ -224,6 +250,20 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 
 	CollisionMesh = UnpackedVertices;
 
+	godot::UtilityFunctions::print("Starting printout: ");
+	godot::UtilityFunctions::print("Vertices: ");
+	godot::UtilityFunctions::print(Vertices.size());
+	godot::UtilityFunctions::print("Normals: ");
+	godot::UtilityFunctions::print(Normals.size());
+	godot::UtilityFunctions::print("Colors: ");
+	godot::UtilityFunctions::print(Colors.size());
+	godot::UtilityFunctions::print("Indices: ");
+	godot::UtilityFunctions::print(Indices.size());
+	godot::UtilityFunctions::print("Custom0: ");
+	godot::UtilityFunctions::print(Custom0.size());
+	godot::UtilityFunctions::print("UV: ");
+	godot::UtilityFunctions::print(UV.size());
+
 	arr[godot::Mesh::ARRAY_VERTEX] = Vertices;
 	arr[godot::Mesh::ARRAY_NORMAL] = Normals;
 	arr[godot::Mesh::ARRAY_COLOR] = Colors;
@@ -231,6 +271,7 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 	arr[godot::Mesh::ARRAY_CUSTOM0] = Custom0;
 	arr[godot::Mesh::ARRAY_TEX_UV] = UV;
 
+	
 	MeshAssignment(arr);
 
 	/*ArrayMesh* am = memnew(ArrayMesh());
