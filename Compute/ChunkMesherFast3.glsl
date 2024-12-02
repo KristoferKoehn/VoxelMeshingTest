@@ -131,8 +131,8 @@ void main () {
 					QuadIn q = VoxelData.QuadInput[f.WestQuadIndex];
 					Quads.data[IndexTicket].vertices = AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
 					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
-					Quads.data[IndexTicket].custom0.x = ChunkData.data[x][y][z];
-					//Quads.data[IndexTicket].color = vec4(WestNormal.x,  WestNormal.y, WestNormal.z, 0);
+					Quads.data[IndexTicket].custom0 = q.custom0;
+					Quads.data[IndexTicket].color = q.color;
 				}
 				
 				//do east face?
@@ -140,11 +140,10 @@ void main () {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
 					QuadIn q = VoxelData.QuadInput[f.EastQuadIndex];
-
 					Quads.data[IndexTicket].vertices = AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
 					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
+					Quads.data[IndexTicket].custom0 = q.custom0;
 					Quads.data[IndexTicket].color = q.color;
-					//Quads.data[IndexTicket].color = vec4(EastNormal.x,  EastNormal.y, EastNormal.z, 0);
 				}	
 				
 				//do south face
@@ -165,6 +164,7 @@ void main () {
 					QuadIn q = VoxelData.QuadInput[f.NorthQuadIndex];
 					Quads.data[IndexTicket].vertices = AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
 					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
+					Quads.data[IndexTicket].custom0 = q.custom0;
 					Quads.data[IndexTicket].color = q.color;
 				}
 			
@@ -175,6 +175,7 @@ void main () {
 					QuadIn q = VoxelData.QuadInput[f.UpQuadIndex];
 					Quads.data[IndexTicket].vertices = AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
 					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
+					Quads.data[IndexTicket].custom0 = q.custom0;
 					Quads.data[IndexTicket].color = q.color;
 				} 
 				
@@ -184,6 +185,7 @@ void main () {
 					QuadIn q = VoxelData.QuadInput[f.DownQuadIndex];
 					Quads.data[IndexTicket].vertices = AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
 					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
+					Quads.data[IndexTicket].custom0 = q.custom0;
 					Quads.data[IndexTicket].color = q.color;
 				}
 			}

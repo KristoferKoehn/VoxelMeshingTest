@@ -86,7 +86,7 @@ RayCast = NodePath("Camera3D/RayCast3D")
 environment = SubResource("Environment_fngh7")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.659333, 0.637606, -0.39842, -6.84009e-08, 0.529919, 0.848048, 0.751851, -0.559146, 0.349393, 0, 0, 0)
+transform = Transform3D(0.571007, 0.817137, 0.0789879, -0.366758, 0.167834, 0.915056, 0.734463, -0.551468, 0.395524, 0, 0, 0)
 shadow_enabled = true
 shadow_normal_bias = 3.782
 shadow_blur = 0.3

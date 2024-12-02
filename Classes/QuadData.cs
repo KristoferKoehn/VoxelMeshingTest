@@ -54,7 +54,7 @@ public partial class QuadData : Resource
             Color[3].R, Color[3].G, Color[3].B,
 
             //4 floats
-            UVMetallicityIndex, UVTransparencyIndex, UVTransparencyIndex, 0, 
+            UVTextureIndex, UVMetallicityIndex, UVTransparencyIndex, UVTransparencyIndex,
 
             //3 floats
             Normals.X, Normals.Y, Normals.Z,

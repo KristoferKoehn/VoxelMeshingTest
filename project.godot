@@ -88,5 +88,6 @@ common/physics_interpolation=true
 
 [rendering]
 
+driver/threads/thread_model=2
 environment/volumetric_fog/volume_size=128
 environment/volumetric_fog/volume_depth=128
