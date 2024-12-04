@@ -5,33 +5,51 @@ uniform sampler2D MetallicTexture : filter_nearest;
 uniform sampler2D TransparencyTexture : filter_nearest;
 uniform sampler2D EmissivenessTexture : filter_nearest;
 
-uniform vec2 TextureCellSize;
+const vec2 TextureCellSize = vec2(1.0/32.0, 1.0/32.0);
 uniform float TextureAtlasSize;
 
-varying vec2 CellPos;
+varying vec2 AlbedoPos;
+varying vec2 MetallicPos;
+varying vec2 EmissivenessPos;
+varying vec2 TransparencyPos;
 
-varying vec2 AlbedoUV;
-varying vec2 MetallicUV;
-varying vec2 TransparencyUV;
-varying vec2 EmissivenessUV;
+varying float Metallicity;
+varying float Emissiveness;
+varying float Transparency;
 
 void vertex() {
-	float row = floor(float(CUSTOM0.x) / TextureAtlasSize);
-	float column = mod(float(CUSTOM0.x), TextureAtlasSize);
+	AlbedoPos = vec2(CUSTOM0.x / TextureAtlasSize, mod(CUSTOM0.x, TextureAtlasSize));
+	MetallicPos = vec2(CUSTOM0.y / TextureAtlasSize, mod(CUSTOM0.y, TextureAtlasSize));
+	EmissivenessPos = vec2(CUSTOM0.z / TextureAtlasSize, mod(CUSTOM0.z, TextureAtlasSize));
+	TransparencyPos = vec2(CUSTOM0.w / TextureAtlasSize, mod(CUSTOM0.w, TextureAtlasSize));
 	
-	CellPos = vec2(row * TextureAtlasSize,column * TextureAtlasSize);
-	//AlbedoUV = vec2(row, column);
-	AlbedoUV = CellPos * vec2(1.0/32.0, 1.0/32.0);
-	MetallicUV = vec2(float(int(CUSTOM0.y) % int(TextureAtlasSize)), float(int(CUSTOM0.y) / int(TextureAtlasSize)));
-	TransparencyUV = vec2(float(int(CUSTOM0.z) % int(TextureAtlasSize)), float(int(CUSTOM0.z) / int(TextureAtlasSize)));
-	EmissivenessUV = vec2(float(int(CUSTOM0.w) % int(TextureAtlasSize)), float(int(CUSTOM0.w) / int(TextureAtlasSize)));
+	Metallicity = CUSTOM0.y;
+	Emissiveness = CUSTOM0.z;
+	Transparency = CUSTOM0.w;
 }
 
 void fragment() {
 	ALBEDO = COLOR.rgb;
-	ALBEDO = ALBEDO * texture(AlbedoTexture, CellPos + UV * AlbedoUV).rgb;
-	//METALLIC = texture(MetallicTexture, UV * MetallicUV).r;
-	//EMISSION = ALBEDO * texture(EmissivenessTexture, UV * EmissivenessUV).r;
+	if (AlbedoPos != vec2(0,0)) {
+			ALBEDO = ALBEDO * texture(AlbedoTexture, AlbedoPos + UV * TextureCellSize).rgb;
+	}
+	
+	if (MetallicPos != vec2(0,0)) {
+		if (Metallicity < 1023.0) {
+			ROUGHNESS = METALLIC = texture(MetallicTexture, MetallicPos + UV * TextureCellSize).r;
+		} else {
+			ROUGHNESS = 1.0 - (Metallicity - 1023.0);
+			METALLIC = Metallicity - 1023.0;
+		}
+	}
+
+	if (EmissivenessPos != vec2(0,0)) {
+		if (Emissiveness < 1023.0) {
+			EMISSION = ALBEDO * texture(EmissivenessTexture, EmissivenessPos * TextureCellSize).r;
+		} else {
+			EMISSION = ALBEDO * (Emissiveness - 1023.0);
+		}
+	}
 }
 
 //void light() {

@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=26 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="PackedScene" uid="uid://dlbkch6iuy8gn" path="res://addons/fp_controller/player.tscn" id="3_kpwlr"]
@@ -8,6 +8,7 @@
 [ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
 [ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
 [ext_resource type="Shader" path="res://Resources/Test.gdshader" id="8_jttcl"]
+[ext_resource type="Texture2D" uid="uid://bijs27qcgp70g" path="res://assets/banana sprite.png" id="9_ft6t3"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_bi2te"]
 noise_type = 3
@@ -31,6 +32,11 @@ sky_material = SubResource("PhysicalSkyMaterial_j18j3")
 background_mode = 2
 sky = SubResource("Sky_ir56b")
 tonemap_mode = 2
+sdfgi_enabled = true
+sdfgi_use_occlusion = true
+sdfgi_bounce_feedback = 1.99
+sdfgi_cascades = 5
+sdfgi_min_cell_size = 0.9
 volumetric_fog_enabled = true
 volumetric_fog_density = 0.005
 volumetric_fog_albedo = Color(0.301961, 0.403922, 0.6, 1)
@@ -67,7 +73,6 @@ size = Vector2(2, 2)
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_e16j1"]
 render_priority = 0
 shader = ExtResource("8_jttcl")
-shader_parameter/TextureCellSize = null
 shader_parameter/TextureAtlasSize = null
 
 [sub_resource type="BoxMesh" id="BoxMesh_ep0ea"]
@@ -75,6 +80,61 @@ material = SubResource("ShaderMaterial_e16j1")
 
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xfmry"]
 points = PackedVector3Array(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_qkm5e"]
+spread = 180.0
+flatness = 0.77
+initial_velocity_min = 5.0
+initial_velocity_max = 5.0
+radial_accel_min = 100.0
+radial_accel_max = 100.0
+tangential_accel_min = 50.0
+tangential_accel_max = 50.0
+damping_min = 100.0
+damping_max = 100.0
+
+[sub_resource type="Shader" id="Shader_hdgmp"]
+code = "shader_type spatial;
+render_mode unshaded;
+
+uniform sampler2D animation2 : filter_linear;
+varying vec4 vertex_color;
+
+void vertex() {
+	    mat4 modified_model_view = VIEW_MATRIX * mat4(
+        INV_VIEW_MATRIX[0],
+        INV_VIEW_MATRIX[1],
+        INV_VIEW_MATRIX[2],
+        MODEL_MATRIX[3]
+    );
+    MODELVIEW_MATRIX = modified_model_view;
+	vertex_color = COLOR;
+}
+
+void fragment() {
+	vec2 cell_size = vec2(1.0/5.1, 1.0/7.1);
+	float ms = mod(TIME, 2.8);
+	float frame = floor(ms*10.0);
+	vec2 cell_start = vec2(mod(frame, 5.0), frame/7.0);
+	vec4 val = texture(animation2, cell_start + UV * cell_size);
+	ALBEDO = val.rgb * vertex_color.rgb;
+	ALPHA = val.a * vertex_color.a;
+}
+
+//void light() {
+	// Called for every pixel for every light affecting the material.
+	// Uncomment to replace the default light processing function with this one.
+//}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pfurf"]
+render_priority = 0
+shader = SubResource("Shader_hdgmp")
+shader_parameter/animation2 = ExtResource("9_ft6t3")
+
+[sub_resource type="QuadMesh" id="QuadMesh_tret3"]
+material = SubResource("ShaderMaterial_pfurf")
+size = Vector2(1, 1.4)
 
 [node name="GameLoop" type="Node3D" node_paths=PackedStringArray("RayCast")]
 script = ExtResource("1_aic3m")
@@ -86,7 +146,7 @@ RayCast = NodePath("Camera3D/RayCast3D")
 environment = SubResource("Environment_fngh7")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.571007, 0.817137, 0.0789879, -0.366758, 0.167834, 0.915056, 0.734463, -0.551468, 0.395524, 0, 0, 0)
+transform = Transform3D(0.571009, 0.817135, 0.0789876, -0.773633, 0.503413, 0.384795, 0.274666, -0.280829, 0.919616, 0, 0, 0)
 shadow_enabled = true
 shadow_normal_bias = 3.782
 shadow_blur = 0.3
@@ -95,6 +155,7 @@ directional_shadow_max_distance = 758.0
 
 [node name="Player" parent="." instance=ExtResource("3_kpwlr")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2085.3, 0)
+visible = false
 walk_back_speed = 5.0
 walk_speed = 5.0
 sprint_speed = 10.0
@@ -137,3 +198,9 @@ visible = false
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
 visible = false
 shape = SubResource("ConvexPolygonShape3D_xfmry")
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.42567, 3.77997, 5.69126)
+visible = false
+process_material = SubResource("ParticleProcessMaterial_qkm5e")
+draw_pass_1 = SubResource("QuadMesh_tret3")

@@ -1,8 +1,10 @@
 using Godot;
 using Godot.Collections;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using VoxelMeshingTest.Classes;
 
 enum CullDirection
 {
@@ -18,7 +20,10 @@ enum CullDirection
 }
 public partial class Chunk : Node3D
 {
-    public int[] ChunkData;
+    public int[,,] ChunkData;
+
+    public bool Regen = false;
+    public List<Tuple<Vector3I, int>> ChangePackets = new();
 
     public bool Generated = false;
     public bool Meshed = false;
@@ -63,6 +68,7 @@ public partial class Chunk : Node3D
         {
             GD.Print("material fucked");
         }
+
         Visible = true;
     }
 
@@ -76,6 +82,32 @@ public partial class Chunk : Node3D
             {
                 PChunkByteIngestion(meshbytes);
             }
+        }
+
+        Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
+        if ((pos - GlobalPosition).Length() > 2000)
+        {
+            GD.Print($"Despawning chunk at: {GlobalPosition}");
+            QueueFree();
+        }
+
+        if ((pos - GlobalPosition).Length() > 1000)
+        {
+            Visible = false;
+        }
+        else
+        {
+            Visible = true;
+        }
+
+        if (Regen)
+        {
+            Remesh();
+        }
+
+        if (Input.IsActionJustPressed("rotate"))
+        {
+            RotateY(Mathf.Pi / 2);
         }
     }
 
@@ -104,4 +136,24 @@ public partial class Chunk : Node3D
         Collision = true;
 
     }
+
+    public void Remesh()
+    {
+
+        foreach(Tuple<Vector3I, int> change in ChangePackets)
+        {
+            ChunkData[change.Item1.X,change.Item1.Y,change.Item1.Z] = change.Item2;
+        }
+        ChangePackets.Clear();
+        ChunkMeshManager.Instance().GeneratePChunkMesh4(ChunkData, this);
+        Regen = false;
+    }
+
+    public void QueueDataChange(Vector3I BlockPosition, int data)
+    {
+        GD.Print($"data position : {BlockPosition} at {ChunkCoordinates}");
+        ChangePackets.Add(new Tuple<Vector3I, int>(BlockPosition, data));
+        Regen = true;
+    }
+
 }

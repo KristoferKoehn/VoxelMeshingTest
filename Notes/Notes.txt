@@ -8,19 +8,6 @@ issues-
 	
  * greedy meshing consideration:
 	- some faces must be listed as "stretchable", others simply added to the face data output.
-	
-	
-	
-*New Quad Struct!!
-
-
-
-//240 bytes
-vec4[3] positions
-vec4[4] color
-vec4[4] custom
-vec4[4] custom2
-
 
 CORE STRUCTURE:
 
@@ -54,8 +41,6 @@ CORE STRUCTURE:
 			-do dynamic lookup on face quad system (from resources) once this works we will be pogging the fuck out
 			
 		new face ingestion C++ function
-			-can do UV just fine
-			-just gotta get the new quadout struct hammered out and assigned
 			-new transparency arraymesh with cool shader perhap? probably later, if transp > 0
 			
 		MOVE BACKWARDS FROM C++, determine what is needed, then flow backward. We need:
@@ -70,7 +55,17 @@ CORE STRUCTURE:
 			greedy meshing (can skip for now, theoretically)
 				- to work with baked AO, add 1000 to ID for first case, 2000 for 2nd case, so on,
 				to prevent greedying of baked AO
-			baked AO (would be super fucking cool)
+			baked AO (would be super fucking cool) ---bing bing bing bing!!
 				-determine which vertices are affected, multiply by 0.8 or something
 			
-		
+		Texture Writer-
+			import 64x64 images onto texture atlas
+			
+		Voxel editor-
+			make new voxels!
+			-select face (base default template not deleteable)
+			-add quads to it
+			-put texture onto each thing (select which faces get new UV scale or something, checkboxes?)
+			-have list of all created voxels
+			
+			-pregenerate 256 colors to just hang on to, for reasons

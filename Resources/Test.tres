@@ -6,6 +6,8 @@
 [resource]
 render_priority = 0
 shader = ExtResource("1_u4ve8")
-shader_parameter/TextureCellSize = Vector2(64, 64)
 shader_parameter/TextureAtlasSize = 32.0
 shader_parameter/AlbedoTexture = ExtResource("2_20h0y")
+shader_parameter/MetallicTexture = ExtResource("2_20h0y")
+shader_parameter/TransparencyTexture = ExtResource("2_20h0y")
+shader_parameter/EmissivenessTexture = ExtResource("2_20h0y")

@@ -18,9 +18,11 @@ public partial class ChunkMeshManager : Node
 
     private ShaderWrapper ShaderWrapper { get; set; }
 
-    RenderingDevice rd { get; set; }
-
     private byte[] VoxelData;
+    RenderingDevice rd { get; set; }
+    Rid VoxelDataBuffer;
+
+
 
     public static ChunkMeshManager Instance()
 	{
@@ -54,7 +56,7 @@ public partial class ChunkMeshManager : Node
                     GeneratePChunkMesh4(chunk.ChunkData, chunk);
                 }
 
-                Thread.Sleep(15);
+                Thread.Sleep(20);
             }
         });
     }
@@ -227,31 +229,9 @@ public partial class ChunkMeshManager : Node
         Buffer.BlockCopy(QuadInData, 0, VoxelData, 0, 256 * 4000);
         Buffer.BlockCopy(FaceData, 0, VoxelData, 256 * 4000, 32 * 4000);
 
-        
-        for (int j = 0; j < 12 * 132; j += 132)
-        {
-            for (int i = 0; i < 124; i += 4)
-            {
-                GD.Print($"{VoxelData[i + j]} {VoxelData[i + 1 + j]} {VoxelData[i + 2 + j]} {VoxelData[i + 3 + j]}");
-            }
-            GD.Print();
-        }
-        /*
-        GD.Print($"{FaceData[64 + 12]} {FaceData[64 + 12 + 1]} {FaceData[64 + 12 + 2]} {FaceData[64 + 12 + 3]}");
-        GD.Print($"{FaceData[64 + 16]} {FaceData[64 + 16 + 1]} {FaceData[64 + 16 + 2]} {FaceData[64 + 16 + 3]}");
-        GD.Print($"{FaceData[64 + 20]} {FaceData[64 + 20 + 1]} {FaceData[64 + 20 + 2]} {FaceData[64 + 20 + 3]}");
-        GD.Print($"{FaceData[64 + 24]} {FaceData[64 + 24 + 1]} {FaceData[64 + 24 + 2]} {FaceData[64 + 24 + 3]}");
-        GD.Print($"{FaceData[64 + 28]} {FaceData[64 + 28 + 1]} {FaceData[64 + 28 + 2]} {FaceData[64 + 28 + 3]}");
-
-        GD.Print($"{VoxelData[528000 + 64 + 8]} {VoxelData[528000 + 64 + 8 + 1]} {VoxelData[528000 + 64 + 8 + 2]} {VoxelData[528000 + 64 + 8 + 3]}");
-        GD.Print($"{VoxelData[80000 + 132 * 1]} {VoxelData[80000 + 132 * 1 + 1]} {VoxelData[80000 + 132 * 1 + 2]} {VoxelData[80000 + 132 * 1 + 3]}");
-        GD.Print($"{VoxelData[80000 + 132 * 1 + 4]} {VoxelData[80000 + 132 * 1 + 5]} {VoxelData[80000 + 132 * 1 + 6]} {VoxelData[80000 + 132 * 1 + 7]}");
-        GD.Print($"{VoxelData[80000 + 132 * 1 + 8]} {VoxelData[80000 + 132 * 1 + 9]} {VoxelData[80000 + 132 * 1 + 10]} {VoxelData[80000 + 132 * 1 + 11]}");
-        GD.Print($"{VoxelData[80000 + 132 * 1 + 12]} {VoxelData[80000 + 132 * 1 + 13]} {VoxelData[80000 + 132 * 1 + 14]} {VoxelData[80000 + 132 * 1 + 15]}");
-        */
     }
 
-    public void GeneratePChunkMesh4(int[] Data, Chunk ch)
+    public void GeneratePChunkMesh4(int[,,] Data, Chunk ch)
     {
         //RenderingDevice rd = RenderingServer.CreateLocalRenderingDevice();
         RDShaderFile shaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkMesherFast3.glsl");
@@ -332,19 +312,20 @@ public partial class ChunkMeshManager : Node
         Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 2);
 
         byte[] QBytes = rd.BufferGetData(QuadBuffer, 0, (uint)Count[0] * 128);
-
+        
         rd.BufferClear(QuadBuffer, 0, (uint)Count[0] * 128);
         rd.BufferClear(QuadCountBuffer, 0, 8);
-
+        
         ch.PChunkByteAssignment(QBytes);
 
+        rd.FreeRid(UniformSet);
         rd.FreeRid(pipelineRID);
-        //rd.FreeRid(QuadBuffer);
-        //rd.FreeRid(QuadCountBuffer);
+        rd.FreeRid(QuadBuffer);
+        rd.FreeRid(QuadCountBuffer);
         rd.FreeRid(ChunkDataBuffer);
         rd.FreeRid(ChunkDimensionalBuffer);
         rd.FreeRid(VoxelDataBuffer);
-        //rd.FreeRid(ShaderRID);
+        rd.FreeRid(ShaderRID);
         //rd.Free();
 
         return;

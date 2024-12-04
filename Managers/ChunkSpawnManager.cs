@@ -89,8 +89,9 @@ public partial class ChunkSpawnManager : Node
     void GeneratePChunk(int x, int y, int z)
     {
         Vector3I pos = new Vector3I(x, y, z);
-        int[] data = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
-        Chunks[pos].ChunkData = data;
+
+        Chunks[pos].ChunkData = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
+        Chunks[pos].ChunkCoordinates = pos;
         ChunkMeshManager.Instance().RequestChunkMeshUpdate(Chunks[pos]);
     }
 
@@ -151,38 +152,52 @@ public partial class ChunkSpawnManager : Node
     {
         await Task.Run(() =>
         {
-
+            //nonsense starting value
+            Vector3 lastPos = new Vector3(12,12,12);
             while (true)
             {
+
                 Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
-                Vector3 ChunkPos = (pos + new Vector3(GameConstants.CHUNK_SIZE/2, 0, GameConstants.CHUNK_SIZE / 2)) / GameConstants.CHUNK_SIZE;
-
-                for (int i = (int)ChunkPos.X - 13; i < (int)ChunkPos.X + 13; i++)
+                if (pos != lastPos)
                 {
-                    for (int j = (int)ChunkPos.Z - 13; j < (int)ChunkPos.Z + 13; j++)
+                    Vector3 ChunkPos = (pos + new Vector3(GameConstants.CHUNK_SIZE / 2, 0, GameConstants.CHUNK_SIZE / 2)) / GameConstants.CHUNK_SIZE;
+
+                    for (int i = (int)ChunkPos.X - 10; i < (int)ChunkPos.X + 10; i++)
                     {
-                        if ((ChunkPos - new Vector3(i, 0, j)).Length() < 13)
+                        for (int j = (int)ChunkPos.Z - 10; j < (int)ChunkPos.Z + 10; j++)
                         {
-                            InitializeChunk(i, 0, j);
+                            if ((ChunkPos - new Vector3(i, 0, j)).Length() < 10)
+                            {
+                                InitializeChunk(i, 0, j);
+                            }
                         }
                     }
-                }
 
-                Vector3 ChunkPosCopy = ChunkPos;
+                    Vector3 ChunkPosCopy = ChunkPos;
 
-                for (int i = (int)ChunkPosCopy.X - 10; i < (int)ChunkPosCopy.X + 10; i++)
-                {
-                    for (int j = (int)ChunkPosCopy.Z - 10; j < (int)ChunkPosCopy.Z + 10; j++)
+                    for (int i = (int)ChunkPosCopy.X - 7; i < (int)ChunkPosCopy.X + 7; i++)
                     {
-                        if ((ChunkPosCopy - new Vector3(i, 0, j)).Length() < 10)
+                        for (int j = (int)ChunkPosCopy.Z - 7; j < (int)ChunkPosCopy.Z + 7; j++)
                         {
-                            GenerateChunkMesh(i, 0, j);
+                            if ((ChunkPosCopy - new Vector3(i, 0, j)).Length() < 7)
+                            {
+                                GenerateChunkMesh(i, 0, j);
+                            }
                         }
                     }
+                    lastPos = pos;
                 }
-
                 Thread.Sleep(100);
             }
         });
+    }
+
+    public Chunk GetChunk(Vector3I pos)
+    {
+        if (!Chunks.ContainsKey(pos))
+        {
+            return null;
+        }
+        return Chunks[pos];
     }
 }

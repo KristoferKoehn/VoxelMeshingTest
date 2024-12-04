@@ -319,8 +319,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 1.5, 2.08165e-12
 current = true
 script = ExtResource("2_1py82")
 
-[node name="ReflectionProbe" type="ReflectionProbe" parent="CameraPivot/SmoothCamera"]
-
 [node name="StateMachine" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("2_wwa58")
@@ -354,6 +352,7 @@ script = ExtResource("11_gkc45")
 script = ExtResource("12_bqyfq")
 
 [node name="UserInterface" type="Control" parent="."]
+visible = false
 top_level = true
 layout_mode = 3
 anchors_preset = 15

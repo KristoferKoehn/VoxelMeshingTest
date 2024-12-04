@@ -13,7 +13,7 @@ public partial class ChunkGeneratorManager : Node
 	public static FastNoiseLite Terrain {  get; set; }
 	public static FastNoiseLite SurfaceCutoff {  get; set; }
 	public static Vector2 CutoffOffset { get; set; }
-	public Dictionary<Vector3I, int[]> GeneratedChunks { get; set; } = new Dictionary<Vector3I, int[]>();
+	public Dictionary<Vector3I, int[,,]> GeneratedChunks { get; set; } = new Dictionary<Vector3I, int[,,]>();
 
     public static ChunkGeneratorManager Instance()
 	{
@@ -39,24 +39,25 @@ public partial class ChunkGeneratorManager : Node
 
 	}
 
-    public int[] GenerateChunk(int x, int y, int z) {
+    public int[,,] GenerateChunk(int x, int y, int z) {
+
 		//get the data from some bullshit elsewhere. 
 		int side = GameConstants.CHUNK_SIZE;
 		Vector3I pos = new Vector3I(x, y, z);
-
+		pos = pos * new Vector3I(-1, 1, 1);
 		int dataSideLength = GameConstants.CHUNK_DATA_SIZE;
 		int ChunkSize = dataSideLength * dataSideLength * dataSideLength;
 
-		int[] chunkData;
+		int[,,] chunkData;
 
-		GeneratedChunks.TryGetValue(pos, out chunkData);
+        GeneratedChunks.TryGetValue(pos, out chunkData);
 		if (chunkData != null) { 
 			return chunkData;
 		}
 
-        chunkData = new int[ChunkSize];
-        
-		Parallel.For (0, dataSideLength, i =>
+		chunkData = new int[GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE];
+
+        Parallel.For (0, dataSideLength, i =>
 		{
 			Parallel.For(0, dataSideLength, j =>
 			{
@@ -71,7 +72,7 @@ public partial class ChunkGeneratorManager : Node
 
 					if (j > 17 + cutoffmod)// && j < 96 + cutoffmod)
 					{
-						chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 0;
+						chunkData[k,j,i] = 0;
 					}
 					else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
 					{/*
@@ -79,11 +80,11 @@ public partial class ChunkGeneratorManager : Node
                         */
 						if (j + cutoffmod > 10)
 						{
-							chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 1;
+                            chunkData[k, j, i] = 1;
 						}
 						else
 						{
-							chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 2;
+                            chunkData[k, j, i] = 1;
 						}
                     }
 				});

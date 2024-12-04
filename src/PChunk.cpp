@@ -250,20 +250,6 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 
 	CollisionMesh = UnpackedVertices;
 
-	godot::UtilityFunctions::print("Starting printout: ");
-	godot::UtilityFunctions::print("Vertices: ");
-	godot::UtilityFunctions::print(Vertices.size());
-	godot::UtilityFunctions::print("Normals: ");
-	godot::UtilityFunctions::print(Normals.size());
-	godot::UtilityFunctions::print("Colors: ");
-	godot::UtilityFunctions::print(Colors.size());
-	godot::UtilityFunctions::print("Indices: ");
-	godot::UtilityFunctions::print(Indices.size());
-	godot::UtilityFunctions::print("Custom0: ");
-	godot::UtilityFunctions::print(Custom0.size());
-	godot::UtilityFunctions::print("UV: ");
-	godot::UtilityFunctions::print(UV.size());
-
 	arr[godot::Mesh::ARRAY_VERTEX] = Vertices;
 	arr[godot::Mesh::ARRAY_NORMAL] = Normals;
 	arr[godot::Mesh::ARRAY_COLOR] = Colors;

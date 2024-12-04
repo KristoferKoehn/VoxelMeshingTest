@@ -2,21 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cmmr0cax3rawm"
-path.s3tc="res://.godot/imported/Untitled.png-f999cbd9ad67ebf939413b3a76841057.s3tc.ctex"
+uid="uid://bijs27qcgp70g"
+path="res://.godot/imported/banana sprite.png-416ff89813d8c6dce24a8eaeba7af7e7.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/Untitled.png"
-dest_files=["res://.godot/imported/Untitled.png-f999cbd9ad67ebf939413b3a76841057.s3tc.ctex"]
+source_file="res://assets/banana sprite.png"
+dest_files=["res://.godot/imported/banana sprite.png-416ff89813d8c6dce24a8eaeba7af7e7.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1

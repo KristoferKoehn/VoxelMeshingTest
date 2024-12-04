@@ -5,10 +5,10 @@
 [resource]
 script = ExtResource("1_10xps")
 vertices = PackedVector3Array(-0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5)
-Color = PackedColorArray(0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1)
+Color = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 Normals = Vector3(0, 0, -1)
 Greedy = true
-UVTextureIndex = 1
-UVMetallicityIndex = 0
-UVTransparencyIndex = 0
-UVEmissivenessIndex = 0
+UVTextureIndex = 0.0
+UVMetallicityIndex = 0.0
+UVTransparencyIndex = 0.0
+UVEmissivenessIndex = 0.0

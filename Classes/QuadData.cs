@@ -17,16 +17,16 @@ public partial class QuadData : Resource
     bool Greedy = false;
 
     [Export]
-    int UVTextureIndex = 0;
+    float UVTextureIndex = 0;
 
     [Export]
-    int UVMetallicityIndex = 0;
+    float UVMetallicityIndex = 0;
 
     [Export]
-    int UVTransparencyIndex = 0;
+    float UVTransparencyIndex = 0;
 
     [Export]
-    int UVEmissivenessIndex = 0;
+    float UVEmissivenessIndex = 0;
 
     public int NextFace = -1;
 
@@ -54,7 +54,7 @@ public partial class QuadData : Resource
             Color[3].R, Color[3].G, Color[3].B,
 
             //4 floats
-            UVTextureIndex, UVMetallicityIndex, UVTransparencyIndex, UVTransparencyIndex,
+            UVTextureIndex, UVMetallicityIndex, UVEmissivenessIndex, UVTransparencyIndex,
 
             //3 floats
             Normals.X, Normals.Y, Normals.Z,
