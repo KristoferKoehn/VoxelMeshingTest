@@ -9,6 +9,6 @@ Color = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 Normals = Vector3(-1, 0, 0)
 Greedy = true
 UVTextureIndex = 0.0
-UVMetallicityIndex = 0.0
+UVMetallicityIndex = 1024.0
 UVTransparencyIndex = 0.0
 UVEmissivenessIndex = 0.0

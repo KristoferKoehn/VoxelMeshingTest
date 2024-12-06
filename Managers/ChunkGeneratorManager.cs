@@ -44,7 +44,6 @@ public partial class ChunkGeneratorManager : Node
 		//get the data from some bullshit elsewhere. 
 		int side = GameConstants.CHUNK_SIZE;
 		Vector3I pos = new Vector3I(x, y, z);
-		pos = pos * new Vector3I(-1, 1, 1);
 		int dataSideLength = GameConstants.CHUNK_DATA_SIZE;
 		int ChunkSize = dataSideLength * dataSideLength * dataSideLength;
 
@@ -57,11 +56,11 @@ public partial class ChunkGeneratorManager : Node
 
 		chunkData = new int[GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE];
 
-        Parallel.For (0, dataSideLength, i =>
+        Parallel.For (0, dataSideLength, k =>
 		{
 			Parallel.For(0, dataSideLength, j =>
 			{
-				Parallel.For(0, dataSideLength, k =>
+				Parallel.For(0, dataSideLength, i =>
 				{
 
 					float cutoffmod = (SurfaceCutoff.GetNoise2D(i + (x * side) + CutoffOffset.X, k + (z * side) + CutoffOffset.Y) * 128) / 30;
@@ -72,7 +71,7 @@ public partial class ChunkGeneratorManager : Node
 
 					if (j > 17 + cutoffmod)// && j < 96 + cutoffmod)
 					{
-						chunkData[k,j,i] = 0;
+						chunkData[i, j, k] = 0;
 					}
 					else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
 					{/*
@@ -80,11 +79,11 @@ public partial class ChunkGeneratorManager : Node
                         */
 						if (j + cutoffmod > 10)
 						{
-                            chunkData[k, j, i] = 1;
+                            chunkData[i, j, k] = 1;
 						}
 						else
 						{
-                            chunkData[k, j, i] = 1;
+                            chunkData[i, j, k] = 1;
 						}
                     }
 				});

@@ -53,12 +53,43 @@ public partial class GameLoop : Node3D
 
                     if (block.X == 0)
                     {
-                        Chunk adjacent = ChunkSpawnManager.Instance().GetChunk(ch.ChunkCoordinates - new Vector3I(1, 0, 0));
+                        Chunk adjacent = ChunkSpawnManager.Instance().GetChunk(ch.ChunkCoordinates + new Vector3I(-1, 0, 0));
                         if (adjacent != null)
                         {
-                            //adjacent.QueueDataChange(GameConstants.CHUNK_DATA_SIZE + (block.Y + 1) * GameConstants.CHUNK_DATA_SIZE + (block.X + 1) * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE, 0);
+                            adjacent.QueueDataChange(block + new Vector3I(GameConstants.CHUNK_DATA_SIZE - 1,1,1), 0);
+                            GD.Print($"did a chunk transfer remeshing at x = {GameConstants.CHUNK_DATA_SIZE -1} on chunk: {adjacent.ChunkCoordinates}");
+                        }
+                    }
+
+                    if (block.X == GameConstants.CHUNK_DATA_SIZE - 3)
+                    {
+                        Chunk adjacent = ChunkSpawnManager.Instance().GetChunk(ch.ChunkCoordinates + new Vector3I(1, 0, 0));
+                        if (adjacent != null)
+                        {
+                            adjacent.QueueDataChange(block + new Vector3I(3-GameConstants.CHUNK_DATA_SIZE, 1, 1), 0);
+                            GD.Print($"did a chunk transfer remeshing at x = {GameConstants.CHUNK_DATA_SIZE + 1} on chunk: {adjacent.ChunkCoordinates}");
+                        }
+                    }
+
+                    if (block.Y == 0)
+                    {
+                        Chunk adjacent = ChunkSpawnManager.Instance().GetChunk(ch.ChunkCoordinates + new Vector3I(0, -1, 0));
+                        if (adjacent != null)
+                        {
+                            adjacent.QueueDataChange(block + new Vector3I(1 , GameConstants.CHUNK_DATA_SIZE - 1, 1), 0);
                             //adjacent.Regen = true;
-                            //GD.Print($"did a chunk transfer remeshing at x = {GameConstants.CHUNK_DATA_SIZE} on chunk: {adjacent.ChunkCoordinates}");
+                            GD.Print($"did a chunk transfer remeshing at y = {GameConstants.CHUNK_DATA_SIZE - 1} on chunk: {adjacent.ChunkCoordinates}");
+                        }
+                    }
+
+                    if (block.Y == GameConstants.CHUNK_DATA_SIZE - 3)
+                    {
+                        Chunk adjacent = ChunkSpawnManager.Instance().GetChunk(ch.ChunkCoordinates + new Vector3I(0, 1, 0));
+                        if (adjacent != null)
+                        {
+                            adjacent.QueueDataChange(block + new Vector3I(1, 3 - GameConstants.CHUNK_DATA_SIZE, 1), 0);
+                            //adjacent.Regen = true;
+                            GD.Print($"did a chunk transfer remeshing at y = {GameConstants.CHUNK_DATA_SIZE + 1} on chunk: {adjacent.ChunkCoordinates}");
                         }
                     }
 
