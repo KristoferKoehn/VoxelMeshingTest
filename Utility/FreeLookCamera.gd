@@ -64,15 +64,13 @@ func _input(event):
 				_shift = event.pressed
 			KEY_ALT:
 				_alt = event.pressed
-					
-				
 
 # Updates mouselook and movement every frame
 func _process(delta):
 	_update_mouselook()
 	_update_movement(delta)
 	
-	if Input.is_action_just_pressed("throw_block") && false:
+	if Input.is_action_just_pressed("throw_block"):
 		var box : RigidBody3D = load("res://Utility/funny box.tscn").instantiate()
 		get_tree().root.add_child(box)
 		box.global_position = self.global_position

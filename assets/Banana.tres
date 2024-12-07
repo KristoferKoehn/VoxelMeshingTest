@@ -1,0 +1,46 @@
+[gd_resource type="QuadMesh" load_steps=4 format=3 uid="uid://3ulskaqjndx3"]
+
+[ext_resource type="Texture2D" uid="uid://bijs27qcgp70g" path="res://assets/banana sprite.png" id="1_7diun"]
+
+[sub_resource type="Shader" id="Shader_hdgmp"]
+code = "shader_type spatial;
+render_mode unshaded;
+
+uniform sampler2D animation2 : filter_linear;
+varying vec4 vertex_color;
+
+void vertex() {
+	    mat4 modified_model_view = VIEW_MATRIX * mat4(
+        INV_VIEW_MATRIX[0],
+        INV_VIEW_MATRIX[1],
+        INV_VIEW_MATRIX[2],
+        MODEL_MATRIX[3]
+    );
+    MODELVIEW_MATRIX = modified_model_view;
+	vertex_color = COLOR;
+}
+
+void fragment() {
+	vec2 cell_size = vec2(1.0/5.1, 1.0/7.1);
+	float ms = mod(TIME, 2.8);
+	float frame = floor(ms*10.0);
+	vec2 cell_start = vec2(mod(frame, 5.0), frame/7.0);
+	vec4 val = texture(animation2, cell_start + UV * cell_size);
+	ALBEDO = val.rgb * vertex_color.rgb;
+	ALPHA = val.a * vertex_color.a;
+}
+
+//void light() {
+	// Called for every pixel for every light affecting the material.
+	// Uncomment to replace the default light processing function with this one.
+//}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_pfurf"]
+render_priority = 0
+shader = SubResource("Shader_hdgmp")
+shader_parameter/animation2 = ExtResource("1_7diun")
+
+[resource]
+material = SubResource("ShaderMaterial_pfurf")
+size = Vector2(1, 1.5)
