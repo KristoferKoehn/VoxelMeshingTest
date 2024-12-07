@@ -217,16 +217,6 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 		UV.append(Vector3(0,0,0));
 		UV.append(Vector3(1,0,0));
 
-
-		/*
-		Vector4 k = Vector4(face_bytes.decode_float(faceIndex + 96), face_bytes.decode_float(faceIndex + 100), face_bytes.decode_float(faceIndex + 104),  face_bytes.decode_float(faceIndex + 108));
-
-		Custom0.append(k);
-		Custom0.append(k);
-		Custom0.append(k);
-		Custom0.append(k);
-		*/
-
 		PackedFloat32Array fl = {(float)face_bytes.decode_float(faceIndex + 96), 
 								 (float)face_bytes.decode_float(faceIndex + 100), 
 								 (float)face_bytes.decode_float(faceIndex + 104),  
@@ -256,7 +246,6 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 	arr[godot::Mesh::ARRAY_INDEX] = Indices;
 	arr[godot::Mesh::ARRAY_CUSTOM0] = Custom0;
 	arr[godot::Mesh::ARRAY_TEX_UV] = UV;
-
 	
 	MeshAssignment(arr);
 

@@ -10,17 +10,17 @@ public partial class FaceData : Resource
     [Export]
     public bool transparent;
     [Export]
-    Array<QuadData> UpFace;
+    public Array<QuadData> UpFace;
     [Export]
-    Array<QuadData> NorthFace;
+    public Array<QuadData> NorthFace;
     [Export]
-    Array<QuadData> EastFace;
+    public Array<QuadData> EastFace;
     [Export]
-    Array<QuadData> SouthFace;
+    public Array<QuadData> SouthFace;
     [Export]
-    Array<QuadData> WestFace;
+    public Array<QuadData> WestFace;
     [Export]
-    Array<QuadData> DownFace;
+    public Array<QuadData> DownFace;
 
 
     public Array<Array<QuadData>> GetFacesArray()

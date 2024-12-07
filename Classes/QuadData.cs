@@ -5,28 +5,28 @@ using System;
 public partial class QuadData : Resource
 {
     [Export]
-    Vector3[] vertices = new Vector3[4];
+    public Vector3[] vertices = new Vector3[4];
 
     [Export]
-    Color[] Color = new Color[4];
+    public Color[] Color = new Color[4];
 
     [Export]
-    Vector3 Normals = new Vector3();
+    public Vector3 Normals = new Vector3();
 
     [Export]
-    bool Greedy = false;
+    public bool Greedy = false;
 
     [Export]
-    float UVTextureIndex = 0;
+    public float UVTextureIndex = 0;
 
     [Export]
-    float UVMetallicityIndex = 0;
+    public float UVMetallicityIndex = 0;
 
     [Export]
-    float UVTransparencyIndex = 0;
+    public float UVTransparencyIndex = 0;
 
     [Export]
-    float UVEmissivenessIndex = 0;
+    public float UVEmissivenessIndex = 0;
 
     public int NextFace = -1;
 

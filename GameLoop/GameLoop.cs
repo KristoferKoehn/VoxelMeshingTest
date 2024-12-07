@@ -30,6 +30,7 @@ public partial class GameLoop : Node3D
         //ChunkGeneratorManager.Instance().PreGenerate();
         ChunkSpawnManager.Instance();
         //ChunkSpawnManager.Instance().GenerateWorld();
+        ChunkSpawnManager.Instance().HandleChunkLoading();
     }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

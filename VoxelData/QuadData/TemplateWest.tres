@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="QuadData" load_steps=2 format=3 uid="uid://cakcibk0mqs75"]
+[gd_resource type="Resource" script_class="QuadData" load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://Classes/QuadData.cs" id="1_ovck8"]
 
@@ -9,6 +9,6 @@ Color = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
 Normals = Vector3(1, 0, 0)
 Greedy = true
 UVTextureIndex = 0.0
-UVMetallicityIndex = 1024.0
+UVMetallicityIndex = 1023.01
 UVTransparencyIndex = 0.0
 UVEmissivenessIndex = 0.0

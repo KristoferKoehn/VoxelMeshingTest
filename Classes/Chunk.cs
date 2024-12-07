@@ -87,8 +87,8 @@ public partial class Chunk : Node3D
         Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
         if ((pos - GlobalPosition).Length() > 2000)
         {
-            GD.Print($"Despawning chunk at: {GlobalPosition}");
-            QueueFree();
+            //GD.Print($"Despawning chunk at: {GlobalPosition}");
+            //QueueFree();
         }
 
         if ((pos - GlobalPosition).Length() > 1000)

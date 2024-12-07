@@ -77,7 +77,7 @@ public partial class ChunkSpawnManager : Node
             }
         }
         */
-        HandleChunkLoading();        
+        //HandleChunkLoading();        
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -148,7 +148,7 @@ public partial class ChunkSpawnManager : Node
         }
     }
 
-    async void HandleChunkLoading()
+    public async void HandleChunkLoading()
     {
         await Task.Run(() =>
         {
@@ -187,7 +187,6 @@ public partial class ChunkSpawnManager : Node
                     }
                     lastPos = pos;
                 }
-                Thread.Sleep(100);
             }
         });
     }

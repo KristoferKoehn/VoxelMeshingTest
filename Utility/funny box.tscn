@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3 uid="uid://37qjbnhpe8lu"]
+
+[ext_resource type="Script" path="res://Utility/MetalBox.cs" id="1_eo7vw"]
+[ext_resource type="AudioStream" uid="uid://diped2nvsuich" path="res://assets/metal-pipe-230698.wav" id="2_iuy4f"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cvfam"]
+transparency = 1
+albedo_color = Color(0, 1, 0, 0.843137)
+metallic = 0.43
+roughness = 0.0
+refraction_enabled = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_ds0yb"]
+material = SubResource("StandardMaterial3D_cvfam")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ghw7f"]
+
+[node name="RigidBody3D" type="RigidBody3D"]
+continuous_cd = true
+contact_monitor = true
+max_contacts_reported = 1
+script = ExtResource("1_eo7vw")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_ds0yb")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_ghw7f")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("2_iuy4f")
+attenuation_model = 1
+max_polyphony = 10
+
+[connection signal="body_entered" from="." to="." method="Collision"]

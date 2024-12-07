@@ -29,6 +29,9 @@ var _e = false
 var _shift = false
 var _alt = false
 
+func _ready():
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
 func _input(event):
 	# Receives mouse motion
 	if event is InputEventMouseMotion:
@@ -61,11 +64,27 @@ func _input(event):
 				_shift = event.pressed
 			KEY_ALT:
 				_alt = event.pressed
+					
+				
 
 # Updates mouselook and movement every frame
 func _process(delta):
 	_update_mouselook()
 	_update_movement(delta)
+	
+	if Input.is_action_just_pressed("throw_block") && false:
+		var box : RigidBody3D = load("res://Utility/funny box.tscn").instantiate()
+		get_tree().root.add_child(box)
+		box.global_position = self.global_position
+		var direction : Vector3 = self.global_basis * Vector3(0,0,-40)
+		box.linear_velocity = direction
+		box.angular_velocity = self.global_basis * Vector3(1,1,1)
+	
+	if Input.is_action_just_pressed("view_toggle"):
+		if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		else:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 # Updates camera movement
 func _update_movement(delta):

@@ -1,0 +1,323 @@
+[gd_scene load_steps=23 format=3 uid="uid://cqnnkjem4q3ct"]
+
+[ext_resource type="Script" path="res://DataTools/VoxelMaker.cs" id="1_a42i5"]
+[ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="2_8h2ao"]
+[ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="3_qccya"]
+[ext_resource type="Shader" path="res://Resources/mobius.gdshader" id="4_wgell"]
+[ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_mgfmi"]
+[ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_0cp0j"]
+[ext_resource type="Script" path="res://DataTools/Panel2.cs" id="7_70dgg"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bk48e"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_63ho0"]
+sky_material = SubResource("ProceduralSkyMaterial_bk48e")
+
+[sub_resource type="Environment" id="Environment_x08d2"]
+background_mode = 2
+sky = SubResource("Sky_63ho0")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2lcjd"]
+render_priority = 0
+shader = ExtResource("4_wgell")
+shader_parameter/zNear = 981.74
+shader_parameter/zFar = 1000.0
+shader_parameter/outlineThickness = 1.5
+shader_parameter/outlineColor = Color(0, 0, 0, 1)
+shader_parameter/wiggleFrequency = 0.08
+shader_parameter/wiggleAmplitude = 2.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_cnl5j"]
+material = SubResource("ShaderMaterial_2lcjd")
+flip_faces = true
+orientation = 2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4s3p8"]
+render_priority = 0
+shader = ExtResource("5_mgfmi")
+shader_parameter/_char_size = 8.0
+shader_parameter/_char_count = 10.0
+shader_parameter/_ascii_tex = ExtResource("6_0cp0j")
+
+[sub_resource type="QuadMesh" id="QuadMesh_fql3j"]
+material = SubResource("ShaderMaterial_4s3p8")
+flip_faces = true
+size = Vector2(2, 2)
+
+[sub_resource type="TorusMesh" id="TorusMesh_i86k4"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_7oi4q"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vv6r6"]
+
+[sub_resource type="TextMesh" id="TextMesh_h3t88"]
+material = SubResource("StandardMaterial3D_vv6r6")
+text = "SOUTH"
+font_size = 64
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_hcjjg"]
+
+[sub_resource type="TextMesh" id="TextMesh_ixfmo"]
+text = "TEST MESH"
+font_size = 86
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_amycx"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_4gy7n"]
+size = Vector2(7, 7)
+
+[node name="VoxelMaker" type="Node3D" node_paths=PackedStringArray("ItemList", "MetalIndexCheckbox", "Faces", "MetalSlider", "MetalIndex", "AlbedoIndex", "Corner1Color", "Corner2Color", "Corner3Color", "Corner4Color")]
+script = ExtResource("1_a42i5")
+ItemList = NodePath("Control/Panel/MarginContainer/VBoxContainer/ItemList")
+MetalIndexCheckbox = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/MetallicityIndexCheckbutton")
+Faces = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer/MarginContainer/ItemList")
+MetalSlider = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer/MetallicitySlider")
+MetalIndex = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer/MetalicityIndex")
+AlbedoIndex = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer2/AlbedoIndex")
+Corner1Color = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton")
+Corner2Color = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton2")
+Corner3Color = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton3")
+Corner4Color = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton4")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_x08d2")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.612371, 0.0473632, 0.78915, 0.612371, 0.659741, 0.435596, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
+script = ExtResource("3_qccya")
+TrackingItem = NodePath("../Camera3D")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, -1.74846e-07, 0, 1, 0, 1.74846e-07, 0, 1, 0, 0, 2.74689)
+current = true
+script = ExtResource("2_8h2ao")
+sensitivity = 0.2
+
+[node name="mobius" type="MeshInstance3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+visible = false
+mesh = SubResource("PlaneMesh_cnl5j")
+
+[node name="ascii" type="MeshInstance3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+visible = false
+mesh = SubResource("QuadMesh_fql3j")
+
+[node name="Control" type="CanvasLayer" parent="."]
+
+[node name="Panel2" type="Panel" parent="Control"]
+self_modulate = Color(1, 1, 1, 0.27451)
+offset_left = 657.0
+offset_top = 39.0
+offset_right = 1138.0
+offset_bottom = 564.0
+script = ExtResource("7_70dgg")
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/Panel2"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Panel2/MarginContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/Panel2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="ItemList" type="ItemList" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer/MarginContainer"]
+custom_minimum_size = Vector2(140, 155)
+layout_mode = 2
+theme_override_constants/v_separation = 1
+select_mode = 1
+item_count = 6
+item_0/text = "Top"
+item_1/text = "North"
+item_2/text = "East"
+item_3/text = "South"
+item_4/text = "West"
+item_5/text = "Down"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Control/Panel2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer"]
+layout_mode = 2
+
+[node name="MetallicityIndexCheckbutton" type="CheckButton" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Metallicity Index"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Metal: "
+
+[node name="MetallicitySlider" type="HSlider" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(64, 33)
+layout_mode = 2
+min_value = 0.01
+max_value = 1.0
+step = 0.01
+value = 0.01
+
+[node name="MetalicityIndex" type="LineEdit" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+placeholder_text = "index.."
+
+[node name="Label" type="Label" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Albedo and Texture Index"
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer"]
+layout_mode = 2
+text = "Corner1"
+color = Color(1, 1, 1, 1)
+
+[node name="ColorPickerButton2" type="ColorPickerButton" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer"]
+layout_mode = 2
+text = "Corner2"
+color = Color(1, 1, 1, 1)
+
+[node name="ColorPickerButton3" type="ColorPickerButton" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer"]
+layout_mode = 2
+text = "Corner3"
+color = Color(1, 1, 1, 1)
+
+[node name="ColorPickerButton4" type="ColorPickerButton" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer"]
+layout_mode = 2
+text = "Corner4
+"
+color = Color(1, 1, 1, 1)
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+
+[node name="AlbedoIndex" type="LineEdit" parent="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer2"]
+layout_mode = 2
+placeholder_text = "index.."
+
+[node name="Panel" type="Panel" parent="Control"]
+self_modulate = Color(1, 1, 1, 0.368627)
+offset_left = 12.0
+offset_top = 16.0
+offset_right = 226.0
+offset_bottom = 597.0
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/Panel/MarginContainer"]
+layout_mode = 2
+
+[node name="ItemList" type="ItemList" parent="Control/Panel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 500)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="Control/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+placeholder_text = "block name"
+
+[node name="Button" type="Button" parent="Control/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "new block"
+
+[node name="ExitButton" type="Button" parent="Control"]
+anchors_preset = -1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = -41.0
+offset_right = 150.0
+offset_bottom = -10.0
+text = "Exit
+"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.526439, 0.394386, -0.753208, -0.599568, 0.800323, 0, 0.60281, 0.4516, 0.657783, -5.99316, -4.76837e-07, -3.23665)
+mesh = SubResource("TorusMesh_i86k4")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.794231, -0.520265, -0.313881, 0.48385, 0.854005, -0.191218, 0.36754, 0, 0.930008, 9.48673, 0, 0.650403)
+mesh = SubResource("PrismMesh_7oi4q")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -0.157499, 0, 6.41895)
+mesh = SubResource("TextMesh_h3t88")
+
+[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.20077, -0.840426, 0.503363, 0.979639, 0.17224, -0.103161, 0, 0.513826, 0.857895, -1.41144, 3.24909, -3.78638)
+mesh = SubResource("CylinderMesh_hcjjg")
+
+[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.636186, 0, 0.771536, 0, 1, 0, -0.771536, 0, -0.636186, -4.80449, 0, 3.57548)
+mesh = SubResource("TextMesh_ixfmo")
+
+[node name="MeshInstance3D6" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.0854451, -0.0966256, -0.991646, 0.749118, 0.662437, 0, 0.656903, -0.74286, 0.128986, 8.36815, 4.76837e-07, -4.14005)
+mesh = SubResource("CapsuleMesh_amycx")
+
+[node name="ReflectionProbe" type="ReflectionProbe" parent="."]
+
+[node name="MeshInstance3D7" type="MeshInstance3D" parent="."]
+transform = Transform3D(-0.065437, -0.725323, 0.685291, 0.956442, 0.150208, 0.250311, -0.284493, 0.671821, 0.6839, 0.487547, 0, -11.747)
+mesh = SubResource("QuadMesh_4gy7n")
+
+[connection signal="pressed" from="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/MetallicityIndexCheckbutton" to="." method="ValueChange"]
+[connection signal="value_changed" from="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer/MetallicitySlider" to="." method="SliderValueChange"]
+[connection signal="text_submitted" from="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer/MetalicityIndex" to="." method="ValueChange"]
+[connection signal="color_changed" from="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton" to="." method="ColorValueChange"]
+[connection signal="color_changed" from="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton2" to="." method="ColorValueChange"]
+[connection signal="color_changed" from="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton3" to="." method="ColorValueChange"]
+[connection signal="color_changed" from="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton4" to="." method="ColorValueChange"]
+[connection signal="text_submitted" from="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer2/AlbedoIndex" to="." method="ValueChange"]
+[connection signal="item_selected" from="Control/Panel/MarginContainer/VBoxContainer/ItemList" to="." method="FaceSelected"]
+[connection signal="pressed" from="Control/ExitButton" to="." method="Exit"]

@@ -37,6 +37,7 @@ void fragment() {
 	if (MetallicPos != vec2(0,0)) {
 		if (Metallicity < 1023.0) {
 			ROUGHNESS = METALLIC = texture(MetallicTexture, MetallicPos + UV * TextureCellSize).r;
+			ROUGHNESS = 1.0 - ROUGHNESS;
 		} else {
 			ROUGHNESS = 1.0 - (Metallicity - 1023.0);
 			METALLIC = Metallicity - 1023.0;

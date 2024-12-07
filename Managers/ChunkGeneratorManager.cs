@@ -69,7 +69,7 @@ public partial class ChunkGeneratorManager : Node
 
 					//if (j > 32 + cutoffmod && j < 96 + cutoffmod)
 
-					if (j > 17 + cutoffmod)// && j < 96 + cutoffmod)
+					if (j > 15 + cutoffmod) //&& j < 50 + cutoffmod)// && j < 96 + cutoffmod)
 					{
 						chunkData[i, j, k] = 0;
 					}
