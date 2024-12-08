@@ -30,11 +30,13 @@ public partial class VoxelMaker : Node3D
 		ch = new Chunk();
 		int[,,] data = new int[GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE];
 		data[33, 33, 33] = 1;
-		ch.ChunkData = data;
+
+        ch.ChunkData = data;
 		AddChild(ch);
 		ch.Generated = true;
 		ch.Remesh();
 		RefreshList();
+
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -43,7 +45,12 @@ public partial class VoxelMaker : Node3D
 		
 	}
 
-	public void AssignBlock(int id) {
+    public override void _ExitTree()
+    {
+
+    }
+
+    public void AssignBlock(int id) {
 		ch.ChunkData[33,33,33] = id;
 	}
 

@@ -6,6 +6,8 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 const int CHUNK_SIZE = 64;
 const int MAX_BUFFER = 402653184;
 
+
+
 //64 bytes
 struct Quad {
 	vec4[3] vertices;
@@ -107,6 +109,94 @@ vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 	return vert;
 }
 
+//todos:
+/*
+Ambient Occlusion:
+
+if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z) - 1] != 0 )
+		{		
+			//q.color[0].rgb = q.color[0].rgb *AOVAL; // this is the 'south east' corner
+			
+			//q.color[0].a = q.color[0].a * AOVAL;// this is the 'south west' corner
+			//q.color[1].rg = q.color[1].rg * AOVAL; 
+			
+			//q.color[1].ba = q.color[1].ba * AOVAL; //north west
+			//q.color[2].r = q.color[2].r * AOVAL; 
+			
+			//q.color[2].gba = q.color[2].gba * AOVAL; //north east
+		}
+		
+
+*/
+
+vec4[3] flipquad(vec4[3] quad) {
+	vec4[3] flipped;
+	flipped[0] = vec4(quad[0].w, quad[1].xyz);
+	flipped[1] = vec4(quad[1].w, quad[2].xyz);
+	flipped[2] = vec4(quad[2].w, quad[0].xyz);
+	return flipped;
+}
+
+
+const float AOVAL = 0.1;
+void AOUpFace(inout Quad2 q, vec3 voxelPos) {
+	//find vertex orientations
+	vec3 targpos = voxelPos + vec3(0, 1, 0);
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) {
+		//north west, south west.
+		q.color[1].ba = q.color[1].ba * AOVAL;
+		q.color[2].r = q.color[2].r * AOVAL; //north west
+		q.color[0].a = q.color[0].a * AOVAL;
+		q.color[1].rg = q.color[1].rg * AOVAL; // this is the 'south west' corner
+	}
+	
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		//north
+		q.color[1].ba = q.color[1].ba * AOVAL;
+		q.color[2].r = q.color[2].r * AOVAL; //north west
+		q.color[2].gba = q.color[2].gba * AOVAL; //north east
+	}
+	
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) {
+		//east
+		q.color[2].gba = q.color[2].gba * AOVAL; //north east
+		q.color[0].rgb = q.color[0].rgb * AOVAL; // this is the 'south east' corner
+	}
+	
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		//south
+		q.color[0].rgb = q.color[0].rgb * AOVAL; // this is the 'south east' corner
+		q.color[0].a = q.color[0].a * AOVAL;
+		q.color[1].rg = q.color[1].rg * AOVAL; // this is the 'south west' corner
+	}
+	
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		//northwest only
+		q.color[1].ba = q.color[1].ba * AOVAL; //north west
+		q.color[2].r = q.color[2].r * AOVAL; 
+	}
+	
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		//southeast only
+		q.color[0].rgb = q.color[0].rgb *AOVAL; // this is the 'south east' corner
+	}
+	
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		
+		//northeast
+		q.color[2].gba = q.color[2].gba * AOVAL; //north east
+		
+	}
+	
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		
+		//southwest
+		q.color[0].a = q.color[0].a * AOVAL;// this is the 'south west' corner
+		q.color[1].rg = q.color[1].rg * AOVAL; 
+	}
+}
+
+
 void main () {
 	int WorkGroupDataLength = ChunkDimensions.ChunkSize / ChunkDimensions.WorkGroupSide;
 
@@ -168,7 +258,7 @@ void main () {
 					Quads.data[IndexTicket].color = q.color;
 				}
 			
-				
+				//up face
 				if (ChunkData.data[x][y+1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y+1][z]].transparent != 0) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
@@ -177,8 +267,10 @@ void main () {
 					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, 0);
 					Quads.data[IndexTicket].custom0 = q.custom0;
 					Quads.data[IndexTicket].color = q.color;
+					AOUpFace(Quads.data[IndexTicket], vec3(x, y, z));
 				} 
 				
+				//down face
 				if (ChunkData.data[x][y - 1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y-1][z]].transparent != 0) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];

@@ -271,7 +271,7 @@ layout_mode = 2
 text = "new block"
 
 [node name="ExitButton" type="Button" parent="Control"]
-anchors_preset = -1
+anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 14.0

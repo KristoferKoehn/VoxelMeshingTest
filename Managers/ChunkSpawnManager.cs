@@ -8,37 +8,6 @@ using VoxelMeshingTest.Classes;
 public partial class ChunkSpawnManager : Node
 {
 
-    /*
-     * 
-     * 
-     * convert dictionary to <Vector3I, Chunk> for keeping track of shit better
-     * 
-     * 
-     * 
-     * Building out the system such that:
-     * Chunks initialize and know their own data in a large range
-     * within a smaller range, the chunks become meshed
-     * 
-     * outside the initialization range, dispose of the chunk. !! BE CAREFUL, DELETING CHUNKS WHILE WORKING IN ANOTHER STEP IS A HAZARD
-     * 
-     * I think these three things can happen on their own threads, just need lockout booleans. 
-     * 
-     * 
-     * 
-     * gotta spawn in chunks around the player.
-     * 
-     * get player location, divide by 128
-     * 
-     * loop over x, y square, check if within render distance. 
-     * 
-     * if 1.5 times render distance, spawn a chunk
-     * 
-     * if 1 times render distance, check files and/or generate
-     * 
-     * 
-     * 
-     */
-
     Dictionary<Vector3I, Chunk> Chunks = new Dictionary<Vector3I, Chunk>();
 
     List<Chunk> ChunkList = new List<Chunk>();
