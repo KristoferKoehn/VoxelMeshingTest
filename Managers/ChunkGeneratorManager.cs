@@ -67,9 +67,8 @@ public partial class ChunkGeneratorManager : Node
 
 					//chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = (uint)RNGManager.Instance().rng.Randi() % 2;
 
-					//if (j > 32 + cutoffmod && j < 96 + cutoffmod)
 
-					if (j > 15 + cutoffmod) //&& j < 50 + cutoffmod)// && j < 96 + cutoffmod)
+					if (j > 15 + cutoffmod && j < 128 + cutoffmod || j == 65 || j == 0)// && j < 96 + cutoffmod)
 					{
 						chunkData[i, j, k] = 0;
 					}

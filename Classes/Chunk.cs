@@ -1,26 +1,12 @@
 using Godot;
-using Godot.Collections;
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using VoxelMeshingTest.Classes;
 
-enum CullDirection
-{
-    North,
-    West,
-    NorthWest,
-    NorthEast,
-    South,
-    SouthWest,
-    SouthEast,
-    East,
-    None
-}
+
 public partial class Chunk : Node3D
 {
-    public int[,,] ChunkData;
+    public int[,,] ChunkData = null;
 
     public bool Regen = false;
     public List<Tuple<Vector3I, int>> ChangePackets = new();
@@ -42,7 +28,15 @@ public partial class Chunk : Node3D
 
     int[] INDICES = new int[] { 0, 1, 2, 0, 2, 3 };
 
-    private CullDirection CullDirection { get; set; }
+    public bool North = false;
+    public bool East = false;
+    public bool South = false;
+    public bool West = false;
+    public bool Up = false;
+    public bool Down = false;
+
+    public bool ImmediateChunk = false;
+    public bool Visibility = true;
 
     public Chunk()
     {
@@ -75,6 +69,98 @@ public partial class Chunk : Node3D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
+        if (ChunkData == null) {
+            return; 
+        }
+        Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
+        
+        if ((pos - GlobalPosition).Length() > 640)
+        {
+            Visible = false;
+            Visibility = Visible;
+            return;
+        }
+        else
+        {
+            if (!Visible) {
+                Remesh();
+            }
+            Visible = true;
+            Visibility = Visible;
+        }
+        
+
+
+        if ((GlobalPosition - pos).Y > GameConstants.CHUNK_DATA_SIZE)
+        {
+            if (Up) { Remesh(); }
+            Up = false;
+        }
+        else
+        {
+            if (!Up) { Remesh(); }
+            Up = true;
+        }
+
+        //if above GameConstants.CHUNK_DATA_SIZE, turn off down, else, turn on down
+        if ((GlobalPosition - pos).Y < -GameConstants.CHUNK_DATA_SIZE)
+        {
+            if (Down) { Remesh(); }
+            Down = false;
+        }
+        else
+        {
+            if (!Down) { Remesh(); }
+            Down = true;
+        }
+
+        if ((GlobalPosition - pos).X < -GameConstants.CHUNK_DATA_SIZE)
+        {
+            if (East) { Remesh(); }
+            East = false;
+        }
+        else
+        {
+            if (!East) { Remesh(); }
+            East = true;
+        }
+
+        if ((GlobalPosition - pos).X > GameConstants.CHUNK_DATA_SIZE)
+        {
+            if (West) { Remesh(); }
+            West = false;
+        }
+        else
+        {
+            if (!West) { Remesh(); }
+            West = true;
+        }
+
+        if ((GlobalPosition - pos).Z < -GameConstants.CHUNK_DATA_SIZE)
+        {
+            if (North) { Remesh(); }
+            North = false;
+        }
+        else
+        {
+            if (!North) { Remesh(); }
+            North = true;
+        }
+
+        if ((GlobalPosition - pos).Z > GameConstants.CHUNK_DATA_SIZE)
+        {
+            if (South) { Remesh(); }
+            South = false;
+        }
+        else
+        {
+            if (!South) { Remesh(); }
+            South = true;
+        }
+
+
+        //checks out
+        //GD.Print($"UP: {Up}, NORTH: {North}, EAST: {East}, SOUTH: {South}, WEST: {West}, DOWN: {Down}");
 
         if (!Meshed)
         {
@@ -84,30 +170,17 @@ public partial class Chunk : Node3D
             }
         }
 
-        Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
         if ((pos - GlobalPosition).Length() > 2000)
         {
             //GD.Print($"Despawning chunk at: {GlobalPosition}");
             //QueueFree();
         }
 
-        if ((pos - GlobalPosition).Length() > 1000)
-        {
-            Visible = false;
-        }
-        else
-        {
-            Visible = true;
-        }
+
 
         if (Regen)
         {
             Remesh();
-        }
-
-        if (Input.IsActionJustPressed("rotate"))
-        {
-            RotateY(Mathf.Pi / 2);
         }
     }
 
@@ -145,7 +218,8 @@ public partial class Chunk : Node3D
             ChunkData[change.Item1.X,change.Item1.Y,change.Item1.Z] = change.Item2;
         }
         ChangePackets.Clear();
-        ChunkMeshManager.Instance().GeneratePChunkMesh4(ChunkData, this);
+        ChunkMeshManager.Instance().RequestChunkMeshUpdate(this, true);
+        //ChunkMeshManager.Instance().GeneratePChunkMesh4(ChunkData, this);
         Regen = false;
     }
 

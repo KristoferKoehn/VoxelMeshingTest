@@ -71,12 +71,13 @@ func _process(delta):
 	_update_movement(delta)
 	
 	if Input.is_action_just_pressed("throw_block"):
-		var box : RigidBody3D = load("res://Utility/funny box.tscn").instantiate()
-		get_tree().root.add_child(box)
-		box.global_position = self.global_position
-		var direction : Vector3 = self.global_basis * Vector3(0,0,-40)
-		box.linear_velocity = direction
-		box.angular_velocity = self.global_basis * Vector3(1,1,1)
+		print("PlayerPosition: " + str(global_position))
+		#var box : RigidBody3D = load("res://Utility/funny box.tscn").instantiate()
+		#get_tree().root.add_child(box)
+		#box.global_position = self.global_position
+		#var direction : Vector3 = self.global_basis * Vector3(0,0,-40)
+		#box.linear_velocity = direction
+		#box.angular_velocity = self.global_basis * Vector3(1,1,1)
 	
 	if Input.is_action_just_pressed("view_toggle"):
 		if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:

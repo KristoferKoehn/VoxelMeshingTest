@@ -9,6 +9,7 @@ public partial class PlayerTrackingManager : Node
     private static PlayerTrackingManager instance;
 
     public Vector3 TrackerPosition { get; set; } = Vector3.Zero;
+    public Basis TrackerBasis { get; set; }
 
     public static PlayerTrackingManager Instance()
     {
@@ -26,6 +27,15 @@ public partial class PlayerTrackingManager : Node
         return instance.TrackerPosition;
     }
 
+    public Basis GetPlayerBasis()
+    {
+        return instance.TrackerBasis;
+    }
+
+    public Node3D GetPlayerNode() {
+        return instance.TrackingItem; 
+    }
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
@@ -39,6 +49,6 @@ public partial class PlayerTrackingManager : Node
 	public override void _Process(double delta)
 	{
         TrackerPosition = TrackingItem.GlobalPosition;
-
+        TrackerBasis = TrackingItem.Basis;
 	}
 }

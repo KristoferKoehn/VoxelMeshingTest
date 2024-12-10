@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="QuadData" load_steps=2 format=3 uid="uid://dq6y5pgx5u0af"]
+[gd_resource type="Resource" script_class="QuadData" load_steps=2 format=3]
 
 [ext_resource type="Script" path="res://Classes/QuadData.cs" id="1_10xps"]
 

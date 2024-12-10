@@ -1,7 +1,5 @@
 using Godot;
 using Godot.Collections;
-using System;
-using System.Drawing;
 using VoxelMeshingTest.Classes;
 
 public partial class VoxelMaker : Node3D
@@ -175,7 +173,6 @@ public partial class VoxelMaker : Node3D
         else
         {
             quadData.UVMetallicityIndex = 1023 + (float)MetalSlider.Value;
-            ResourceSaver.Save(quadData);
         }
 
 
@@ -187,6 +184,7 @@ public partial class VoxelMaker : Node3D
         {
             quadData.UVTextureIndex = albedoIndex;
         }
+        ResourceSaver.Save(quadData);
     }
 
 

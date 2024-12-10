@@ -2,6 +2,8 @@ using Godot;
 using Godot.Collections;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using VoxelMeshingTest.Classes;
@@ -22,7 +24,7 @@ public partial class ChunkMeshManager : Node
     RenderingDevice rd { get; set; }
     Rid VoxelDataBuffer;
 
-    public Dictionary<FaceData, Array<QuadData>> FaceQuadResourceDictionary = new();
+    public Godot.Collections.Dictionary<FaceData, Array<QuadData>> FaceQuadResourceDictionary = new();
 
     public static ChunkMeshManager Instance()
 	{
@@ -41,27 +43,85 @@ public partial class ChunkMeshManager : Node
 	{
         ShaderWrapper = new ShaderWrapper();
         InitializeVoxelData();
-        //HandleChunkMeshing();
+        HandleChunkMeshing();
     }
 
-    async void HandleChunkMeshing()
-    {
-        await Task.Run(() =>
-        {
-            while (true)
-            {
-                if (ChunksToUpdate.TryDequeue(out Chunk chunk))
-                {
-                    Chunk ch = chunk;
-                    GeneratePChunkMesh4(chunk.ChunkData, chunk);
-                }
-            }
-        });
-    }
+    /* 
+     async void HandleChunkMeshing()
+     {
+         await Task.Run(() =>
+         {
+             while (true)
+             {
+                 if (ChunksToUpdate.TryDequeue(out Chunk chunk))
+                 {
+                     if (chunk != null)
+                     {
+                         Chunk ch = chunk;
+                         GeneratePChunkMesh4(chunk.ChunkData, chunk);
+                         Thread.Sleep(15);
+                     }
+                 }
+             }
+         });
+     }
+    
+      * Loop through list,  
+      * if not visible, throw out
+      * if not within sight, don't use unless no in-sight chunks need updating
+      * if there are more in-sight chunks grab the closest one to the player
+      * update one, then put everything back.*/
+     async void HandleChunkMeshing()
+     {
+         await Task.Run(() =>
+         {
+             while (true)
+             {
+                 List<Chunk> chunks = new List<Chunk>();
+                 while (ChunksToUpdate.TryDequeue(out Chunk chunk))
+                 {
+                     if (chunk.Visibility)
+                     {
+                         chunks.Add(chunk);
+                     }
+                 }
+                 if (chunks.Count == 0) { continue; }
+                 Chunk ChunkToUpdate = null;
+                 for (int i = 0; i < chunks.Count; i++)
+                 {
+                     Vector3 distance = chunks[i].ChunkPosition - PlayerTrackingManager.Instance().GetPlayerLocation();
+                     Vector3 FacingAngle = PlayerTrackingManager.Instance().GetPlayerBasis() * new Vector3(0, 0, 1); /// hopefully this makes sense. rotate a south ray to camera
+                     if (distance.Dot(FacingAngle) < -0.3) {
+                         if (ChunkToUpdate == null)
+                         {
+                             ChunkToUpdate = chunks[i];
+                         }
+                         else if (distance.Length() < (ChunkToUpdate.ChunkPosition - PlayerTrackingManager.Instance().GetPlayerLocation()).Length())
+                         {
+                             ChunkToUpdate = chunks[i];
+                         }
+                     }
+                 }
+
+                 if (ChunkToUpdate != null) {
+                     chunks.Remove(ChunkToUpdate);
+                     GeneratePChunkMesh4(ChunkToUpdate.ChunkData, ChunkToUpdate);
+                     Thread.Sleep(20);
+                 }
+
+                 foreach (Chunk chunk in chunks)
+                 {
+                     ChunksToUpdate.Enqueue(chunk);
+                 }
+
+             }
+         });
+     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
 	{
+        /*
         if (ChunksToUpdate.Count > 0)
         {
             if (ChunksToUpdate.TryDequeue(out Chunk chunk))
@@ -71,16 +131,19 @@ public partial class ChunkMeshManager : Node
                     Chunk ch = chunk;
                     GeneratePChunkMesh4(chunk.ChunkData, chunk);
                 }
-                else
-                {
-                    GD.Print("TryDequeue came back null but true");
-                }
             }
-        }
+        } */
     }
 
-    public void RequestChunkMeshUpdate(Chunk chunk)
+    public void RequestChunkMeshUpdate(Chunk chunk, bool expidite = false)
     {
+        if (ChunksToUpdate.Contains(chunk))
+        {
+            return;
+        }
+        if (expidite) { 
+            ChunksToUpdate.Prepend(chunk);
+        }
         ChunksToUpdate.Enqueue(chunk);
     }
 
@@ -106,7 +169,7 @@ public partial class ChunkMeshManager : Node
         {
             if (name.Contains(".tres"))
             {
-                faces.Add(ResourceLoader.Load<FaceData>($"res://VoxelData/FaceData/{name}"));
+                faces.Add(ResourceLoader.Load<FaceData>($"res://VoxelData/FaceData/{name}", cacheMode: ResourceLoader.CacheMode.Ignore));
                 GD.Print($"adding {name}");
             }
         }
@@ -170,12 +233,33 @@ public partial class ChunkMeshManager : Node
 
         uint BufferSize = 4194304;
 
+
+
+       
+        bool[] dirs = { false, false, false, ch.Up, 
+                        false, false, false, ch.North, 
+                        false, false, false, ch.East, 
+                        false, false, false, ch.South, 
+                        false, false, false, ch.West,
+                        false, false, false, ch.Down};
+        
+        /*
+        bool[] dirs = { false, false, false, true,
+                        false, false, false, true,
+                        false, false, false, true,
+                        false, false, false, true,
+                        false, false, false, true,
+                        false, false, false, true};*/
+
+        byte[] dirbytes = new byte[1 * dirs.Length];
+        Buffer.BlockCopy(dirs, 0, dirbytes, 0, dirbytes.Length);
+
         Rid QuadBuffer = rd.StorageBufferCreate(BufferSize);
         Rid QuadCountBuffer = rd.StorageBufferCreate(sizeof(int) * 2);
         Rid ChunkDataBuffer = rd.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
         Rid ChunkDimensionalBuffer = rd.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
         Rid VoxelDataBuffer = rd.StorageBufferCreate(256 * 4000 + 32 * 4000, VoxelData);
-
+        Rid FaceCullingDirectionBuffer = rd.StorageBufferCreate((uint)dirbytes.Length, dirbytes);
         Array<RDUniform> Uniforms = new Array<RDUniform>();
 
         //output quad uniform
@@ -213,6 +297,13 @@ public partial class ChunkMeshManager : Node
         VoxelDataUniform.Binding = 4;
         VoxelDataUniform.AddId(VoxelDataBuffer);
 
+        //Voxel data input uniform
+        RDUniform FaceCullingDirectionUniform = new RDUniform();
+        Uniforms.Add(FaceCullingDirectionUniform);
+        FaceCullingDirectionUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        FaceCullingDirectionUniform.Binding = 5;
+        FaceCullingDirectionUniform.AddId(FaceCullingDirectionBuffer);
+
         Rid pipelineRID = rd.ComputePipelineCreate(ShaderRID);
 
         Rid UniformSet = rd.UniformSetCreate(Uniforms, ShaderRID, 0);
@@ -230,9 +321,11 @@ public partial class ChunkMeshManager : Node
         Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 2);
 
         byte[] QBytes = rd.BufferGetData(QuadBuffer, 0, (uint)Count[0] * 128);
-        
+        GD.Print($"polygon count: {(uint)Count[0]} at {ch.GlobalPosition}");
+
         rd.BufferClear(QuadBuffer, 0, (uint)Count[0] * 128);
         rd.BufferClear(QuadCountBuffer, 0, 8);
+        rd.BufferClear(FaceCullingDirectionBuffer, 0, (uint)dirbytes.Length);
         
         ch.PChunkByteAssignment(QBytes);
 
@@ -244,6 +337,7 @@ public partial class ChunkMeshManager : Node
         rd.FreeRid(ChunkDimensionalBuffer);
         rd.FreeRid(VoxelDataBuffer);
         rd.FreeRid(ShaderRID);
+        rd.FreeRid(FaceCullingDirectionBuffer);
         //rd.Free();
 
         return;

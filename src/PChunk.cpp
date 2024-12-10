@@ -211,11 +211,22 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 		Colors.append(g);
 		Colors.append(h);
 
-		//append the crafted UVs (always (0,0) to (1,1)) rotate this if it's weird
-		UV.append(Vector3(1,1,0));
-		UV.append(Vector3(0,1,0));
-		UV.append(Vector3(0,0,0));
-		UV.append(Vector3(1,0,0));
+
+
+		if (face_bytes.decode_float(faceIndex + 124) > 24000.0) {
+			UV.append(Vector3(0,1,0));
+			UV.append(Vector3(0,0,0));
+			UV.append(Vector3(1,0,0));
+			UV.append(Vector3(1,1,0));
+		} else {
+			//NORMAL UV , 110,010,000,100
+			UV.append(Vector3(1,1,0));
+			UV.append(Vector3(0,1,0));
+			UV.append(Vector3(0,0,0));
+			UV.append(Vector3(1,0,0));
+		}
+
+
 
 		PackedFloat32Array fl = {(float)face_bytes.decode_float(faceIndex + 96), 
 								 (float)face_bytes.decode_float(faceIndex + 100), 
@@ -233,6 +244,9 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 		Normals.append(normal);
 		Normals.append(normal);
 		Normals.append(normal);
+
+
+
 
 		Indices.append_array({0 + vertexCount, 1 + vertexCount, 2 + vertexCount, 0 + vertexCount, 2 + vertexCount, 3 + vertexCount});
 		vertexCount += 4;

@@ -21,10 +21,10 @@ void vertex() {
 }
 
 void fragment() {
-	vec2 cell_size = vec2(1.0/5.1, 1.0/7.1);
+	vec2 cell_size = vec2(1.0/5.2, 1.0/7.2);
 	float ms = mod(TIME, 2.8);
 	float frame = floor(ms*10.0);
-	vec2 cell_start = vec2(mod(frame, 5.0), frame/7.0);
+	vec2 cell_start = vec2(mod(frame, 5.0) + 0.001, frame/7.0);
 	vec4 val = texture(animation2, cell_start + UV * cell_size);
 	ALBEDO = val.rgb * vertex_color.rgb;
 	ALPHA = val.a * vertex_color.a;

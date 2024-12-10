@@ -30,10 +30,9 @@ sky_material = SubResource("PhysicalSkyMaterial_j18j3")
 [sub_resource type="Environment" id="Environment_fngh7"]
 background_mode = 2
 sky = SubResource("Sky_ir56b")
-tonemap_mode = 2
+tonemap_mode = 3
 sdfgi_enabled = true
 sdfgi_use_occlusion = true
-sdfgi_bounce_feedback = 1.0
 sdfgi_cascades = 5
 sdfgi_min_cell_size = 0.9
 volumetric_fog_enabled = true
@@ -102,15 +101,20 @@ RayCast = NodePath("Camera3D/RayCast3D")
 environment = SubResource("Environment_fngh7")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.571009, 0.817135, 0.0789876, -0.773633, 0.503413, 0.384795, 0.274666, -0.280829, 0.919616, 0, 0, 0)
-shadow_normal_bias = 3.782
-shadow_blur = 0.3
-directional_shadow_mode = 1
+transform = Transform3D(0.351178, 0.846132, -0.400918, -0.66146, 0.527252, 0.533363, 0.66268, 0.0778861, 0.744842, 0, 0, 0)
+light_bake_mode = 1
+shadow_enabled = true
+directional_shadow_blend_splits = true
 directional_shadow_max_distance = 758.0
 
+[node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
+script = ExtResource("4_cg07s")
+TrackingItem = NodePath("../Camera3D")
+
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0)
+transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 0, 0)
 current = true
+near = 0.1
 script = ExtResource("3_o0vww")
 sensitivity = 0.2
 
@@ -127,9 +131,8 @@ mesh = SubResource("QuadMesh_hty1b")
 [node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
 target_position = Vector3(0, 0, -10)
 
-[node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
-script = ExtResource("4_cg07s")
-TrackingItem = NodePath("../Camera3D")
+[node name="Node3D" type="Node3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -128)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.8619)
@@ -149,6 +152,5 @@ process_material = SubResource("ParticleProcessMaterial_qkm5e")
 draw_pass_1 = ExtResource("9_i1jmx")
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.03535, 0, 0)
-visible = false
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.03535, 7.00603, 0)
 mesh = ExtResource("9_i1jmx")

@@ -131,11 +131,11 @@ public partial class ChunkSpawnManager : Node
                 {
                     Vector3 ChunkPos = (pos + new Vector3(GameConstants.CHUNK_SIZE / 2, 0, GameConstants.CHUNK_SIZE / 2)) / GameConstants.CHUNK_SIZE;
 
-                    for (int i = (int)ChunkPos.X - 10; i < (int)ChunkPos.X + 10; i++)
+                    for (int i = (int)ChunkPos.X - 8; i < (int)ChunkPos.X + 8; i++)
                     {
-                        for (int j = (int)ChunkPos.Z - 10; j < (int)ChunkPos.Z + 10; j++)
+                        for (int j = (int)ChunkPos.Z - 8; j < (int)ChunkPos.Z + 8; j++)
                         {
-                            if ((ChunkPos - new Vector3(i, 0, j)).Length() < 10)
+                            if ((ChunkPos - new Vector3(i, 0, j)).Length() < 8)
                             {
                                 InitializeChunk(i, 0, j);
                             }
@@ -144,11 +144,11 @@ public partial class ChunkSpawnManager : Node
 
                     Vector3 ChunkPosCopy = ChunkPos;
 
-                    for (int i = (int)ChunkPosCopy.X - 7; i < (int)ChunkPosCopy.X + 7; i++)
+                    for (int i = (int)ChunkPosCopy.X - 6; i < (int)ChunkPosCopy.X + 6; i++)
                     {
-                        for (int j = (int)ChunkPosCopy.Z - 7; j < (int)ChunkPosCopy.Z + 7; j++)
+                        for (int j = (int)ChunkPosCopy.Z - 6; j < (int)ChunkPosCopy.Z + 6; j++)
                         {
-                            if ((ChunkPosCopy - new Vector3(i, 0, j)).Length() < 7)
+                            if ((ChunkPosCopy - new Vector3(i, 0, j)).Length() < 6)
                             {
                                 GenerateChunkMesh(i, 0, j);
                             }
