@@ -1,4 +1,5 @@
 shader_type spatial;
+render_mode wireframe;
 
 uniform sampler2D AlbedoTexture : filter_nearest;
 uniform sampler2D MetallicTexture : filter_nearest;

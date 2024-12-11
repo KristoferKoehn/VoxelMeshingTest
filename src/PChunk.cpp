@@ -211,8 +211,6 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 		Colors.append(g);
 		Colors.append(h);
 
-
-
 		if (face_bytes.decode_float(faceIndex + 124) > 24000.0) {
 			UV.append(Vector3(0,1,0));
 			UV.append(Vector3(0,0,0));
@@ -225,8 +223,6 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 			UV.append(Vector3(0,0,0));
 			UV.append(Vector3(1,0,0));
 		}
-
-
 
 		PackedFloat32Array fl = {(float)face_bytes.decode_float(faceIndex + 96), 
 								 (float)face_bytes.decode_float(faceIndex + 100), 

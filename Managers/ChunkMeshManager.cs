@@ -94,7 +94,7 @@ public partial class ChunkMeshManager : Node
                      Vector3 distance = chunks[i].ChunkPosition - PlayerTrackingManager.Instance().GetPlayerLocation() + pBasis * new Vector3(0, 0, -30);
 
                      Vector3 FacingAngle = pBasis * new Vector3(0, 0, 1); /// hopefully this makes sense. rotate a south ray to camera
-                     if (distance.Dot(FacingAngle) < -0.3) {
+                     if (distance.Dot(FacingAngle) < -0.5) {
                          if (ChunkToUpdate == null)
                          {
                              ChunkToUpdate = chunks[i];
@@ -109,7 +109,7 @@ public partial class ChunkMeshManager : Node
                  if (ChunkToUpdate != null) {
                      chunks.Remove(ChunkToUpdate);
                      GeneratePChunkMesh4(ChunkToUpdate.ChunkData, ChunkToUpdate);
-                     Thread.Sleep(10);
+                     Thread.Sleep(20);
                  }
 
                  foreach (Chunk chunk in chunks)
@@ -228,7 +228,7 @@ public partial class ChunkMeshManager : Node
         Buffer.BlockCopy(Data, 0, inputBytes, 0, inputBytes.Length);
 
         int ChunkSize = GameConstants.CHUNK_SIZE;
-        int WorkGroupSide = 64;
+        int WorkGroupSide = GameConstants.WORKGROUPS;
         int WorkGroups = WorkGroupSide * WorkGroupSide * WorkGroupSide;
 
         byte[] DimensionBytes = new byte[sizeof(int) * 2];
@@ -236,33 +236,12 @@ public partial class ChunkMeshManager : Node
 
         uint BufferSize = 4194304;
 
-
-
-       /*
-        bool[] dirs = { false, false, false, ch.Up, 
-                        false, false, false, ch.North, 
-                        false, false, false, ch.East, 
-                        false, false, false, ch.South, 
-                        false, false, false, ch.West,
-                        false, false, false, ch.Down};*/
-        
-        
-        bool[] dirs = { false, false, false, true,
-                        false, false, false, true,
-                        false, false, false, true,
-                        false, false, false, true,
-                        false, false, false, true,
-                        false, false, false, true};
-
-        byte[] dirbytes = new byte[1 * dirs.Length];
-        Buffer.BlockCopy(dirs, 0, dirbytes, 0, dirbytes.Length);
-
         Rid QuadBuffer = rd.StorageBufferCreate(BufferSize);
         Rid QuadCountBuffer = rd.StorageBufferCreate(sizeof(int) * 2);
         Rid ChunkDataBuffer = rd.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
         Rid ChunkDimensionalBuffer = rd.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
         Rid VoxelDataBuffer = rd.StorageBufferCreate(256 * 4000 + 32 * 4000, VoxelData);
-        Rid FaceCullingDirectionBuffer = rd.StorageBufferCreate((uint)dirbytes.Length, dirbytes);
+        Rid GreedyStorageBuffer = rd.StorageBufferCreate((uint)(128 * Math.Pow(GameConstants.CHUNK_SIZE, 3) * 6));
         Array<RDUniform> Uniforms = new Array<RDUniform>();
 
         //output quad uniform
@@ -301,11 +280,11 @@ public partial class ChunkMeshManager : Node
         VoxelDataUniform.AddId(VoxelDataBuffer);
 
         //Voxel data input uniform
-        RDUniform FaceCullingDirectionUniform = new RDUniform();
-        Uniforms.Add(FaceCullingDirectionUniform);
-        FaceCullingDirectionUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        FaceCullingDirectionUniform.Binding = 5;
-        FaceCullingDirectionUniform.AddId(FaceCullingDirectionBuffer);
+        RDUniform GreedyStorageUniform = new RDUniform();
+        Uniforms.Add(GreedyStorageUniform);
+        GreedyStorageUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        GreedyStorageUniform.Binding = 5;
+        GreedyStorageUniform.AddId(GreedyStorageBuffer);
 
         Rid pipelineRID = rd.ComputePipelineCreate(ShaderRID);
 
@@ -324,11 +303,9 @@ public partial class ChunkMeshManager : Node
         Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 2);
 
         byte[] QBytes = rd.BufferGetData(QuadBuffer, 0, (uint)Count[0] * 128);
-        GD.Print($"polygon count: {(uint)Count[0]} at {ch.GlobalPosition}");
 
         rd.BufferClear(QuadBuffer, 0, (uint)Count[0] * 128);
         rd.BufferClear(QuadCountBuffer, 0, 8);
-        rd.BufferClear(FaceCullingDirectionBuffer, 0, (uint)dirbytes.Length);
         
         ch.PChunkByteAssignment(QBytes);
 
@@ -339,8 +316,8 @@ public partial class ChunkMeshManager : Node
         rd.FreeRid(ChunkDataBuffer);
         rd.FreeRid(ChunkDimensionalBuffer);
         rd.FreeRid(VoxelDataBuffer);
+        rd.FreeRid(GreedyStorageBuffer);
         rd.FreeRid(ShaderRID);
-        rd.FreeRid(FaceCullingDirectionBuffer);
         //rd.Free();
 
         return;

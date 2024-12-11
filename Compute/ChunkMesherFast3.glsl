@@ -71,16 +71,10 @@ layout(set = 0, binding = 4, std430) buffer voxeldata{
 	Face FaceData[4000];
 } VoxelData;
 
-layout(set = 0, binding = 5, std430) buffer faceculldirection{
-	bool Up;
-	bool North;
-	bool East;
-	bool South;
-	bool West;
-	bool Down;
-} FaceCullDirection;
+layout(set = 0, binding = 5, std430) buffer greedystorage{
+	Quad2 data[CHUNK_SIZE * 6][CHUNK_SIZE][CHUNK_SIZE];
+} GreedyStorage;
 
-int MaxQuads = 402653184 / 64;
 
 vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 	vert[0] = vert[0] + pos.xyzx;
@@ -91,12 +85,8 @@ vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 
 //todos:
 /*
-	Investigate player position dot product overhead.
-	
 	how often would we update? how can we mitigate the need to update?
 	make the angle wide and only update if the player moves more than 4 blocks?
-	
-
 */
 
 const float AOVAL = 0.7;
@@ -469,7 +459,7 @@ void main () {
 				}
 				
 				//do west face?
-				if ((ChunkData.data[x+1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x+1][y][z]].transparent != 0) && FaceCullDirection.West) {					
+				if ((ChunkData.data[x+1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x+1][y][z]].transparent != 0)) {					
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
 					QuadIn q = VoxelData.QuadInput[f.WestQuadIndex];
@@ -481,7 +471,7 @@ void main () {
 				}
 				
 				//do east face?
-				if ((ChunkData.data[x-1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x-1][y][z]].transparent != 0) && FaceCullDirection.East) {
+				if ((ChunkData.data[x-1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x-1][y][z]].transparent != 0)) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
 					QuadIn q = VoxelData.QuadInput[f.EastQuadIndex];
@@ -493,7 +483,7 @@ void main () {
 				}	
 				
 				//do south face
-				if ((ChunkData.data[x][y][z+1] == 0 || VoxelData.FaceData[ChunkData.data[x][y][z+1]].transparent != 0) && FaceCullDirection.South) {
+				if ((ChunkData.data[x][y][z+1] == 0 || VoxelData.FaceData[ChunkData.data[x][y][z+1]].transparent != 0)) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
 					QuadIn q = VoxelData.QuadInput[f.SouthQuadIndex];
@@ -505,7 +495,7 @@ void main () {
 				}
 
 				
-				if ((ChunkData.data[x][y][z-1] == 0 || VoxelData.FaceData[ChunkData.data[x][y][z-1]].transparent != 0) && FaceCullDirection.North) {
+				if ((ChunkData.data[x][y][z-1] == 0 || VoxelData.FaceData[ChunkData.data[x][y][z-1]].transparent != 0)) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
 					QuadIn q = VoxelData.QuadInput[f.NorthQuadIndex];
@@ -517,7 +507,7 @@ void main () {
 				}
 			
 				//up face
-				if ((ChunkData.data[x][y+1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y+1][z]].transparent != 0) && FaceCullDirection.Up) {
+				if ((ChunkData.data[x][y+1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y+1][z]].transparent != 0)) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
 					QuadIn q = VoxelData.QuadInput[f.UpQuadIndex];
@@ -529,7 +519,7 @@ void main () {
 				} 
 				
 				//down face
-				if ((ChunkData.data[x][y - 1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y-1][z]].transparent != 0) && FaceCullDirection.Down) {
+				if ((ChunkData.data[x][y - 1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y-1][z]].transparent != 0)) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
 					QuadIn q = VoxelData.QuadInput[f.DownQuadIndex];

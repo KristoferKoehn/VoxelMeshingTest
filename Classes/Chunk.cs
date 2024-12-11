@@ -89,76 +89,6 @@ public partial class Chunk : Node3D
             Visibility = Visible;
         }
         
-
-
-        if ((GlobalPosition - pos).Y > GameConstants.CHUNK_DATA_SIZE)
-        {
-            if (Up) { Remesh(); }
-            Up = false;
-        }
-        else
-        {
-            if (!Up) { Remesh(); }
-            Up = true;
-        }
-
-        //if above GameConstants.CHUNK_DATA_SIZE, turn off down, else, turn on down
-        if ((GlobalPosition - pos).Y < -GameConstants.CHUNK_DATA_SIZE)
-        {
-            if (Down) { Remesh(); }
-            Down = false;
-        }
-        else
-        {
-            if (!Down) { Remesh(); }
-            Down = true;
-        }
-
-        if ((GlobalPosition - pos).X < -GameConstants.CHUNK_DATA_SIZE)
-        {
-            if (East) { Remesh(); }
-            East = false;
-        }
-        else
-        {
-            if (!East) { Remesh(); }
-            East = true;
-        }
-
-        if ((GlobalPosition - pos).X > GameConstants.CHUNK_DATA_SIZE)
-        {
-            if (West) { Remesh(); }
-            West = false;
-        }
-        else
-        {
-            if (!West) { Remesh(); }
-            West = true;
-        }
-
-        if ((GlobalPosition - pos).Z < -GameConstants.CHUNK_DATA_SIZE)
-        {
-            if (North) { Remesh(); }
-            North = false;
-        }
-        else
-        {
-            if (!North) { Remesh(); }
-            North = true;
-        }
-
-        if ((GlobalPosition - pos).Z > GameConstants.CHUNK_DATA_SIZE)
-        {
-            if (South) { Remesh(); }
-            South = false;
-        }
-        else
-        {
-            if (!South) { Remesh(); }
-            South = true;
-        }
-
-
         //checks out
         //GD.Print($"UP: {Up}, NORTH: {North}, EAST: {East}, SOUTH: {South}, WEST: {West}, DOWN: {Down}");
 
@@ -174,9 +104,10 @@ public partial class Chunk : Node3D
         {
             //GD.Print($"Despawning chunk at: {GlobalPosition}");
             //QueueFree();
+
+            //for this to work, the chunk needs to be deregistered. it should really just reset state
+            //delete pchunk mesh or whatever then flip the bools back to default
         }
-
-
 
         if (Regen)
         {
