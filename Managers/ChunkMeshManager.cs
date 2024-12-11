@@ -89,8 +89,11 @@ public partial class ChunkMeshManager : Node
                  Chunk ChunkToUpdate = null;
                  for (int i = 0; i < chunks.Count; i++)
                  {
-                     Vector3 distance = chunks[i].ChunkPosition - PlayerTrackingManager.Instance().GetPlayerLocation();
-                     Vector3 FacingAngle = PlayerTrackingManager.Instance().GetPlayerBasis() * new Vector3(0, 0, 1); /// hopefully this makes sense. rotate a south ray to camera
+                     Basis pBasis = PlayerTrackingManager.Instance().GetPlayerBasis();
+
+                     Vector3 distance = chunks[i].ChunkPosition - PlayerTrackingManager.Instance().GetPlayerLocation() + pBasis * new Vector3(0, 0, -30);
+
+                     Vector3 FacingAngle = pBasis * new Vector3(0, 0, 1); /// hopefully this makes sense. rotate a south ray to camera
                      if (distance.Dot(FacingAngle) < -0.3) {
                          if (ChunkToUpdate == null)
                          {
@@ -106,7 +109,7 @@ public partial class ChunkMeshManager : Node
                  if (ChunkToUpdate != null) {
                      chunks.Remove(ChunkToUpdate);
                      GeneratePChunkMesh4(ChunkToUpdate.ChunkData, ChunkToUpdate);
-                     Thread.Sleep(20);
+                     Thread.Sleep(10);
                  }
 
                  foreach (Chunk chunk in chunks)
@@ -235,21 +238,21 @@ public partial class ChunkMeshManager : Node
 
 
 
-       
+       /*
         bool[] dirs = { false, false, false, ch.Up, 
                         false, false, false, ch.North, 
                         false, false, false, ch.East, 
                         false, false, false, ch.South, 
                         false, false, false, ch.West,
-                        false, false, false, ch.Down};
+                        false, false, false, ch.Down};*/
         
-        /*
+        
         bool[] dirs = { false, false, false, true,
                         false, false, false, true,
                         false, false, false, true,
                         false, false, false, true,
                         false, false, false, true,
-                        false, false, false, true};*/
+                        false, false, false, true};
 
         byte[] dirbytes = new byte[1 * dirs.Length];
         Buffer.BlockCopy(dirs, 0, dirbytes, 0, dirbytes.Length);
