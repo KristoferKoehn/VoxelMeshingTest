@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="FaceData" load_steps=8 format=3 uid="uid://dqghkn4dwwi1b"]
 
 [ext_resource type="Script" path="res://Classes/FaceData.cs" id="1_k4cmr"]
-[ext_resource type="Resource" uid="uid://owufslwsunta" path="res://VoxelData/QuadData/TemplateDown.tres" id="1_tu71j"]
-[ext_resource type="Resource" uid="uid://dxugcshb3stvk" path="res://VoxelData/QuadData/TemplateEast.tres" id="2_2u233"]
-[ext_resource type="Resource" uid="uid://dq6y5pgx5u0af" path="res://VoxelData/QuadData/TemplateNorth.tres" id="3_mbphe"]
-[ext_resource type="Resource" uid="uid://dmucwsugsfuc" path="res://VoxelData/QuadData/TemplateSouth.tres" id="4_4ua4p"]
-[ext_resource type="Resource" uid="uid://310goxj088fo" path="res://VoxelData/QuadData/TemplateUp.tres" id="5_70grp"]
-[ext_resource type="Resource" uid="uid://jp1j4lp2kw0p" path="res://VoxelData/QuadData/TemplateWest.tres" id="6_3rimt"]
+[ext_resource type="Resource" path="res://VoxelData/QuadData/TemplateDown.tres" id="1_tu71j"]
+[ext_resource type="Resource" path="res://VoxelData/QuadData/TemplateEast.tres" id="2_2u233"]
+[ext_resource type="Resource" path="res://VoxelData/QuadData/TemplateNorth.tres" id="3_mbphe"]
+[ext_resource type="Resource" path="res://VoxelData/QuadData/TemplateSouth.tres" id="4_4ua4p"]
+[ext_resource type="Resource" uid="uid://dfjkqldj8j6p2" path="res://VoxelData/QuadData/TemplateUp.tres" id="5_70grp"]
+[ext_resource type="Resource" path="res://VoxelData/QuadData/TemplateWest.tres" id="6_3rimt"]
 
 [resource]
 script = ExtResource("1_k4cmr")

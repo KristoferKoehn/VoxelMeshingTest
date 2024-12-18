@@ -15,6 +15,7 @@ using namespace std;
 void PChunk::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_bytes"), &PChunk::set_bytes);
 	ClassDB::bind_method(D_METHOD("set_bytes2"), &PChunk::set_bytes2);
+	ClassDB::bind_method(D_METHOD("set_bytes3"), &PChunk::set_bytes2);
 	ClassDB::bind_method(D_METHOD("GetCollisionMesh"), &PChunk::GetCollisionMesh);
 }
 
@@ -22,10 +23,11 @@ PChunk::PChunk() {
 	if (!Engine::get_singleton()->is_editor_hint()) { 
 		set_process_mode(Node::ProcessMode::PROCESS_MODE_DISABLED);
 	}
+	
 }
 
 PChunk::~PChunk() {
-	// Add your cleanup here.
+	
 }
 
 void PChunk::_process(double delta) {
@@ -168,7 +170,6 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 	Array arr;
 	arr.resize(godot::Mesh::ARRAY_MAX);
 	PackedVector3Array Vertices;
-
 	PackedVector3Array* UnpackedVertices = memnew(PackedVector3Array());
 	PackedVector3Array Normals;
 	PackedVector3Array UV;
@@ -265,3 +266,21 @@ void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision)
 	
 }
 
+void PChunk::set_bytes3(Array data)
+{
+	Array arr;
+	arr.resize(godot::Mesh::ARRAY_MAX);
+	PackedVector3Array Vertices;
+
+	CollisionMesh = &(PackedVector3Array)data[6];
+
+	arr[godot::Mesh::ARRAY_VERTEX] = data[0];
+	arr[godot::Mesh::ARRAY_NORMAL] = data[1];
+	arr[godot::Mesh::ARRAY_TEX_UV] = data[2];
+	arr[godot::Mesh::ARRAY_COLOR] = data[3];
+	arr[godot::Mesh::ARRAY_CUSTOM0] = data[4];
+	arr[godot::Mesh::ARRAY_INDEX] = data[5];
+	
+	MeshAssignment(arr);
+	
+}

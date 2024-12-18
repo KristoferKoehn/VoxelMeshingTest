@@ -5,6 +5,7 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 const int CHUNK_SIZE = 64;
 const int MAX_BUFFER = 402653184;
+const bool GREEDY = false;
 
 //256 bytes
 struct QuadIn {
@@ -73,7 +74,7 @@ layout(set = 0, binding = 4, std430) buffer voxeldata{
 
 layout(set = 0, binding = 5, std430) buffer greedystorage{
 	Quad2 data[CHUNK_SIZE * 6][CHUNK_SIZE][CHUNK_SIZE];
-} GreedyStorage;
+} GreedyStorage; 
 
 
 vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
@@ -83,13 +84,7 @@ vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 	return vert;
 }
 
-//todos:
-/*
-	how often would we update? how can we mitigate the need to update?
-	make the angle wide and only update if the player moves more than 4 blocks?
-*/
-
-const float AOVAL = 0.7;
+const float AOVAL = 0.1;
 void NorthEastVertexAO(inout Quad2 q) { 
 	q.color[2].gba = q.color[2].gba * AOVAL; //north east
 }
@@ -440,6 +435,107 @@ void AOEastFace(inout Quad2 q, vec3 voxelPos) {
 	}
 }
 
+//todos:
+/*
+	get greediness working
+	
+	address greedy buffer properly
+	
+	LENGTH * 6 individual frames to be greedy about
+	first LENGTH * 6 * 4 (3,072?) workgroups allowed, is greedyIndex
+	
+	
+	greedyIndex % 4 is the starting quadrant on a greedy frame (y and z value)
+	greedyIndex / 4 is the starting greedy frame (x value)
+	
+	greedyIndex / (LENGTH * 4) = side facing, need a const array of directions.
+	get quad? check if zero? if zero set a bool or something
+	for i:
+		for j:
+			if not visited and not 0 and == current.blocktype:
+				stretch current quad
+			else 
+				if not same type of block
+					check if expand y
+				else
+			
+	
+*/
+
+//rename to grownorth
+void growX(inout Quad2 q, int greedyIndex) {
+	if (greedyIndex / (CHUNK_SIZE * 4) == 0) {
+		//q.vertices[0] = q.vertices[0] + vec4(0,0,1,0); //pushes the 'southeast' vertex (quad relative)
+		//q.vertices[1] = q.vertices[1] + vec4(0,1,0,0); //pushes the 'southwest' vertex (quad relative)
+		q.vertices[2] = q.vertices[2] + vec4(1,0,0,1); //northwest and northeast
+	}
+}
+
+//grow east/west?
+void growY(inout Quad2 q, int greedyIndex) {
+	if (greedyIndex / (CHUNK_SIZE * 4) == 0) {
+		q.vertices[1] = q.vertices[1] + vec4(1,0,0,1); //pushes the 'southwest' vertex (quad relative) and pushes the 'northwest' vertex (quad relative)
+	}
+}
+
+
+void GreedyStep(int GreedyIndex) {
+
+	
+	/*
+	greedyIndex % 4 is the starting quadrant on a greedy frame (y and z value)
+	greedyIndex / 4 is the starting greedy frame (x value)
+	greedyIndex / (LENGTH * 4) = side facing, need a const array of directions.
+	*/
+	
+	
+	ivec3 greedyStart = ivec3(GreedyIndex/4, ivec2(GreedyIndex % 2 * (CHUNK_SIZE/ 4), (GreedyIndex % 4) / 2 * (CHUNK_SIZE/ 4)));
+	
+	//now, we loop over the thing,
+	Quad2 currentQuad = GreedyStorage.data[greedyStart.x][greedyStart.y][greedyStart.z];
+	bool[CHUNK_SIZE / 4][CHUNK_SIZE/ 4] visited;
+	bool[CHUNK_SIZE / 4] QuadLength;
+	for (int i = 0; i < CHUNK_SIZE / 4; i++) {
+		for (int j = 0; j < CHUNK_SIZE / 4; j++) {
+			ivec3 pos = greedyStart + ivec3(0, i, j);
+			
+			/*
+			int IndexTicket = atomicAdd(QuadCount.count, 1);
+			currentQuad = GreedyStorage.data[pos.x][pos.y][pos.z];
+			growX(currentQuad, GreedyIndex);
+			Quads.data[IndexTicket] = currentQuad;
+			
+			
+			if(!visited[i][j]) {
+				if(currentQuad.normal.w == 0) {
+					if(GreedyStorage.data[pos.x][pos.y][pos.z].normal.w != 0) {
+						currentQuad = GreedyStorage.data[pos.x][pos.y][pos.z];
+					} else {
+						continue;
+					}
+				}
+				
+				//check if current guy is same as next guy
+				if (!(j == (CHUNK_SIZE / 4)) && currentQuad.normal.w == GreedyStorage.data[pos.x][pos.y][pos.z + 1].normal.w) {
+					growX(currentQuad, GreedyIndex);
+					visited[i][j + 1] = true;
+				} else {
+					//check if sideways expand?
+					if(!(i == (CHUNK_SIZE / 4)) && currentQuad.normal.w == GreedyStorage.data[pos.x][pos.y + 1][pos.z].normal.w) {
+						growY(currentQuad, GreedyIndex);
+					} else {
+						int IndexTicket = atomicAdd(QuadCount.count, 1);
+						Quads.data[IndexTicket] = currentQuad;
+					}
+				}
+			} else {
+				int IndexTicket = atomicAdd(QuadCount.count, 1);
+				Quads.data[IndexTicket] = currentQuad;
+			}
+			*/
+		}
+	}
+}
 
 void main () {
 	int WorkGroupDataLength = ChunkDimensions.ChunkSize / ChunkDimensions.WorkGroupSide;
@@ -458,6 +554,26 @@ void main () {
 					continue;
 				}
 				
+				//up face
+				if ((ChunkData.data[x][y+1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y+1][z]].transparent != 0)) {
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.UpQuadIndex];
+					if(q.greedy != 0 && GREEDY) {
+						GreedyStorage.data[x + 0][y][z].vertices = AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+						GreedyStorage.data[x + 0][y][z].normal = vec4(q.normX, q.normY, q.normZ, ChunkData.data[x][y][z]);
+						GreedyStorage.data[x + 0][y][z].custom0 = q.custom0;
+						GreedyStorage.data[x + 0][y][z].color = q.color;
+						AOUpFace(GreedyStorage.data[x + 0][y][z], vec3(x, y, z));
+					} else { 
+						int IndexTicket = atomicAdd(QuadCount.count, 1);
+						Quads.data[IndexTicket].vertices = AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
+						Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, ChunkData.data[x][y][z]);
+						Quads.data[IndexTicket].custom0 = q.custom0;
+						Quads.data[IndexTicket].color = q.color;
+						AOUpFace(Quads.data[IndexTicket], vec3(x, y, z));
+					}
+				} 
+				
 				//do west face?
 				if ((ChunkData.data[x+1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x+1][y][z]].transparent != 0)) {					
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
@@ -468,6 +584,7 @@ void main () {
 					Quads.data[IndexTicket].custom0 = q.custom0;
 					Quads.data[IndexTicket].color = q.color;
 					AOWestFace(Quads.data[IndexTicket], vec3(x, y, z));
+					
 				}
 				
 				//do east face?
@@ -505,18 +622,6 @@ void main () {
 					Quads.data[IndexTicket].color = q.color;
 					AONorthFace(Quads.data[IndexTicket], vec3(x, y, z));
 				}
-			
-				//up face
-				if ((ChunkData.data[x][y+1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y+1][z]].transparent != 0)) {
-					int IndexTicket = atomicAdd(QuadCount.count, 1);
-					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
-					QuadIn q = VoxelData.QuadInput[f.UpQuadIndex];
-					Quads.data[IndexTicket].vertices = AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1));
-					Quads.data[IndexTicket].normal = vec4(q.normX, q.normY, q.normZ, ChunkData.data[x][y][z]);
-					Quads.data[IndexTicket].custom0 = q.custom0;
-					Quads.data[IndexTicket].color = q.color;
-					AOUpFace(Quads.data[IndexTicket], vec3(x, y, z));
-				} 
 				
 				//down face
 				if ((ChunkData.data[x][y - 1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y-1][z]].transparent != 0)) {
@@ -532,5 +637,11 @@ void main () {
 			}
 		}
 	}
-	QuadCount.WorkgroupCounter++;
+	
+	int greedyIndex = Gx + Gy + Gz;
+	if (GREEDY && greedyIndex / 3072 < 1) {
+		GreedyStep(greedyIndex);
+	} else {
+		return;
+	}
 }

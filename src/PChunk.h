@@ -21,7 +21,9 @@ namespace godot {
 			void _process(double delta) override;
 			void PChunk::set_bytes(PackedByteArray face_bytes, bool GenerateCollision);
 			void PChunk::set_bytes2(PackedByteArray face_bytes, bool GenerateCollision);
+			void PChunk::set_bytes3(Array data);
 	};
+
 
 }
 

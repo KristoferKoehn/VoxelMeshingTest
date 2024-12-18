@@ -1,12 +1,13 @@
-[gd_scene load_steps=22 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=28 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
-[ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
+[ext_resource type="Script" uid="uid://ehc3h6vohgbq" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
 [ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
 [ext_resource type="Shader" path="res://Resources/mobius.gdshader" id="4_hfeiy"]
 [ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
 [ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
 [ext_resource type="Shader" path="res://Resources/Test.gdshader" id="8_jttcl"]
+[ext_resource type="Texture2D" uid="uid://k55xtrunc5sk" path="res://assets/RadialGradient2.png" id="9_6rohi"]
 [ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="9_i1jmx"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_bi2te"]
@@ -31,10 +32,9 @@ sky_material = SubResource("PhysicalSkyMaterial_j18j3")
 background_mode = 2
 sky = SubResource("Sky_ir56b")
 tonemap_mode = 3
-sdfgi_enabled = true
-sdfgi_use_occlusion = true
-sdfgi_cascades = 5
 sdfgi_min_cell_size = 0.9
+sdfgi_cascade0_distance = 57.6
+sdfgi_max_distance = 921.6
 volumetric_fog_enabled = true
 volumetric_fog_density = 0.005
 volumetric_fog_albedo = Color(0.301961, 0.403922, 0.6, 1)
@@ -91,6 +91,44 @@ tangential_accel_max = 50.0
 damping_min = 100.0
 damping_max = 100.0
 
+[sub_resource type="Shader" id="Shader_xmxvo"]
+code = "shader_type spatial;
+
+uniform float mix_val : hint_range(0.0, 1.0, 0.01);
+uniform sampler2D mask : filter_nearest;
+uniform sampler2D noise : filter_nearest;
+
+void vertex() {
+	// Called for every vertex the material is visible on.
+}
+
+void fragment() {
+
+	ALBEDO = vec3((texture(noise, UV).r * (texture(mask, vec2(mix_val) * 0.5f + UV * (1.0 - mix_val)).r)) * (0.1 + mix_val * 9.0/10.));
+
+}
+
+//void light() {
+	// Called for every pixel for every light affecting the material.
+	// Uncomment to replace the default light processing function with this one.
+//}
+"
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_h1lar"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_3m8io"]
+noise = SubResource("FastNoiseLite_h1lar")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vse3g"]
+render_priority = 0
+shader = SubResource("Shader_xmxvo")
+shader_parameter/mix_val = 0.0
+shader_parameter/mask = ExtResource("9_6rohi")
+shader_parameter/noise = SubResource("NoiseTexture2D_3m8io")
+
+[sub_resource type="QuadMesh" id="QuadMesh_1avtn"]
+material = SubResource("ShaderMaterial_vse3g")
+
 [node name="GameLoop" type="Node3D" node_paths=PackedStringArray("RayCast")]
 script = ExtResource("1_aic3m")
 Terrain = SubResource("FastNoiseLite_bi2te")
@@ -102,7 +140,6 @@ environment = SubResource("Environment_fngh7")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.351178, 0.846132, -0.400918, -0.66146, 0.527252, 0.533363, 0.66268, 0.0778861, 0.744842, 0, 0, 0)
-light_bake_mode = 1
 shadow_enabled = true
 directional_shadow_blend_splits = true
 directional_shadow_max_distance = 758.0
@@ -131,15 +168,13 @@ mesh = SubResource("QuadMesh_hty1b")
 [node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
 target_position = Vector3(0, 0, -10)
 
-[node name="Node3D" type="Node3D" parent="Camera3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -128)
-
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.8619)
 visible = false
 mesh = SubResource("BoxMesh_ep0ea")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
+visible = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
 visible = false
@@ -154,3 +189,8 @@ draw_pass_1 = ExtResource("9_i1jmx")
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.03535, 7.00603, 0)
 mesh = ExtResource("9_i1jmx")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.895793, 0)
+visible = false
+mesh = SubResource("QuadMesh_1avtn")

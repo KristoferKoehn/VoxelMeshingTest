@@ -1,7 +1,7 @@
 using Godot;
+using Godot.Collections;
 using System;
 using System.Collections.Generic;
-using VoxelMeshingTest.Classes;
 
 
 public partial class Chunk : Node3D
@@ -76,11 +76,22 @@ public partial class Chunk : Node3D
         
         if ((pos - GlobalPosition).Length() > 640)
         {
-            Visible = false;
-            Visibility = Visible;
+
+            //Visible = false;
+            //Visibility = Visible;
+            //ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
             return;
         }
-        else
+        else if ((pos - GlobalPosition).Length() > 1000)
+        {
+            //GD.Print($"Despawning chunk at: {GlobalPosition}");
+            //QueueFree();
+            //for this to work, the chunk needs to be deregistered. it should really just reset state
+            //delete pchunk mesh or whatever then flip the bools back to default
+            
+            
+        }
+        else 
         {
             if (!Visible) {
                 Remesh();
@@ -98,15 +109,6 @@ public partial class Chunk : Node3D
             {
                 PChunkByteIngestion(meshbytes);
             }
-        }
-
-        if ((pos - GlobalPosition).Length() > 2000)
-        {
-            //GD.Print($"Despawning chunk at: {GlobalPosition}");
-            //QueueFree();
-
-            //for this to work, the chunk needs to be deregistered. it should really just reset state
-            //delete pchunk mesh or whatever then flip the bools back to default
         }
 
         if (Regen)
