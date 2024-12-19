@@ -407,29 +407,28 @@ public partial class ChunkMeshManager : Node
         //byte[] QBytes = rd.BufferGetData(QuadBuffer, 0, (uint)Count[0] * 128);
         byte[] VBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 0, (uint)Count[0] * 48);
         byte[] NBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 1, (uint)Count[0] * 48);
+        byte[] ColBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 5, (uint)Count[0] * 72);
         byte[] IBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 7, (uint)Count[0] * (4 * 6));
-        //Buffer.BlockCopy({36,  },
         
         Godot.Collections.Array ar = new Godot.Collections.Array();
         ar.Resize((int)Mesh.ArrayType.Max);
-        //use this
-
 
         byte[] Vbytes = new byte[8 + (uint)Count[0] * 48];
         Buffer.BlockCopy(new int[]{ (int)Variant.Type.PackedVector3Array, Count[0] * 4 }, 0, Vbytes, 0, 8);
         Buffer.BlockCopy(VBuffer, 0, Vbytes, 8, Count[0] * 48);
 
-
-
         byte[] Nbytes = new byte[8 + (uint)Count[0] * 48];
         Buffer.BlockCopy(new int[] { (int)Variant.Type.PackedVector3Array, Count[0] * 4 }, 0, Nbytes, 0, 8);
         Buffer.BlockCopy(NBuffer, 0, Nbytes, 8, Count[0] * 48);
 
+        byte[] Colbytes = new byte[8 + (uint)Count[0] * 72];
+        Buffer.BlockCopy(new int[] { (int)Variant.Type.PackedVector3Array, Count[0] * 6 }, 0, Colbytes, 0, 8);
+        Buffer.BlockCopy(ColBuffer, 0, Colbytes, 8, Count[0] * 72);
 
-        //Variant.Type.PackedVector3Array;
+
         Vector3[] Vertices = (Vector3[])GD.BytesToVar(Vbytes);
-            //= GD.BytesToVar<>(VBytes);
         Vector3[] Normals = (Vector3[])GD.BytesToVar(Nbytes);
+        Vector3[] Collision = (Vector3[])GD.BytesToVar(Colbytes);
         int[] Indices = new int[Count[0] * 6];
         Buffer.BlockCopy(IBuffer, 0, Indices, 0, IBuffer.Length);
         //Buffer.BlockCopy(NBytes, 0, Normals, 0, NBytes.Length);
@@ -443,18 +442,17 @@ public partial class ChunkMeshManager : Node
         rd.BufferClear(QuadCountBuffer, 0, 8);
         
         //ch.PChunkByteAssignment(QBytes);
-        if (ch.MeshInstance != null)
+        if (ch.MeshInstance == null)
         {
-            ch.MeshInstance.QueueFree();
-            
+            ch.MeshInstance = new MeshInstance3D();
+            ch.CallDeferred("add_child", ch.MeshInstance);
         }
 
-        ch.MeshInstance = new MeshInstance3D();
-        ch.CallDeferred("add_child", ch.MeshInstance);
+        ch.ConcavePolygon.SetFaces(Collision);
         ArrayMesh am = new ArrayMesh();
-        ch.MeshInstance.Mesh = am;
 
         am.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, ar);
+        ch.MeshInstance.Mesh = am;
 
 
         rd.FreeRid(UniformSet);

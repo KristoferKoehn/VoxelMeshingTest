@@ -18,7 +18,7 @@ public partial class Chunk : Node3D
     public MeshInstance3D MeshInstance;
     public StaticBody3D SB;
     public CollisionShape3D CollisionShape;
-    ConcavePolygonShape3D ConcavePolygon;
+    public ConcavePolygonShape3D ConcavePolygon;
     public VisibleOnScreenEnabler3D VisibleOnScreenEnabler;
     public VisibleOnScreenNotifier3D VisibleOnScreenNotifier;
     public Vector3 ChunkPosition { get; set; }

@@ -38,14 +38,14 @@ struct Face {
 };
 
 layout(set = 0, binding = 0, std430) buffer vertexbuffer{
-	float vertices[MAX_BUFFER_LENGTH];
-	float normals[MAX_BUFFER_LENGTH];
-	float UV[MAX_BUFFER_LENGTH];
-	float colors[MAX_BUFFER_LENGTH];
-	float custom0[MAX_BUFFER_LENGTH];
-	float CollisionVertices[MAX_BUFFER_LENGTH];
-	float PaddingBuffer[MAX_BUFFER_LENGTH];
-	int indices[MAX_BUFFER_LENGTH];
+	float vertices[MAX_BUFFER_LENGTH];			//0
+	float normals[MAX_BUFFER_LENGTH];			//1
+	float UV[MAX_BUFFER_LENGTH];				//2
+	float colors[MAX_BUFFER_LENGTH];			//3
+	float custom0[MAX_BUFFER_LENGTH];			//4
+	float CollisionVertices[MAX_BUFFER_LENGTH];	//5
+	float PaddingBuffer[MAX_BUFFER_LENGTH];		//6
+	int indices[MAX_BUFFER_LENGTH];				//7
 } VertexBuffer;
 
 
@@ -88,18 +88,29 @@ void ApplyIndices(int IndexTicket) {
 
 
 void CollisionMeshAssign(int IndexTicket, vec4[3] vertices) {
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 0] = vertices[0].x;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 1] = vertices[0].y;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 2] = vertices[0].z;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 3] = vertices[0].w;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 4] = vertices[1].x;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 5] = vertices[1].y;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 6] = vertices[1].z;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 7] = vertices[1].w;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 8] = vertices[2].x;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 9] = vertices[2].y;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 10] = vertices[2].z;
-	VertexBuffer.CollisionVertices[IndexTicket * 12 + 11] = vertices[2].w;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 0]  = vertices[0].x;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 1]  = vertices[0].y;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 2]  = vertices[0].z;
+	
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 3]  = vertices[0].w;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 4]  = vertices[1].x;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 5]  = vertices[1].y;
+	
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 6]  = vertices[1].z;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 7]  = vertices[1].w;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 8]  = vertices[2].x;
+	
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 9]  = vertices[0].x;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 10] = vertices[0].y;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 11] = vertices[0].z;
+	
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 12] = vertices[1].z;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 13] = vertices[1].w;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 14] = vertices[2].x;
+	
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 15] = vertices[2].y;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 16] = vertices[2].z;
+	VertexBuffer.CollisionVertices[IndexTicket * 18 + 17] = vertices[2].w;
 }
 
 
@@ -172,7 +183,7 @@ void main () {
 					//Quads.custom0[IndexTicket * 4 + 2] = q.custom0.z;
 					//Quads.custom0[IndexTicket * 4 + 3] = q.custom0.w;
 					
-					//CollisionMeshAssign(Quads.CollisionVertices, IndexTicket, AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)));
+					CollisionMeshAssign(IndexTicket, AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)));
 					//AOUpFace(Quads.data[IndexTicket], vec3(x, y, z));
 					
 				} 
@@ -192,6 +203,7 @@ void main () {
 					ApplyNormals(norm, IndexTicket);
 					ApplyIndices(IndexTicket);
 					
+					CollisionMeshAssign(IndexTicket, AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)));
 					//AOWestFace(Quads.data[IndexTicket], vec3(x, y, z));
 					
 				}
@@ -211,6 +223,8 @@ void main () {
 					ApplyNormals(norm, IndexTicket);
 					ApplyIndices(IndexTicket);
 					
+					CollisionMeshAssign(IndexTicket, AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)));
+					
 					//AOEastFace(Quads.data[IndexTicket], vec3(x, y, z));
 				}	
 				
@@ -228,6 +242,8 @@ void main () {
 					norm[2] = n;
 					ApplyNormals(norm, IndexTicket);
 					ApplyIndices(IndexTicket);
+					
+					CollisionMeshAssign(IndexTicket, AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)));
 					
 					//AOSouthFace(Quads.data[IndexTicket], vec3(x, y, z));
 				}
@@ -247,6 +263,8 @@ void main () {
 					ApplyNormals(norm, IndexTicket);
 					ApplyIndices(IndexTicket);
 
+					CollisionMeshAssign(IndexTicket, AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)));
+
 					//AONorthFace(Quads.data[IndexTicket], vec3(x, y, z));
 				}
 				
@@ -264,6 +282,8 @@ void main () {
 					norm[2] = n;
 					ApplyNormals(norm, IndexTicket);
 					ApplyIndices(IndexTicket);
+					
+					CollisionMeshAssign(IndexTicket, AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)));
 					
 					//AODownFace(Quads.data[IndexTicket], vec3(x,y,z));
 				}
