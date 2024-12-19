@@ -104,7 +104,7 @@ public partial class ChunkSpawnManager : Node
     {
         Vector3I pos = new Vector3I(x, y, z);
 
-        if (!Chunks[pos].Generated)
+        if (CheckChunk(x,y,z) && !Chunks[pos].Generated)
         {
             Chunks[pos].Generated = true;
             ThreadPool.QueueUserWorkItem(async state =>

@@ -4,7 +4,7 @@
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 const int CHUNK_SIZE = 64;
-const int MAX_BUFFER_LENGTH = 64000;
+const int MAX_BUFFER_LENGTH = 786432;
 
 
 //256 bytes
@@ -38,15 +38,14 @@ struct Face {
 };
 
 layout(set = 0, binding = 0, std430) buffer vertexbuffer{
-	
-	float vertices[];
-	//float normals[131072];
-	//float UV[131072];
-	//float colors[131072];
-	//float custom0[393216];
-	//float CollisionVertices[393216];
-	//float PaddingBuffer[393216]
-	//int indices[393216];
+	float vertices[MAX_BUFFER_LENGTH];
+	float normals[MAX_BUFFER_LENGTH];
+	float UV[MAX_BUFFER_LENGTH];
+	float colors[MAX_BUFFER_LENGTH];
+	float custom0[MAX_BUFFER_LENGTH];
+	float CollisionVertices[MAX_BUFFER_LENGTH];
+	float PaddingBuffer[MAX_BUFFER_LENGTH];
+	int indices[MAX_BUFFER_LENGTH];
 } VertexBuffer;
 
 
@@ -77,32 +76,32 @@ vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 	return vert;
 }
 
-/*
-void ApplyIndices(inout int indices[], int IndexTicket) {
-	indices[IndexTicket * 6 + 0] = IndexTicket * 4 + 0;
-	indices[IndexTicket * 6 + 1] = IndexTicket * 4 + 1;
-	indices[IndexTicket * 6 + 2] = IndexTicket * 4 + 2;
-	indices[IndexTicket * 6 + 3] = IndexTicket * 4 + 0;
-	indices[IndexTicket * 6 + 4] = IndexTicket * 4 + 2;
-	indices[IndexTicket * 6 + 5] = IndexTicket * 4 + 3;
+
+void ApplyIndices(int IndexTicket) {
+	VertexBuffer.indices[IndexTicket * 6 + 0] = IndexTicket * 4 + 0;
+	VertexBuffer.indices[IndexTicket * 6 + 1] = IndexTicket * 4 + 1;
+	VertexBuffer.indices[IndexTicket * 6 + 2] = IndexTicket * 4 + 2;
+	VertexBuffer.indices[IndexTicket * 6 + 3] = IndexTicket * 4 + 0;
+	VertexBuffer.indices[IndexTicket * 6 + 4] = IndexTicket * 4 + 2;
+	VertexBuffer.indices[IndexTicket * 6 + 5] = IndexTicket * 4 + 3;
 }
 
 
-void CollisionMeshAssign(inout float collision[], int IndexTicket, vec4[3] vertices) {
-	collision[IndexTicket * 12 + 0] = vertices[0].x;
-	collision[IndexTicket * 12 + 1] = vertices[0].y;
-	collision[IndexTicket * 12 + 2] = vertices[0].z;
-	collision[IndexTicket * 12 + 3] = vertices[0].w;
-	collision[IndexTicket * 12 + 4] = vertices[1].x;
-	collision[IndexTicket * 12 + 5] = vertices[1].y;
-	collision[IndexTicket * 12 + 6] = vertices[1].z;
-	collision[IndexTicket * 12 + 7] = vertices[1].w;
-	collision[IndexTicket * 12 + 8] = vertices[2].x;
-	collision[IndexTicket * 12 + 9] = vertices[2].y;
-	collision[IndexTicket * 12 + 10] = vertices[2].z;
-	collision[IndexTicket * 12 + 11] = vertices[2].w;
+void CollisionMeshAssign(int IndexTicket, vec4[3] vertices) {
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 0] = vertices[0].x;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 1] = vertices[0].y;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 2] = vertices[0].z;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 3] = vertices[0].w;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 4] = vertices[1].x;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 5] = vertices[1].y;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 6] = vertices[1].z;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 7] = vertices[1].w;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 8] = vertices[2].x;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 9] = vertices[2].y;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 10] = vertices[2].z;
+	VertexBuffer.CollisionVertices[IndexTicket * 12 + 11] = vertices[2].w;
 }
-*/
+
 
 void ApplyVertices(vec4 vertices[3], int index) {
 	int rIndex = index * 12;
@@ -122,15 +121,30 @@ void ApplyVertices(vec4 vertices[3], int index) {
 	VertexBuffer.vertices[rIndex + 11] = vertices[2].w;
 }
 
+void ApplyNormals(vec4 normals[3], int index) {
+	int rIndex = index * 12;
+	VertexBuffer.normals[rIndex + 0] = normals[0].x;
+	VertexBuffer.normals[rIndex + 1] = normals[0].y;
+	VertexBuffer.normals[rIndex + 2] = normals[0].z;
+	VertexBuffer.normals[rIndex + 3] = normals[0].x;
+	
+	VertexBuffer.normals[rIndex + 4] = normals[0].y;
+	VertexBuffer.normals[rIndex + 5] = normals[0].z;
+	VertexBuffer.normals[rIndex + 6] = normals[0].x;
+	VertexBuffer.normals[rIndex + 7] = normals[0].y;
+	
+	VertexBuffer.normals[rIndex + 8] = normals[0].z;
+	VertexBuffer.normals[rIndex + 9] = normals[0].x;
+	VertexBuffer.normals[rIndex + 10] = normals[0].y;
+	VertexBuffer.normals[rIndex + 11] = normals[0].z;
+}
+
 void main () {
 	int WorkGroupDataLength = ChunkDimensions.ChunkSize / ChunkDimensions.WorkGroupSide;
 
 	int Gx = int(gl_GlobalInvocationID.x);
 	int Gy = int(gl_GlobalInvocationID.y);
 	int Gz = int(gl_GlobalInvocationID.z);
-
-	//Find the offset index IN *QUAD* ARRAY
-	//based on the Gx Gy Gz
 	
 	for (int x = Gx * WorkGroupDataLength + 1; x < (Gx + 1) * WorkGroupDataLength + 1; x++) {
 		for (int y = Gy * WorkGroupDataLength + 1; y < (Gy + 1) * WorkGroupDataLength + 1; y++) {
@@ -141,7 +155,6 @@ void main () {
 				
 				//up face
 				if ((ChunkData.data[x][y+1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y+1][z]].transparent != 0)) {
-				
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
 					QuadIn q = VoxelData.QuadInput[f.UpQuadIndex];
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
@@ -151,60 +164,106 @@ void main () {
 					norm[0] = n;
 					norm[1] = n;
 					norm[2] = n;
-					//ApplyVertices(Quads.normals, norm, IndexTicket);
+					ApplyNormals(norm, IndexTicket);
+					ApplyIndices(IndexTicket);
 					//ApplyVertices(Quads.colors, q.color, IndexTicket);
 					//Quads.custom0[IndexTicket * 4 + 0] = q.custom0.x;
 					//Quads.custom0[IndexTicket * 4 + 1] = q.custom0.y;
 					//Quads.custom0[IndexTicket * 4 + 2] = q.custom0.z;
 					//Quads.custom0[IndexTicket * 4 + 3] = q.custom0.w;
-					//ApplyIndices(Quads.indices, IndexTicket);
-					//CollisionMeshAssign(Quads.CollisionVertices, IndexTicket, AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)));
 					
+					//CollisionMeshAssign(Quads.CollisionVertices, IndexTicket, AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)));
 					//AOUpFace(Quads.data[IndexTicket], vec3(x, y, z));
 					
 				} 
 				
 				//do west face?
 				if ((ChunkData.data[x+1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x+1][y][z]].transparent != 0)) {				
-					//int IndexTicket = atomicAdd(QuadCount.count, 1);
-					//Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
-					//QuadIn q = VoxelData.QuadInput[f.WestQuadIndex];
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.WestQuadIndex];
+					
+					ApplyVertices(AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
+					vec4 n = vec4(q.normX, q.normY, q.normZ, ChunkData.data[x][y][z]);
+					vec4[3] norm;
+					norm[0] = n;
+					norm[1] = n;
+					norm[2] = n;
+					ApplyNormals(norm, IndexTicket);
+					ApplyIndices(IndexTicket);
+					
 					//AOWestFace(Quads.data[IndexTicket], vec3(x, y, z));
 					
 				}
 				
 				//do east face?
 				if ((ChunkData.data[x-1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x-1][y][z]].transparent != 0)) {
-					//int IndexTicket = atomicAdd(QuadCount.count, 1);
-					//Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
-					//QuadIn q = VoxelData.QuadInput[f.EastQuadIndex];
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.EastQuadIndex];
+					
+					ApplyVertices(AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
+					vec4 n = vec4(q.normX, q.normY, q.normZ, ChunkData.data[x][y][z]);
+					vec4[3] norm;
+					norm[0] = n;
+					norm[1] = n;
+					norm[2] = n;
+					ApplyNormals(norm, IndexTicket);
+					ApplyIndices(IndexTicket);
 					
 					//AOEastFace(Quads.data[IndexTicket], vec3(x, y, z));
 				}	
 				
 				//do south face
 				if ((ChunkData.data[x][y][z+1] == 0 || VoxelData.FaceData[ChunkData.data[x][y][z+1]].transparent != 0)) {
-					//int IndexTicket = atomicAdd(QuadCount.count, 1);
-					//Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
-					//QuadIn q = VoxelData.QuadInput[f.SouthQuadIndex];
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.SouthQuadIndex];
+					
+					ApplyVertices(AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
+					vec4 n = vec4(q.normX, q.normY, q.normZ, ChunkData.data[x][y][z]);
+					vec4[3] norm;
+					norm[0] = n;
+					norm[1] = n;
+					norm[2] = n;
+					ApplyNormals(norm, IndexTicket);
+					ApplyIndices(IndexTicket);
 					
 					//AOSouthFace(Quads.data[IndexTicket], vec3(x, y, z));
 				}
 
 				
 				if ((ChunkData.data[x][y][z-1] == 0 || VoxelData.FaceData[ChunkData.data[x][y][z-1]].transparent != 0)) {
-					//int IndexTicket = atomicAdd(QuadCount.count, 1);
-					//Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
-					//QuadIn q = VoxelData.QuadInput[f.NorthQuadIndex];
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.NorthQuadIndex];
+					
+					ApplyVertices(AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
+					vec4 n = vec4(q.normX, q.normY, q.normZ, ChunkData.data[x][y][z]);
+					vec4[3] norm;
+					norm[0] = n;
+					norm[1] = n;
+					norm[2] = n;
+					ApplyNormals(norm, IndexTicket);
+					ApplyIndices(IndexTicket);
 
 					//AONorthFace(Quads.data[IndexTicket], vec3(x, y, z));
 				}
 				
 				//down face
 				if ((ChunkData.data[x][y - 1][z] == 0 || VoxelData.FaceData[ChunkData.data[x][y-1][z]].transparent != 0)) {
-					//int IndexTicket = atomicAdd(QuadCount.count, 1);
-					//Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
-					//QuadIn q = VoxelData.QuadInput[f.DownQuadIndex];
+					int IndexTicket = atomicAdd(QuadCount.count, 1);
+					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
+					QuadIn q = VoxelData.QuadInput[f.DownQuadIndex];
+					
+					ApplyVertices(AddPosition( q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
+					vec4 n = vec4(q.normX, q.normY, q.normZ, ChunkData.data[x][y][z]);
+					vec4[3] norm;
+					norm[0] = n;
+					norm[1] = n;
+					norm[2] = n;
+					ApplyNormals(norm, IndexTicket);
+					ApplyIndices(IndexTicket);
 					
 					//AODownFace(Quads.data[IndexTicket], vec3(x,y,z));
 				}

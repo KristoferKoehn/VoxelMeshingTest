@@ -40,8 +40,6 @@ void PChunk::MeshAssignment(Array ArrayList) {
 	}
 	arrayMesh = memnew(ArrayMesh());
 
-	//arrayMesh->add_surface_from_arrays()
-
 	godot::Mesh::ArrayFormat format = (godot::Mesh::ArrayFormat)(godot::Mesh::ArrayFormat::ARRAY_FORMAT_VERTEX |
 				godot::Mesh::ArrayFormat::ARRAY_FORMAT_NORMAL |
 				godot::Mesh::ArrayFormat::ARRAY_FORMAT_COLOR |

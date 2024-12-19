@@ -77,9 +77,10 @@ public partial class Chunk : Node3D
         if ((pos - GlobalPosition).Length() > 640)
         {
 
-            //Visible = false;
-            //Visibility = Visible;
+            Visible = false;
+            Visibility = Visible;
             //ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
+            //QueueFree();
             return;
         }
         else if ((pos - GlobalPosition).Length() > 1000)
@@ -140,7 +141,6 @@ public partial class Chunk : Node3D
         Vector3[] vertices = (Vector3[])PChunk.AsGodotObject().Call("GetCollisionMesh");
         ConcavePolygon.SetFaces(vertices);
         Collision = true;
-
     }
 
     public void Remesh()

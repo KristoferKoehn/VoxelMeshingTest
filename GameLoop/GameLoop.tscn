@@ -1,7 +1,7 @@
 [gd_scene load_steps=28 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
-[ext_resource type="Script" uid="uid://ehc3h6vohgbq" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
+[ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
 [ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
 [ext_resource type="Shader" path="res://Resources/mobius.gdshader" id="4_hfeiy"]
 [ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
