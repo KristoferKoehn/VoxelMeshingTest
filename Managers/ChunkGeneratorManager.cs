@@ -1,5 +1,7 @@
 using Godot;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 using VoxelMeshingTest.Classes;
 
@@ -55,24 +57,37 @@ public partial class ChunkGeneratorManager : Node
 		}
 
 		chunkData = new int[GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE];
-		Image r = new Image();
-		r.GetData();
+        //SurfaceCutoff.Offset = new Vector3((x * side) + CutoffOffset.X, (z * side) + CutoffOffset.Y,0);
+        Image SurfaceCutoffImage = SurfaceCutoff.GetImage(dataSideLength, dataSideLength);
+
+		byte[] Cutoffdata = SurfaceCutoffImage.GetData();
+
         Parallel.For (0, dataSideLength, k =>
 		{
 			Parallel.For(0, dataSideLength, j =>
 			{
 				Parallel.For(0, dataSideLength, i =>
 				{
+					//float cutoffmod = ((float)Cutoffdata[k * 66 + i] / 128f) * 128f / 30.0f;
+
+
 
                     float cutoffmod = (SurfaceCutoff.GetNoise2D(i + (x * side) + CutoffOffset.X, k + (z * side) + CutoffOffset.Y) * 128) / 30;
 
                     //chunkData[i,j,k] = (int)(RNGManager.Instance().rng.Randi() % 2);
 
                     
-					if (j > 15 + cutoffmod && j < 128 + cutoffmod || j == 65 || j == 0)// && j < 96 + cutoffmod)
+					if (j > 15 + cutoffmod && j < 100 + cutoffmod || j == 65 || j == 0)// && j < 96 + cutoffmod)
 					{
 						chunkData[i, j, k] = 0;
 					}
+					else
+					{
+                        chunkData[i, j, k] = 1;
+                    }
+					
+					
+					/*
 					else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
 					{
                         //chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 1;
@@ -85,7 +100,7 @@ public partial class ChunkGeneratorManager : Node
 						{
                             chunkData[i, j, k] = 1;
 						}
-                    }
+                    }*/
 				 
                     //chunkData[i, j, k] = 0; 
                 });

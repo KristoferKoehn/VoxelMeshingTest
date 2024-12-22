@@ -43,4 +43,4 @@ shader_parameter/animation2 = ExtResource("1_7diun")
 
 [resource]
 material = SubResource("ShaderMaterial_pfurf")
-size = Vector2(1, 1.5)
+size = Vector2(4, 6)

@@ -2,30 +2,31 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dwjhtygbkab7q"
-path="res://.godot/imported/soyjack texture pack.png-d9fa7e36506218d944b8bac4a1042c39.ctex"
+uid="uid://cgdka4tfelf1f"
+path.s3tc="res://.godot/imported/TestGradient.png-3d211dd84d8d4ea808e960e47ea7d0ec.s3tc.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
 }
 
 [deps]
 
-source_file="res://assets/soyjack texture pack.png"
-dest_files=["res://.godot/imported/soyjack texture pack.png-d9fa7e36506218d944b8bac4a1042c39.ctex"]
+source_file="res://assets/TestGradient.png"
+dest_files=["res://.godot/imported/TestGradient.png-3d211dd84d8d4ea808e960e47ea7d0ec.s3tc.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
-process/fix_alpha_border=false
+process/fix_alpha_border=true
 process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false

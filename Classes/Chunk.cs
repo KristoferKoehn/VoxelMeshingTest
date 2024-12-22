@@ -77,8 +77,8 @@ public partial class Chunk : Node3D
         if ((pos - GlobalPosition).Length() > 640)
         {
 
-            Visible = false;
-            Visibility = Visible;
+            //Visible = false;
+            //Visibility = Visible;
             //ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
             //QueueFree();
             return;

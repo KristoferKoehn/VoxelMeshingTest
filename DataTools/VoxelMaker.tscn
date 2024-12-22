@@ -88,7 +88,6 @@ environment = SubResource("Environment_x08d2")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.612371, 0.0473632, 0.78915, 0.612371, 0.659741, 0.435596, -0.500003, 0.749999, -0.43301, 0, 0, 0)
-shadow_enabled = true
 
 [node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
 script = ExtResource("3_qccya")
@@ -304,8 +303,6 @@ mesh = SubResource("TextMesh_ixfmo")
 [node name="MeshInstance3D6" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.0854451, -0.0966256, -0.991646, 0.749118, 0.662437, 0, 0.656903, -0.74286, 0.128986, 8.36815, 4.76837e-07, -4.14005)
 mesh = SubResource("CapsuleMesh_amycx")
-
-[node name="ReflectionProbe" type="ReflectionProbe" parent="."]
 
 [node name="MeshInstance3D7" type="MeshInstance3D" parent="."]
 transform = Transform3D(-0.065437, -0.725323, 0.685291, 0.956442, 0.150208, 0.250311, -0.284493, 0.671821, 0.6839, 0.487547, 0, -11.747)

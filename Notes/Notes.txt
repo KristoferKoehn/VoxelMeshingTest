@@ -31,32 +31,17 @@ CORE STRUCTURE:
 		
 		
 	TO DO:
-		resource ingestion:
-			- make system to ingest and serialize resources
-				-need manager to scrape directories and generate byte arrays
-			- make system to quickly make resources?
+		COLOR and TEXTURE, AGAIN!!
 		
-		new compute shader pipeline:
-			-design structs
-			-do dynamic lookup on face quad system (from resources) once this works we will be pogging the fuck out
-			
-		new face ingestion C++ function
-			-new transparency arraymesh with cool shader perhap? probably later, if transp > 0
-			
-		MOVE BACKWARDS FROM C++, determine what is needed, then flow backward. We need:
-			CUSTOM0 for every vertex
-			UV (0,0) to (1,1) for each quad. Unambiguous.
-			the rest should just be copied over (color, position) like it is now.
-			
-			Append that to working quad struct and let's move forward. Don't worry about getting cute with it. 
-			
+		
+		
+		
 		later goals:
 			transp mesh (for water)
 			greedy meshing (can skip for now, theoretically)
 				- to work with baked AO, add 1000 to ID for first case, 2000 for 2nd case, so on,
 				to prevent greedying of baked AO
-			baked AO (would be super fucking cool) ---bing bing bing bing!!
-				-determine which vertices are affected, multiply by 0.8 or something
+
 			
 		Texture Writer-
 			import 64x64 images onto texture atlas

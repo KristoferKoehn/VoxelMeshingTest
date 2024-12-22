@@ -84,7 +84,7 @@ vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 	return vert;
 }
 
-const float AOVAL = 0.1;
+const float AOVAL = 0.5;
 void NorthEastVertexAO(inout Quad2 q) { 
 	q.color[2].gba = q.color[2].gba * AOVAL; //north east
 }

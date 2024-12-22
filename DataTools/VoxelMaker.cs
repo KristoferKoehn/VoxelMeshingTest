@@ -55,7 +55,6 @@ public partial class VoxelMaker : Node3D
 	public void RefreshBlock()
 	{
 		ChunkMeshManager.Instance().InitializeVoxelData();
-
         ch.Remesh();
 	}
 
