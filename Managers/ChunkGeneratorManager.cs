@@ -1,7 +1,8 @@
 using Godot;
+using Godot.Collections;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Threading;
 using System.Threading.Tasks;
 using VoxelMeshingTest.Classes;
 
@@ -12,10 +13,17 @@ public partial class ChunkGeneratorManager : Node
 
 	private ChunkGeneratorManager() { }
 
-	public static FastNoiseLite Terrain {  get; set; }
-	public static FastNoiseLite SurfaceCutoff {  get; set; }
-	public static Vector2 CutoffOffset { get; set; }
-	public Dictionary<Vector3I, int[,,]> GeneratedChunks { get; set; } = new Dictionary<Vector3I, int[,,]>();
+	public static FastNoiseLite Terrain1 {  get; set; }
+	public static FastNoiseLite Terrain2 {  get; set; }
+	public static FastNoiseLite Terrain3 {  get; set; }
+    public static FastNoiseLite SurfaceCutoff {  get; set; }
+    public static FastNoiseLite BiomeTemp { get; set; }
+    public static FastNoiseLite BiomeQual { get; set; }
+    //RenderingDevice rd { get; set; }
+    public System.Collections.Generic.Dictionary<Vector3I, int[,,]> GeneratedChunks { get; set; } = new System.Collections.Generic.Dictionary<Vector3I, int[,,]>();
+	bool Generating = false;
+
+    ConcurrentQueue<RenderingDevice> ConcurrentRenderDevices { get; set; } = new();
 
     public static ChunkGeneratorManager Instance()
 	{
@@ -24,7 +32,8 @@ public partial class ChunkGeneratorManager : Node
 			instance = new ChunkGeneratorManager();
 			SceneSwitcher.root.AddChild(instance);
 			instance.Name = "ChunkGeneratorManager";
-		}
+			
+        }
 
 		return instance;
 	}
@@ -32,8 +41,9 @@ public partial class ChunkGeneratorManager : Node
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-
-	}
+        //instance.rd = RenderingServer.CreateLocalRenderingDevice();
+        ConcurrentRenderDevices.Enqueue(RenderingServer.CreateLocalRenderingDevice());
+    }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
@@ -41,87 +51,155 @@ public partial class ChunkGeneratorManager : Node
 
 	}
 
-    public int[,,] GenerateChunk(int x, int y, int z) {
-
-		//get the data from some bullshit elsewhere. 
-		int side = GameConstants.CHUNK_SIZE;
-		Vector3I pos = new Vector3I(x, y, z);
-		int dataSideLength = GameConstants.CHUNK_DATA_SIZE;
-		int ChunkSize = dataSideLength * dataSideLength * dataSideLength;
-
-		int[,,] chunkData;
-
-        GeneratedChunks.TryGetValue(pos, out chunkData);
-		if (chunkData != null) { 
-			return chunkData;
-		}
-
-		chunkData = new int[GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE];
-        //SurfaceCutoff.Offset = new Vector3((x * side) + CutoffOffset.X, (z * side) + CutoffOffset.Y,0);
-        Image SurfaceCutoffImage = SurfaceCutoff.GetImage(dataSideLength, dataSideLength);
-
-		byte[] Cutoffdata = SurfaceCutoffImage.GetData();
-
-        Parallel.For (0, dataSideLength, k =>
-		{
-			Parallel.For(0, dataSideLength, j =>
-			{
-				Parallel.For(0, dataSideLength, i =>
-				{
-					//float cutoffmod = ((float)Cutoffdata[k * 66 + i] / 128f) * 128f / 30.0f;
+	public int[,,] ComputeGenerateChunk(Vector3I pos)
+	{
+        
+        int[,,] chunk;
+        GeneratedChunks.TryGetValue(pos, out chunk);
+        if (chunk != null)
+        {
+            return chunk;
+        }
 
 
+        RenderingDevice rd = null;
+        do {
+            ConcurrentRenderDevices.TryDequeue(out rd);
+        } while (rd == null);
 
-                    float cutoffmod = (SurfaceCutoff.GetNoise2D(i + (x * side) + CutoffOffset.X, k + (z * side) + CutoffOffset.Y) * 128) / 30;
+        Vector3I pos2D = new Vector3I(pos.X, pos.Z, 0);
 
-                    //chunkData[i,j,k] = (int)(RNGManager.Instance().rng.Randi() % 2);
+        SurfaceCutoff.Offset = pos2D * GameConstants.CHUNK_SIZE;
+        BiomeTemp.Offset = pos2D * GameConstants.CHUNK_SIZE;
+        BiomeQual.Offset = pos2D * GameConstants.CHUNK_SIZE;
 
-                    
-					if (j > 15 + cutoffmod && j < 100 + cutoffmod || j == 65 || j == 0)// && j < 96 + cutoffmod)
-					{
-						chunkData[i, j, k] = 0;
-					}
-					else
-					{
-                        chunkData[i, j, k] = 1;
-                    }
-					
-					
-					/*
-					else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
-					{
-                        //chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 1;
-                       
-						if (j + cutoffmod > 10)
-						{
-                            chunkData[i, j, k] = 1;
-						}
-						else
-						{
-                            chunkData[i, j, k] = 1;
-						}
-                    }*/
-				 
-                    //chunkData[i, j, k] = 0; 
-                });
-			});
-        });
+        Terrain1.Offset = pos * GameConstants.CHUNK_SIZE;
+        Terrain2.Offset = pos * GameConstants.CHUNK_SIZE;
+        Terrain3.Offset = pos * GameConstants.CHUNK_SIZE;
+
+        uint vec4_size = 4;
+
+        uint ImageByteSize = (uint)(vec4_size * (GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE));
+        uint CutoffLayersSize = ImageByteSize * 3;
+        uint TerrainSize = (uint)(CutoffLayersSize * GameConstants.CHUNK_DATA_SIZE);
 		
-		/*
-        for (int i = 0; i < dataSideLength; i++)
-		{
-			for (int j = 0; j < dataSideLength; j++)
-			{
-				for (int k = 0; k < dataSideLength; k++)
-				{
-					
-					//chunkData[i + j * side + k*side*side] = 1;
-				}
-			}
-        } */
+        byte[] NoiseData = new byte[TerrainSize];
+        Array<Image> Terrain1Noise = Terrain1.GetImage3D(GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, normalize: false);
+        Array<Image> Terrain2Noise = Terrain2.GetImage3D(GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, normalize: false);
+        Array<Image> Terrain3Noise = Terrain3.GetImage3D(GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, GameConstants.CHUNK_DATA_SIZE, normalize: false);
 
-		GeneratedChunks[pos] = chunkData;
+        int i = 0;
+        foreach (Image im in Terrain1Noise)
+        {
+            im.Convert(Image.Format.Rf);
+            byte[] data = im.GetData();
+            Buffer.BlockCopy(data, 0, NoiseData, (data.Length * i), data.Length);
+            i++;
+        }
+        
+        foreach (Image im in Terrain2Noise)
+        {
+            im.Convert(Image.Format.Rf);
+            byte[] data = im.GetData();
+            Buffer.BlockCopy(data, 0, NoiseData, (data.Length * i), data.Length);
+            i++;
+        }
+  
+        foreach (Image im in Terrain3Noise)
+        {
+            im.Convert(Image.Format.Rf);
+            byte[] data = im.GetData();
+            Buffer.BlockCopy(data, 0, NoiseData, (data.Length * i), data.Length);
+            i++;
+        }
+
+        byte[] cutoffbytes = new byte[CutoffLayersSize];
+
+        Image cutoff = SurfaceCutoff.GetImage(66, 66, normalize: false);
+        Image temperature = BiomeTemp.GetImage(66, 66, normalize: false);
+        Image quality = BiomeQual.GetImage(66, 66, normalize: false);
+
+        cutoff.Convert(Image.Format.Rf);
+        temperature.Convert(Image.Format.Rf);
+        quality.Convert(Image.Format.Rf);
+        
+        Buffer.BlockCopy(cutoff.GetData(), 0, cutoffbytes, 0, 66 * 66 * 4);
+        Buffer.BlockCopy(temperature.GetData(), 0, cutoffbytes, 66 * 66 * 4, 66 * 66 * 4);
+        Buffer.BlockCopy(quality.GetData(), 0, cutoffbytes, 66 * 66 * 4 * 2, 66 * 66 * 4);
+
+
+        RDShaderFile shaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkGen.glsl");
+        RDShaderSpirV shaderBytecode = shaderFile.GetSpirV();
+        Rid ShaderRID = rd.ShaderCreateFromSpirV(shaderBytecode);
+        long ComputeList = rd.ComputeListBegin();
+
+        Rid CutoffBuffer = rd.StorageBufferCreate(CutoffLayersSize, cutoffbytes);
+		Rid GenBuffer = rd.StorageBufferCreate(TerrainSize, NoiseData);
+        Rid ChunkBuffer = rd.StorageBufferCreate((uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4);
+
+        byte[] DimensionBytes = new byte[sizeof(int) * 2];
+        Buffer.BlockCopy(new int[] { GameConstants.CHUNK_DATA_SIZE, 66 }, 0, DimensionBytes, 0, DimensionBytes.Length);
+        Rid ChunkDimensionalBuffer = rd.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
+
+        RDUniform CutoffUniform = new RDUniform();
+        CutoffUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        CutoffUniform.Binding = 0;
+        CutoffUniform.AddId(CutoffBuffer);
+
+        RDUniform GenUniform = new RDUniform();
+        GenUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        GenUniform.Binding = 1;
+        GenUniform.AddId(GenBuffer);
+
+        RDUniform ChunkUniform = new RDUniform();
+        ChunkUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        ChunkUniform.Binding = 2;
+        ChunkUniform.AddId(ChunkBuffer);
+
+        //chunk data input uniform
+        RDUniform ChunkDimensionalUniform = new RDUniform();
+        ChunkDimensionalUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        ChunkDimensionalUniform.Binding = 3;
+        ChunkDimensionalUniform.AddId(ChunkDimensionalBuffer);
+
+
+        Array<RDUniform> Uniforms = new Array<RDUniform>() {
+            CutoffUniform,
+            GenUniform,
+            ChunkUniform,
+            ChunkDimensionalUniform
+        };
+
+
+        Rid pipelineRID = rd.ComputePipelineCreate(ShaderRID);
+
+        Rid UniformSet = rd.UniformSetCreate(Uniforms, ShaderRID, 0);
+
+        rd.ComputeListBindUniformSet(ComputeList, UniformSet, 0);
+        rd.ComputeListBindComputePipeline(ComputeList, pipelineRID);
+        rd.ComputeListDispatch(ComputeList, 66, 66, 66);
+
+        rd.ComputeListEnd();
+        rd.Submit();
+        rd.Sync();
 		
-		return chunkData;
+		byte[] chunkData = rd.BufferGetData(ChunkBuffer);
+
+        ConcurrentRenderDevices.Enqueue(rd);
+        
+        chunk = new int[66, 66, 66];
+
+		Buffer.BlockCopy(chunkData, 0, chunk, 0, chunkData.Length);
+
+        GeneratedChunks[pos] = chunk;
+
+        rd.FreeRid(UniformSet);
+		rd.FreeRid(pipelineRID);
+		rd.FreeRid(ChunkBuffer);
+        rd.FreeRid(CutoffBuffer);
+        rd.FreeRid(GenBuffer);
+		rd.FreeRid(ChunkDimensionalBuffer);
+        rd.FreeRid(ShaderRID);
+        return chunk;
 	}
 }

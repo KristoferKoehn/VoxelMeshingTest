@@ -5,6 +5,12 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 const int CHUNK_SIZE = 64;
 const int MAX_BUFFER_LENGTH = 786432;
+const float AOVAL = 0.6;
+
+const int NorthWest = 2;
+const int NorthEast = 3;
+const int SouthEast = 0;
+const int SouthWest = 1;
 
 //256 bytes
 struct QuadIn {
@@ -36,7 +42,7 @@ struct Face {
 	int padding;
 };
 
-layout(set = 0, binding = 0, std430) buffer vertexbuffer{
+layout(set = 0, binding = 0, std430) buffer vertexbuffer {
 	float vertices[MAX_BUFFER_LENGTH];			//0
 	float normals[MAX_BUFFER_LENGTH];			//1
 	float UV[MAX_BUFFER_LENGTH];				//2
@@ -80,29 +86,9 @@ vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 }
 
 void ApplyUV(float UVIndex, int IndexTicket) {
-	/*
-	UV.append(Vector3(1,1,0));
-	UV.append(Vector3(0,1,0));
-	UV.append(Vector3(0,0,0));
-	UV.append(Vector3(1,0,0));
-
-
-
-
-	VertexBuffer.UV[IndexTicket * 8 + 0] = UVIndex;
-	VertexBuffer.UV[IndexTicket * 8 + 1] = UVIndex;
-	VertexBuffer.UV[IndexTicket * 8 + 2] = UVIndex;
-	VertexBuffer.UV[IndexTicket * 8 + 3] = UVIndex;
-	VertexBuffer.UV[IndexTicket * 8 + 4] = UVIndex;
-	VertexBuffer.UV[IndexTicket * 8 + 5] = UVIndex;
-	VertexBuffer.UV[IndexTicket * 8 + 6] = UVIndex;
-	VertexBuffer.UV[IndexTicket * 8 + 7] = UVIndex;
-	*/
-		
 	//offset by 1 pixel down and to the right
 	vec2 start = vec2( mod(int(UVIndex), 32), int(UVIndex) / 32) * 1.0/32.0;// + vec2(1.0/2112.0, 1.0/2112.0);
 	vec2 finish = start + vec2(1.0/32.0, 1.0/32.0);
-		
 	VertexBuffer.UV[IndexTicket * 8 + 0] = finish.x;
 	VertexBuffer.UV[IndexTicket * 8 + 1] = finish.y;
 	VertexBuffer.UV[IndexTicket * 8 + 2] = start.x;
@@ -111,7 +97,6 @@ void ApplyUV(float UVIndex, int IndexTicket) {
 	VertexBuffer.UV[IndexTicket * 8 + 5] = start.y;
 	VertexBuffer.UV[IndexTicket * 8 + 6] = finish.x;
 	VertexBuffer.UV[IndexTicket * 8 + 7] = start.y;
-
 	
 }
 
@@ -192,6 +177,12 @@ void ApplyColor(vec4 vertices[3], int index) {
 	VertexBuffer.colors[rIndex + 15] = 1.0;
 }
 
+void AODimmer(int index, int dir) {
+	int rIndex = index * 16;
+	VertexBuffer.colors[rIndex + dir * 4 + 0] = VertexBuffer.colors[rIndex + dir * 4 + 0] * AOVAL;
+	VertexBuffer.colors[rIndex + dir * 4 + 1] = VertexBuffer.colors[rIndex + dir * 4 + 1] * AOVAL;
+	VertexBuffer.colors[rIndex + dir * 4 + 2] = VertexBuffer.colors[rIndex + dir * 4 + 2] * AOVAL;
+}
 
 void ApplyNormals(vec4 normals[3], int index) {
 	int rIndex = index * 12;
@@ -210,6 +201,393 @@ void ApplyNormals(vec4 normals[3], int index) {
 	VertexBuffer.normals[rIndex + 10] = normals[0].y;
 	VertexBuffer.normals[rIndex + 11] = normals[0].z;
 }
+
+void FlipColor(int index) {
+	int rIndex = index * 16;
+	float temp1 = VertexBuffer.colors[rIndex + 0];
+	float temp2 = VertexBuffer.colors[rIndex + 1];
+	float temp3 = VertexBuffer.colors[rIndex + 2];
+	float temp4 = VertexBuffer.colors[rIndex + 3];
+	
+	VertexBuffer.colors[rIndex + 0] =  VertexBuffer.colors[rIndex + 4];
+	VertexBuffer.colors[rIndex + 1] =  VertexBuffer.colors[rIndex + 5];
+	VertexBuffer.colors[rIndex + 2] =  VertexBuffer.colors[rIndex + 6];
+	VertexBuffer.colors[rIndex + 3] =  VertexBuffer.colors[rIndex + 7];
+
+	VertexBuffer.colors[rIndex + 4] =  VertexBuffer.colors[rIndex + 8 ];
+	VertexBuffer.colors[rIndex + 5] =  VertexBuffer.colors[rIndex + 9 ];
+	VertexBuffer.colors[rIndex + 6] =  VertexBuffer.colors[rIndex + 10];
+	VertexBuffer.colors[rIndex + 7] =  VertexBuffer.colors[rIndex + 11];
+	
+	VertexBuffer.colors[rIndex + 8 ] = VertexBuffer.colors[rIndex + 12];
+	VertexBuffer.colors[rIndex + 9 ] = VertexBuffer.colors[rIndex + 13];
+	VertexBuffer.colors[rIndex + 10] = VertexBuffer.colors[rIndex + 14];
+	VertexBuffer.colors[rIndex + 11] = VertexBuffer.colors[rIndex + 15];
+
+	VertexBuffer.colors[rIndex + 12] = temp1;
+	VertexBuffer.colors[rIndex + 13] = temp2;
+	VertexBuffer.colors[rIndex + 14] = temp3;
+	VertexBuffer.colors[rIndex + 15] = temp4;
+}
+
+
+void FlipUV(int index) {
+	float temp1 = VertexBuffer.UV[index * 8 + 0];
+	float temp2 = VertexBuffer.UV[index * 8 + 1];
+	VertexBuffer.UV[index * 8 + 0] = VertexBuffer.UV[index * 8 + 2];
+	VertexBuffer.UV[index * 8 + 1] = VertexBuffer.UV[index * 8 + 3];	
+	VertexBuffer.UV[index * 8 + 2] = VertexBuffer.UV[index * 8 + 4];
+	VertexBuffer.UV[index * 8 + 3] = VertexBuffer.UV[index * 8 + 5];	
+	VertexBuffer.UV[index * 8 + 4] = VertexBuffer.UV[index * 8 + 6];	
+	VertexBuffer.UV[index * 8 + 5] = VertexBuffer.UV[index * 8 + 7];
+	VertexBuffer.UV[index * 8 + 6] = temp1;	
+	VertexBuffer.UV[index * 8 + 7] = temp2;
+}
+
+void FlipVertex(int index) {
+	int rIndex = index * 12;
+	float temp1 = VertexBuffer.vertices[rIndex + 0];
+	float temp2 = VertexBuffer.vertices[rIndex + 1];
+	float temp3 = VertexBuffer.vertices[rIndex + 2];
+	
+	VertexBuffer.vertices[rIndex + 0] = VertexBuffer.vertices[rIndex + 3];
+	VertexBuffer.vertices[rIndex + 1] = VertexBuffer.vertices[rIndex + 4];
+	VertexBuffer.vertices[rIndex + 2] = VertexBuffer.vertices[rIndex + 5];
+	
+	VertexBuffer.vertices[rIndex + 3] = VertexBuffer.vertices[rIndex + 6];
+	VertexBuffer.vertices[rIndex + 4] = VertexBuffer.vertices[rIndex + 7];
+	VertexBuffer.vertices[rIndex + 5] = VertexBuffer.vertices[rIndex + 8];
+
+	VertexBuffer.vertices[rIndex + 6] = VertexBuffer.vertices[rIndex + 9];
+	VertexBuffer.vertices[rIndex + 7] = VertexBuffer.vertices[rIndex + 10];
+	VertexBuffer.vertices[rIndex + 8] = VertexBuffer.vertices[rIndex + 11];
+	
+	VertexBuffer.vertices[rIndex + 9]  = temp1;
+	VertexBuffer.vertices[rIndex + 10] = temp2;
+	VertexBuffer.vertices[rIndex + 11] = temp3;
+}
+
+void FlipFace(int index) {
+	FlipVertex(index);
+	FlipUV(index);
+	FlipColor(index);
+}
+
+void AOUpFace(int index, vec3 voxelPos) {
+	bool Northeast = false;
+	bool Northwest = false;
+	bool Southeast = false;
+	bool Southwest = false;
+	
+	vec3 targpos = voxelPos + vec3(0, 1, 0);
+	
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, SouthWest);
+		Northwest = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, NorthEast);
+		Northwest = true;
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) {
+		AODimmer(index, NorthEast);
+		AODimmer(index, SouthEast);
+		Northeast = true;
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		AODimmer(index, SouthEast);
+		AODimmer(index, SouthWest);
+		Southeast = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		AODimmer(index, NorthWest);
+		Northwest = true;
+	}
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		AODimmer(index, SouthEast);
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		AODimmer(index, NorthEast);
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		AODimmer(index, SouthWest);
+		Southwest = true;
+	}
+	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
+		FlipFace(index);
+	}
+	
+}
+
+void AODownFace(int index, vec3 voxelPos) {
+	bool Northeast = false;
+	bool Northwest = false;
+	bool Southeast = false;
+	bool Southwest = false;
+	
+	vec3 targpos = voxelPos + vec3(0, -1, 0);
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, SouthWest);
+		Northwest = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, NorthEast);
+		Northwest = true;
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) {
+		AODimmer(index, NorthEast);
+		AODimmer(index, SouthEast);
+		Northeast = true;
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		AODimmer(index, SouthEast);
+		AODimmer(index, SouthWest);
+		Southeast = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		AODimmer(index, NorthWest);
+		Northwest = true;
+	}
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		AODimmer(index, SouthEast);
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		AODimmer(index, NorthEast);
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		AODimmer(index, SouthWest);
+		Southwest = true;
+	}
+	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
+		FlipFace(index);
+	}
+	
+}
+
+void AONorthFace(int index, vec3 voxelPos) {
+	bool Northeast = false;
+	bool Northwest = false;
+	bool Southeast = false;
+	bool Southwest = false;
+	
+	vec3 targpos = voxelPos + vec3(0, 0, -1);
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, SouthWest);
+		Northwest = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, NorthEast);
+		Northwest = true;
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) {
+		AODimmer(index, NorthEast);
+		AODimmer(index, SouthEast);
+		Northeast = true;
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z)] != 0) {
+		AODimmer(index, SouthEast);
+		AODimmer(index, SouthWest);
+		Southeast = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y) + 1][int(targpos.z)] != 0) {
+		AODimmer(index, NorthWest);
+		Northwest = true;
+	}
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)- 1][int(targpos.z) ] != 0) {
+		AODimmer(index, SouthEast);
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y) + 1][int(targpos.z)] != 0) {
+		AODimmer(index, NorthEast);
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y) - 1][int(targpos.z)] != 0) {
+		AODimmer(index, SouthWest);
+		Southwest = true;
+	}
+	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
+		FlipFace(index);
+	}
+}
+
+void AOEastFace(int index, vec3 voxelPos) {
+	bool Northeast = false;
+	bool Northwest = false;
+	bool Southeast = false;
+	bool Southwest = false;
+	
+	vec3 targpos = voxelPos + vec3(-1, 0, 0);
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, SouthWest);
+		Northwest = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, NorthEast);
+		Northwest = true;
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		AODimmer(index, NorthEast);
+		AODimmer(index, SouthEast);
+		Northeast = true;
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z)] != 0) {
+		AODimmer(index, SouthEast);
+		AODimmer(index, SouthWest);
+		Southeast = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z) - 1] != 0) {
+		AODimmer(index, NorthWest);
+		Northwest = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)- 1][int(targpos.z) + 1] != 0) {
+		AODimmer(index, SouthEast);
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z) + 1] != 0) {
+		AODimmer(index, NorthEast);
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z) - 1] != 0) {
+		AODimmer(index, SouthWest);
+		Southwest = true;
+	}
+	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
+		FlipFace(index);
+	}
+}
+
+void AOSouthFace(int index, vec3 voxelPos) {
+	bool Northeast = false;
+	bool Northwest = false;
+	bool Southeast = false;
+	bool Southwest = false;
+	
+	vec3 targpos = voxelPos + vec3(0, 0, 1);
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, SouthWest);
+		Northwest = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, NorthEast);
+		Northwest = true;
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) {
+		AODimmer(index, NorthEast);
+		AODimmer(index, SouthEast);
+		Northeast = true;
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z)] != 0) {
+		AODimmer(index, SouthEast);
+		AODimmer(index, SouthWest);
+		Southeast = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y) + 1][int(targpos.z)] != 0) {
+		AODimmer(index, NorthWest);
+		Northwest = true;
+	}
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)- 1][int(targpos.z) ] != 0) {
+		AODimmer(index, SouthEast);
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y) + 1][int(targpos.z)] != 0) {
+		AODimmer(index, NorthEast);
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y) - 1][int(targpos.z)] != 0) {
+		AODimmer(index, SouthWest);
+		Southwest = true;
+	}
+	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
+		FlipFace(index);
+	}
+}
+
+void AOWestFace(int index, vec3 voxelPos) {
+	bool Northeast = false;
+	bool Northwest = false;
+	bool Southeast = false;
+	bool Southwest = false;
+	
+	vec3 targpos = voxelPos + vec3(1, 0, 0);
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, SouthWest);
+		Northwest = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) {
+		AODimmer(index, NorthWest);
+		AODimmer(index, NorthEast);
+		Northwest = true;
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		AODimmer(index, NorthEast);
+		AODimmer(index, SouthEast);
+		Northeast = true;
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z)] != 0) {
+		AODimmer(index, SouthEast);
+		AODimmer(index, SouthWest);
+		Southeast = true;
+		Southwest = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z) + 1] != 0) {
+		AODimmer(index, NorthWest);
+		Northwest = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)- 1][int(targpos.z)  - 1] != 0) {
+		AODimmer(index, SouthEast);
+		Southeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z) - 1] != 0) {
+		AODimmer(index, NorthEast);
+		Northeast = true;
+	}
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z) + 1] != 0) {
+		AODimmer(index, SouthWest);
+		Southwest = true;
+	}
+	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
+		FlipFace(index);
+	}
+}
+
 
 void main () {
 	int WorkGroupDataLength = ChunkDimensions.ChunkSize / ChunkDimensions.WorkGroupSide;
@@ -242,11 +620,10 @@ void main () {
 
 					ApplyUV(q.custom0.x, IndexTicket);
 					CollisionMeshAssign(AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
-					//AOUpFace(Quads.data[IndexTicket], vec3(x, y, z));
-					
+					AOUpFace(IndexTicket, vec3(x, y, z));
 				} 
 				
-				//do west face?
+				//do west face
 				if ((ChunkData.data[x+1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x+1][y][z]].transparent != 0)) {				
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
@@ -264,11 +641,11 @@ void main () {
 					ApplyUV(q.custom0.x, IndexTicket);
 					
 					CollisionMeshAssign(AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
-					//AOWestFace(Quads.data[IndexTicket], vec3(x, y, z));
+					AOWestFace(IndexTicket, vec3(x, y, z));
 					
 				}
 				
-				//do east face?
+				//do east face
 				if ((ChunkData.data[x-1][y][z] == 0 || VoxelData.FaceData[ChunkData.data[x-1][y][z]].transparent != 0)) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
@@ -287,7 +664,7 @@ void main () {
 					
 					CollisionMeshAssign(AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
 					
-					//AOEastFace(Quads.data[IndexTicket], vec3(x, y, z));
+					AOEastFace(IndexTicket, vec3(x, y, z));
 				}	
 				
 				//do south face
@@ -306,13 +683,11 @@ void main () {
 					ApplyColor(q.color, IndexTicket);
 					ApplyIndices(IndexTicket);
 					ApplyUV(q.custom0.x, IndexTicket);
-					
 					CollisionMeshAssign(AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
-					
-					//AOSouthFace(Quads.data[IndexTicket], vec3(x, y, z));
+					AOSouthFace(IndexTicket, vec3(x, y, z));
 				}
 
-				
+				//north face
 				if ((ChunkData.data[x][y][z-1] == 0 || VoxelData.FaceData[ChunkData.data[x][y][z-1]].transparent != 0)) {
 					int IndexTicket = atomicAdd(QuadCount.count, 1);
 					Face f = VoxelData.FaceData[ChunkData.data[x][y][z]];
@@ -330,8 +705,7 @@ void main () {
 					ApplyUV(q.custom0.x, IndexTicket);
 
 					CollisionMeshAssign(AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
-
-					//AONorthFace(Quads.data[IndexTicket], vec3(x, y, z));
+					AONorthFace(IndexTicket, vec3(x, y, z));
 				}
 				
 				//down face
@@ -350,10 +724,8 @@ void main () {
 					ApplyColor(q.color, IndexTicket);
 					ApplyIndices(IndexTicket);
 					ApplyUV(q.custom0.x, IndexTicket);
-					
 					CollisionMeshAssign(AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
-					
-					//AODownFace(Quads.data[IndexTicket], vec3(x,y,z));
+					AODownFace(IndexTicket, vec3(x,y,z));
 				}
 			}
 		}

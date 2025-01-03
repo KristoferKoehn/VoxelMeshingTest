@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using VoxelMeshingTest.Classes;
@@ -59,7 +60,8 @@ public partial class ChunkSpawnManager : Node
     {
         Vector3I pos = new Vector3I(x, y, z);
 
-        Chunks[pos].ChunkData = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
+        //Chunks[pos].ChunkData = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
+        Chunks[pos].ChunkData = ChunkGeneratorManager.Instance().ComputeGenerateChunk(pos);
         Chunks[pos].ChunkCoordinates = pos;
         ChunkMeshManager.Instance().RequestChunkMeshUpdate(Chunks[pos]);
     }
@@ -84,7 +86,11 @@ public partial class ChunkSpawnManager : Node
 
     bool CheckChunk(int x, int y, int z)
     {
-        return Chunks.ContainsKey(new Vector3I(x, y, z));
+        if (Chunks.ContainsKey(new Vector3I(x, y, z)) && Chunks[new Vector3I(x, y, z)].ChunkData != null)
+        {
+            return true;
+        }
+        return false;
     }
 
     void InitializeChunk(int x, int y, int z)
@@ -97,7 +103,13 @@ public partial class ChunkSpawnManager : Node
         Chunk ch = new Chunk();
         AddChunk(ch, x, y, z); //adds chunk as child in here
 
-        ch.ChunkData = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
+        //ch.ChunkData = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
+        Vector3I position = new Vector3I(x,y,z);
+        ch.ChunkData = ChunkGeneratorManager.Instance().ComputeGenerateChunk(position);
+        //Task.Run(() => {
+          //  Vector3I position = new Vector3I(x, y, z);
+            //ch.ChunkData = ChunkGeneratorManager.Instance().ComputeGenerateChunk(position); });
+
     }
 
     void GenerateChunkMesh(int x, int y, int z)
@@ -107,19 +119,9 @@ public partial class ChunkSpawnManager : Node
         if (CheckChunk(x,y,z) && !Chunks[pos].Generated)
         {
             Chunks[pos].Generated = true;
-            ThreadPool.QueueUserWorkItem(async state =>
-            {
-                await Task.Run(() => {
-                    int xC = x;
-                    int yC = y;
-                    int zC = z;
-
-                    GeneratePChunk(xC, yC, zC);
-                });
-            });
+            GeneratePChunk(x, y, z);
         } else
         {
-            //already generated
             return;
         }
     }
@@ -130,38 +132,67 @@ public partial class ChunkSpawnManager : Node
         {
             //nonsense starting value
             Vector3 lastPos = new Vector3(12,12,12);
-            while (true)
+            while (IsInsideTree() && !IsQueuedForDeletion())
             {
-
+                List<Vector3I> chunks = new List<Vector3I>();
                 Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
                 if (pos != lastPos)
                 {
                     Vector3 ChunkPos = (pos + new Vector3(GameConstants.CHUNK_SIZE / 2, 0, GameConstants.CHUNK_SIZE / 2)) / GameConstants.CHUNK_SIZE;
-
-                    for (int i = (int)ChunkPos.X - 8; i < (int)ChunkPos.X + 8; i++)
+                    for (int i = (int)ChunkPos.X - GameConstants.SPAWN_RADIUS; i < (int)ChunkPos.X + GameConstants.SPAWN_RADIUS; i++)
                     {
-                        for (int j = (int)ChunkPos.Z - 8; j < (int)ChunkPos.Z + 8; j++)
+                        for (int j = (int)ChunkPos.Z - GameConstants.SPAWN_RADIUS; j < (int)ChunkPos.Z + GameConstants.SPAWN_RADIUS; j++)
                         {
-                            if ((ChunkPos - new Vector3(i, 0, j)).Length() < 8)
+                            if ((ChunkPos - new Vector3(i, 0, j)).Length() < GameConstants.SPAWN_RADIUS)
                             {
-                                InitializeChunk(i, 0, j);
+                                if (!chunks.Contains(new Vector3I(i, 0, j))) {
+                                    chunks.Add(new Vector3I(i, 0, j));
+                                }
+                                //InitializeChunk(i, 0, j);
+                                //GenerateChunkMesh(i, 0, j);
                             }
                         }
                     }
 
-                    Vector3 ChunkPosCopy = ChunkPos;
-
-                    for (int i = (int)ChunkPosCopy.X - 6; i < (int)ChunkPosCopy.X + 6; i++)
-                    {
-                        for (int j = (int)ChunkPosCopy.Z - 6; j < (int)ChunkPosCopy.Z + 6; j++)
+                    while (chunks.Count > 0) {
+                        lastPos = pos;
+                        Vector3I ChunkToUpdate = new Vector3I();
+                        bool hasChunk = false;
+                        for (int i = 0; i < chunks.Count; i++)
                         {
-                            if ((ChunkPosCopy - new Vector3(i, 0, j)).Length() < 6)
+                            Basis pBasis = PlayerTrackingManager.Instance().GetPlayerBasis();
+                            Vector3 distance = chunks[i] - PlayerTrackingManager.Instance().GetPlayerLocation() + pBasis * new Vector3(0, 0, -30);
+
+                            Vector3 FacingAngle = pBasis * new Vector3(0, 0, 1); /// hopefully this makes sense. rotate a south ray to camera
+                            float bestFacing = 1.0f;
+                            float dotFacing = distance.Dot(FacingAngle);
+                            if (bestFacing < dotFacing)
                             {
-                                GenerateChunkMesh(i, 0, j);
+                                if (!hasChunk)
+                                {
+                                    ChunkToUpdate = chunks[i];
+                                    hasChunk = true;
+                                    bestFacing = dotFacing;
+                                }
+                                else if (distance.Length() < (ChunkToUpdate - PlayerTrackingManager.Instance().GetPlayerLocation()).Length())
+                                {
+                                    ChunkToUpdate = chunks[i];
+                                    hasChunk = true;
+                                    bestFacing = dotFacing;
+                                }
+                            }
+                            else if (!hasChunk)
+                            {
+                                ChunkToUpdate = chunks[i];
+                                hasChunk = true;
+                                bestFacing = dotFacing;
                             }
                         }
+                        GD.Print($"generating at {ChunkToUpdate}");
+                        chunks.Remove(ChunkToUpdate);
+                        InitializeChunk(ChunkToUpdate.X, ChunkToUpdate.Y, ChunkToUpdate.Z);
+                        GenerateChunkMesh(ChunkToUpdate.X, ChunkToUpdate.Y, ChunkToUpdate.Z);
                     }
-                    lastPos = pos;
                 }
             }
         });

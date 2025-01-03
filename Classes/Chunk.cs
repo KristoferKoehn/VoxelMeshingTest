@@ -103,7 +103,7 @@ public partial class Chunk : Node3D
         
         //checks out
         //GD.Print($"UP: {Up}, NORTH: {North}, EAST: {East}, SOUTH: {South}, WEST: {West}, DOWN: {Down}");
-
+        ArrayMesh arrayMesh = new ArrayMesh();
         if (!Meshed)
         {
             if (meshbytes != null)
