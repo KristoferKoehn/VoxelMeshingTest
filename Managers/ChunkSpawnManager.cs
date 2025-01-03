@@ -75,6 +75,7 @@ public partial class ChunkSpawnManager : Node
         chunk.Generated = false;
         ChunkList.Add(chunk);
         CallDeferred("add_child", chunk);
+        //AddChild(chunk);
     }
 
     public void DeregisterChunk(Chunk chunk, Vector3I pos)
@@ -145,7 +146,7 @@ public partial class ChunkSpawnManager : Node
                         {
                             if ((ChunkPos - new Vector3(i, 0, j)).Length() < GameConstants.SPAWN_RADIUS)
                             {
-                                if (!chunks.Contains(new Vector3I(i, 0, j))) {
+                                if (!chunks.Contains(new Vector3I(i, 0, j)) && !Chunks.ContainsKey(new Vector3I(i, 0, j))) {
                                     chunks.Add(new Vector3I(i, 0, j));
                                 }
                                 //InitializeChunk(i, 0, j);
@@ -158,15 +159,16 @@ public partial class ChunkSpawnManager : Node
                         lastPos = pos;
                         Vector3I ChunkToUpdate = new Vector3I();
                         bool hasChunk = false;
+                        Basis pBasis = PlayerTrackingManager.Instance().GetPlayerBasis();
+                        
+                        Vector3 FacingAngle = pBasis * new Vector3(0, 0, 1); /// hopefully this makes sense. rotate a south ray to camera
                         for (int i = 0; i < chunks.Count; i++)
                         {
-                            Basis pBasis = PlayerTrackingManager.Instance().GetPlayerBasis();
-                            Vector3 distance = chunks[i] - PlayerTrackingManager.Instance().GetPlayerLocation() + pBasis * new Vector3(0, 0, -30);
 
-                            Vector3 FacingAngle = pBasis * new Vector3(0, 0, 1); /// hopefully this makes sense. rotate a south ray to camera
+                            Vector3 distance = chunks[i] * GameConstants.CHUNK_SIZE - PlayerTrackingManager.Instance().GetPlayerLocation();
                             float bestFacing = 1.0f;
                             float dotFacing = distance.Dot(FacingAngle);
-                            if (bestFacing < dotFacing)
+                            if (bestFacing > dotFacing)
                             {
                                 if (!hasChunk)
                                 {
@@ -174,12 +176,18 @@ public partial class ChunkSpawnManager : Node
                                     hasChunk = true;
                                     bestFacing = dotFacing;
                                 }
-                                else if (distance.Length() < (ChunkToUpdate - PlayerTrackingManager.Instance().GetPlayerLocation()).Length())
+                                else if (distance.Length() < (ChunkToUpdate * GameConstants.CHUNK_SIZE - PlayerTrackingManager.Instance().GetPlayerLocation()).Length())
                                 {
                                     ChunkToUpdate = chunks[i];
                                     hasChunk = true;
                                     bestFacing = dotFacing;
                                 }
+                            }
+                            else if (distance.Length() < (ChunkToUpdate * GameConstants.CHUNK_SIZE - PlayerTrackingManager.Instance().GetPlayerLocation()).Length())
+                            {
+                                ChunkToUpdate = chunks[i];
+                                hasChunk = true;
+                                bestFacing = dotFacing;
                             }
                             else if (!hasChunk)
                             {
@@ -187,8 +195,8 @@ public partial class ChunkSpawnManager : Node
                                 hasChunk = true;
                                 bestFacing = dotFacing;
                             }
+                            
                         }
-                        GD.Print($"generating at {ChunkToUpdate}");
                         chunks.Remove(ChunkToUpdate);
                         InitializeChunk(ChunkToUpdate.X, ChunkToUpdate.Y, ChunkToUpdate.Z);
                         GenerateChunkMesh(ChunkToUpdate.X, ChunkToUpdate.Y, ChunkToUpdate.Z);

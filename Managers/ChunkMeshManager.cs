@@ -3,9 +3,7 @@ using Godot.Collections;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using VoxelMeshingTest.Classes;
 
@@ -83,12 +81,13 @@ public partial class ChunkMeshManager : Node
                      if (chunks[i].IsQueuedForDeletion() || chunks[i].ChunkData == null) { continue; }
                      Basis pBasis = PlayerTrackingManager.Instance().GetPlayerBasis();
 
-                     Vector3 distance = chunks[i].ChunkPosition - PlayerTrackingManager.Instance().GetPlayerLocation() + pBasis * new Vector3(0, 0, -30);
+                     Vector3 distance = chunks[i].ChunkPosition - PlayerTrackingManager.Instance().GetPlayerLocation();
 
                      Vector3 FacingAngle = pBasis * new Vector3(0, 0, 1); /// hopefully this makes sense. rotate a south ray to camera
                      float bestFacing = 1.0f;
                      float dotFacing = distance.Dot(FacingAngle);
-                     if (dotFacing < bestFacing) {
+                     if (dotFacing < bestFacing)
+                     {
                          if (ChunkToUpdate == null)
                          {
                              ChunkToUpdate = chunks[i];
@@ -99,7 +98,9 @@ public partial class ChunkMeshManager : Node
                              ChunkToUpdate = chunks[i];
                              bestFacing = dotFacing;
                          }
-                     } else if (ChunkToUpdate == null) {
+                     }
+                     else if (ChunkToUpdate == null)
+                     {
                          ChunkToUpdate = chunks[i];
                          bestFacing = dotFacing;
                      }
@@ -108,7 +109,6 @@ public partial class ChunkMeshManager : Node
                  if (ChunkToUpdate != null) {
                      chunks.Remove(ChunkToUpdate);
                      GeneratePChunkMesh5(ChunkToUpdate.ChunkData, ChunkToUpdate, ShaderRID);
-                     //build a queuing system with multiple RDs such that multiple chunks can be meshed at once.
                  }
 
                  foreach (Chunk chunk in chunks)
