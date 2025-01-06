@@ -1,0 +1,82 @@
+[gd_resource type="Resource" script_class="FaceData" load_steps=9 format=3 uid="uid://b6c67dfv3488c"]
+
+[ext_resource type="Script" path="res://Classes/QuadData.cs" id="1_rl71j"]
+[ext_resource type="Script" path="res://Classes/FaceData.cs" id="2_xtvu2"]
+
+[sub_resource type="Resource" id="Resource_fg8oj"]
+script = ExtResource("1_rl71j")
+vertices = PackedVector3Array(0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5)
+Color = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+Normals = Vector3(0, -1, 0)
+Greedy = true
+UVTextureIndex = 512.0
+UVMetallicityIndex = 1023.01
+UVTransparencyIndex = 0.0
+UVEmissivenessIndex = 0.0
+
+[sub_resource type="Resource" id="Resource_01ybr"]
+script = ExtResource("1_rl71j")
+vertices = PackedVector3Array(-0.5, -0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5)
+Color = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+Normals = Vector3(-1, 0, 0)
+Greedy = true
+UVTextureIndex = 512.0
+UVMetallicityIndex = 1023.01
+UVTransparencyIndex = 0.0
+UVEmissivenessIndex = 0.0
+
+[sub_resource type="Resource" id="Resource_qer2s"]
+script = ExtResource("1_rl71j")
+vertices = PackedVector3Array(-0.5, -0.5, -0.5, 0.5, -0.5, -0.5, 0.5, 0.5, -0.5, -0.5, 0.5, -0.5)
+Color = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+Normals = Vector3(0, 0, -1)
+Greedy = true
+UVTextureIndex = 512.0
+UVMetallicityIndex = 1023.01
+UVTransparencyIndex = 0.0
+UVEmissivenessIndex = 0.0
+
+[sub_resource type="Resource" id="Resource_4lboj"]
+script = ExtResource("1_rl71j")
+vertices = PackedVector3Array(0.5, -0.5, 0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
+Color = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+Normals = Vector3(0, 0, 1)
+Greedy = true
+UVTextureIndex = 512.0
+UVMetallicityIndex = 1023.01
+UVTransparencyIndex = 0.0
+UVEmissivenessIndex = 0.0
+
+[sub_resource type="Resource" id="Resource_27ph8"]
+script = ExtResource("1_rl71j")
+vertices = PackedVector3Array(-0.5, 0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5)
+Color = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+Normals = Vector3(0, 1, 0)
+Greedy = true
+UVTextureIndex = 512.0
+UVMetallicityIndex = 1023.01
+UVTransparencyIndex = 0.0
+UVEmissivenessIndex = 0.0
+
+[sub_resource type="Resource" id="Resource_l05fd"]
+script = ExtResource("1_rl71j")
+vertices = PackedVector3Array(0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5)
+Color = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+Normals = Vector3(1, 0, 0)
+Greedy = true
+UVTextureIndex = 512.0
+UVMetallicityIndex = 1023.01
+UVTransparencyIndex = 0.0
+UVEmissivenessIndex = 0.0
+
+[resource]
+resource_name = "Grass"
+script = ExtResource("2_xtvu2")
+ID = 2
+transparent = false
+UpFace = [SubResource("Resource_27ph8")]
+NorthFace = [SubResource("Resource_qer2s")]
+EastFace = [SubResource("Resource_01ybr")]
+SouthFace = [SubResource("Resource_4lboj")]
+WestFace = [SubResource("Resource_l05fd")]
+DownFace = [SubResource("Resource_fg8oj")]

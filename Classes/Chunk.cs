@@ -81,16 +81,18 @@ public partial class Chunk : Node3D
             //Visibility = Visible;
             //ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
             //QueueFree();
+            GD.Print($"Despawning chunk at: {GlobalPosition}");
+            ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
+            QueueFree();
             return;
         }
         else if ((pos - GlobalPosition).Length() > 1000)
         {
-            //GD.Print($"Despawning chunk at: {GlobalPosition}");
-            //QueueFree();
+            
             //for this to work, the chunk needs to be deregistered. it should really just reset state
             //delete pchunk mesh or whatever then flip the bools back to default
-            
-            
+
+
         }
         else 
         {

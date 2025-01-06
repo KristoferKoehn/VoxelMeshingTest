@@ -3,6 +3,7 @@ using Godot.Collections;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using VoxelMeshingTest.Classes;
@@ -26,6 +27,9 @@ public partial class ChunkMeshManager : Node
     Rid QuadBuffer;
     RDUniform QuadUniform;
 
+    Rid GreedyBuffer;
+    RDUniform GreedyUniform;
+
     public Godot.Collections.Dictionary<FaceData, Array<QuadData>> FaceQuadResourceDictionary = new();
 
     public static ChunkMeshManager Instance()
@@ -45,13 +49,22 @@ public partial class ChunkMeshManager : Node
 	{
         InitializeVoxelData();
         HandleChunkMeshing();
-        QuadBuffer = rd.StorageBufferCreate(GameConstants.BUFFER_SIZE);
 
+        QuadBuffer = rd.StorageBufferCreate(GameConstants.BUFFER_SIZE);
         //output quad uniform
         QuadUniform = new RDUniform();
         QuadUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
         QuadUniform.Binding = 0;
         QuadUniform.AddId(QuadBuffer);
+
+
+        GreedyBuffer = rd.StorageBufferCreate(6291456); //6291456
+        //greedy uniform
+        GreedyUniform = new RDUniform();
+        GreedyUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        GreedyUniform.Binding = 5;
+        GreedyUniform.AddId(GreedyBuffer);
+
     }
 
      async void HandleChunkMeshing()
@@ -68,7 +81,7 @@ public partial class ChunkMeshManager : Node
                  List<Chunk> chunks = new List<Chunk>();
                  while (ChunksToUpdate.TryDequeue(out Chunk chunk))
                  {
-                     if (chunk != null && !chunk.IsQueuedForDeletion())
+                     if (IsInstanceValid(chunk) && chunk != null && !chunk.IsQueuedForDeletion())
                      {
                          chunks.Add(chunk);
                      }
@@ -86,6 +99,11 @@ public partial class ChunkMeshManager : Node
                      Vector3 FacingAngle = pBasis * new Vector3(0, 0, 1); /// hopefully this makes sense. rotate a south ray to camera
                      float bestFacing = 1.0f;
                      float dotFacing = distance.Dot(FacingAngle);
+                     if (ChunkToUpdate == null)
+                     {
+                         ChunkToUpdate = chunks[i];
+                         bestFacing = dotFacing;
+                     }
                      if (dotFacing < bestFacing)
                      {
                          if (ChunkToUpdate == null)
@@ -99,16 +117,21 @@ public partial class ChunkMeshManager : Node
                              bestFacing = dotFacing;
                          }
                      }
-                     else if (ChunkToUpdate == null)
-                     {
-                         ChunkToUpdate = chunks[i];
-                         bestFacing = dotFacing;
-                     }
+
                  }
 
                  if (ChunkToUpdate != null) {
                      chunks.Remove(ChunkToUpdate);
-                     GeneratePChunkMesh5(ChunkToUpdate.ChunkData, ChunkToUpdate, ShaderRID);
+                     Stopwatch sw = Stopwatch.StartNew();
+                     if (!IsInstanceValid(ChunkToUpdate) || ChunkToUpdate == null || ChunkToUpdate.IsQueuedForDeletion())
+                     {
+                         GD.Print("rejecting deleted chunk");
+                     }
+                     else
+                     {
+                         GeneratePChunkMesh5(ChunkToUpdate.ChunkData, ChunkToUpdate, ShaderRID);
+                     }
+                     GD.Print($"mesh timing ms: {sw.ElapsedMilliseconds}");
                  }
 
                  foreach (Chunk chunk in chunks)
@@ -278,6 +301,7 @@ public partial class ChunkMeshManager : Node
         {
             VoxelDataUniform,
             QuadUniform,
+            GreedyUniform,
             ChunkDimensionalUniform,
             ChunkDataUniform,
             QuadCountUniform,
@@ -341,16 +365,26 @@ public partial class ChunkMeshManager : Node
 
         rd.BufferClear(QuadCountBuffer, 0, 8);
 
+
+        if (!IsInstanceValid(ch) || ch == null || ch.IsQueuedForDeletion())
+        {
+            GD.Print("rejecting deleted chunk");
+            return;
+        }
+
         if (ch.MeshInstance == null)
         {
             ch.MeshInstance = new MeshInstance3D();
             ch.AddChild(ch.MeshInstance);
         }
-
+        
         ch.ConcavePolygon.SetFaces(Collision);
         ArrayMesh am = new ArrayMesh();
 
         am.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, ar);
+
+
+
 
         ch.MeshInstance.Mesh = am;
 

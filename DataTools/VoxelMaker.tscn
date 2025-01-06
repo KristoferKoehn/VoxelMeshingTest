@@ -70,7 +70,7 @@ font_size = 86
 [sub_resource type="QuadMesh" id="QuadMesh_4gy7n"]
 size = Vector2(7, 7)
 
-[node name="VoxelMaker" type="Node3D" node_paths=PackedStringArray("ItemList", "MetalIndexCheckbox", "Faces", "MetalSlider", "MetalIndex", "AlbedoIndex", "Corner1Color", "Corner2Color", "Corner3Color", "Corner4Color")]
+[node name="VoxelMaker" type="Node3D" node_paths=PackedStringArray("ItemList", "MetalIndexCheckbox", "Faces", "MetalSlider", "MetalIndex", "AlbedoIndex", "Corner1Color", "Corner2Color", "Corner3Color", "Corner4Color", "NewVoxelName")]
 script = ExtResource("1_a42i5")
 ItemList = NodePath("Control/Panel/MarginContainer/VBoxContainer/ItemList")
 MetalIndexCheckbox = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/MetallicityIndexCheckbutton")
@@ -82,6 +82,7 @@ Corner1Color = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContai
 Corner2Color = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton2")
 Corner3Color = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton3")
 Corner4Color = NodePath("Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton4")
+NewVoxelName = NodePath("Control/Panel/MarginContainer/VBoxContainer/HBoxContainer/LineEdit")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_x08d2")
@@ -265,7 +266,7 @@ custom_minimum_size = Vector2(100, 0)
 layout_mode = 2
 placeholder_text = "block name"
 
-[node name="Button" type="Button" parent="Control/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
+[node name="NewVoxelButton" type="Button" parent="Control/Panel/MarginContainer/VBoxContainer/HBoxContainer"]
 layout_mode = 2
 text = "new block"
 
@@ -317,4 +318,5 @@ mesh = SubResource("QuadMesh_4gy7n")
 [connection signal="color_changed" from="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer/ColorPickerButton4" to="." method="ColorValueChange"]
 [connection signal="text_submitted" from="Control/Panel2/MarginContainer/VBoxContainer/HBoxContainer2/MarginContainer/VBoxContainer/HBoxContainer2/VBoxContainer2/AlbedoIndex" to="." method="ValueChange"]
 [connection signal="item_selected" from="Control/Panel/MarginContainer/VBoxContainer/ItemList" to="." method="FaceSelected"]
+[connection signal="pressed" from="Control/Panel/MarginContainer/VBoxContainer/HBoxContainer/NewVoxelButton" to="." method="_on_new_voxel_button_pressed"]
 [connection signal="pressed" from="Control/ExitButton" to="." method="Exit"]

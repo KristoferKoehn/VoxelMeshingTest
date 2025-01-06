@@ -59,6 +59,10 @@ layout(set = 0, binding = 0, std430) buffer vertexbuffer {
 	
 } VertexBuffer;
 
+layout(set = 0, binding = 5, std430) buffer greedybuffer {
+	int data[CHUNK_SIZE * 6][CHUNK_SIZE][CHUNK_SIZE];
+} GreedyBuffer;
+
 layout(set = 0, binding = 1, std430) buffer quadcount {
 	int count;
 	int WorkgroupCounter;
@@ -97,7 +101,6 @@ void ApplyUV(float UVIndex, int IndexTicket) {
 	VertexBuffer.UV[IndexTicket * 8 + 5] = start.y;
 	VertexBuffer.UV[IndexTicket * 8 + 6] = finish.x;
 	VertexBuffer.UV[IndexTicket * 8 + 7] = start.y;
-	
 }
 
 void ApplyIndices(int IndexTicket) {

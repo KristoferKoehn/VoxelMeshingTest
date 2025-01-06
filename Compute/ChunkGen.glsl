@@ -47,19 +47,19 @@ void main () {
 					}
 				} else if (CutoffBuffer.Layer2[z][x] > 0.5 && CutoffBuffer.Layer3[z][x] < 0.5) {
 					if(NoiseBuffer.Terrain1[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * 18) > y) {
-						ChunkBuffer.chunk[x][y][z] = 1;
+						ChunkBuffer.chunk[x][y][z] = 2;
 					} else {
 						ChunkBuffer.chunk[x][y][z] = 0;
 					}
 				} else if (CutoffBuffer.Layer2[z][x] > 0.5 && CutoffBuffer.Layer2[z][x] > 0.5) {
 					if(NoiseBuffer.Terrain3[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * 18) > y) {
-						ChunkBuffer.chunk[x][y][z] = 1;
+						ChunkBuffer.chunk[x][y][z] = 3;
 					} else {
 						ChunkBuffer.chunk[x][y][z] = 0;
 					}
 				}  else if (CutoffBuffer.Layer2[z][x] < 0.5 && CutoffBuffer.Layer3[z][x] > 0.5) {
 					if(NoiseBuffer.Terrain2[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * 18) > y) {
-						ChunkBuffer.chunk[x][y][z] = 1;
+						ChunkBuffer.chunk[x][y][z] = 4;
 					} else {
 						ChunkBuffer.chunk[x][y][z] = 0;
 					}
