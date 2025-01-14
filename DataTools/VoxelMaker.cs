@@ -49,6 +49,7 @@ public partial class VoxelMaker : Node3D
     }
 
     public void AssignBlock(int id) {
+        GD.Print($"Assigning block ID: {id}");
 		ch.ChunkData[33,33,33] = id;
 	}
 
@@ -98,7 +99,7 @@ public partial class VoxelMaker : Node3D
                 break; //only get the first one. No duplicate names considered
             }
         }
-
+        GD.Print($"changing voxel {SelectedFaceID}: ");
         foreach (int idx in selected)
         {
             switch (idx)
@@ -107,49 +108,49 @@ public partial class VoxelMaker : Node3D
                     foreach (QuadData qd in currentFace.UpFace)
                     {
                         AssignQuadValues(qd);
-
+                        GD.Print($"upface assign quad values ");
                     }
                     break;
                 case 1:
                     foreach (QuadData qd in currentFace.NorthFace)
                     {
                         AssignQuadValues(qd);
-
+                        GD.Print($"north assign quad values ");
                     }
                     break;
                 case 2:
                     foreach (QuadData qd in currentFace.EastFace)
                     {
                         AssignQuadValues(qd);
-
+                        GD.Print($"east assign quad values ");
                     }
                     break;
                 case 3:
                     foreach (QuadData qd in currentFace.SouthFace)
                     {
                         AssignQuadValues(qd);
-
+                        GD.Print($"south assign quad values ");
                     }
                     break;
                 case 4:
                     foreach (QuadData qd in currentFace.WestFace)
                     {
                         AssignQuadValues(qd);
-
+                        GD.Print($"west assign quad values ");
                     }
                     break;
                 case 5:
                     foreach (QuadData qd in currentFace.DownFace)
                     {
                         AssignQuadValues(qd);
-
+                        GD.Print($"downface assign quad values ");
                     }
                     break;
                 default:
                     break;
             }
         }
-
+        ResourceSaver.Save(currentFace);
         RefreshBlock();
     }
 
@@ -180,6 +181,7 @@ public partial class VoxelMaker : Node3D
         {
             quadData.UVTextureIndex = albedoIndex;
         }
+
         ResourceSaver.Save(quadData);
     }
 
@@ -240,26 +242,40 @@ public partial class VoxelMaker : Node3D
             FaceData template = (FaceData)ResourceLoader.Load<FaceData>("res://VoxelData/FaceData/TemplateVoxel.tres").Duplicate();
             template.ResourceName = NewVoxelName.Text;
 
-            Array<QuadData> quadUp = new Array<QuadData>() { (QuadData)ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateUp.tres").Duplicate() };
-            Array<QuadData> quadNorth = new Array<QuadData>() { (QuadData)ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateNorth.tres").Duplicate() };
-            Array<QuadData> quadEast = new Array<QuadData>() { (QuadData)ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateEast.tres").Duplicate() };
-            Array<QuadData> quadSouth = new Array<QuadData>() { (QuadData)ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateSouth.tres").Duplicate() };
-            Array<QuadData> quadWest = new Array<QuadData>() { (QuadData)ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateWest.tres").Duplicate() };
-            Array<QuadData> quadDown = new Array<QuadData>() { (QuadData)ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateDown.tres").Duplicate() };
+            QuadData quadUp = new QuadData();
+            QuadData quadNorth = new QuadData();
+            QuadData quadEast = new QuadData();
+            QuadData quadSouth = new QuadData();
+            QuadData quadWest = new QuadData();
+            QuadData quadDown = new QuadData();
 
-            ResourceSaver.Save(quadUp[0],$"res://VoxelData/QuadData/{NewVoxelName.Text}Up.tres", ResourceSaver.SaverFlags.ChangePath);
-            ResourceSaver.Save(quadNorth[0], $"res://VoxelData/QuadData/{NewVoxelName.Text}North.tres", ResourceSaver.SaverFlags.ChangePath);
-            ResourceSaver.Save(quadEast[0], $"res://VoxelData/QuadData/{NewVoxelName.Text}East.tres", ResourceSaver.SaverFlags.ChangePath);
-            ResourceSaver.Save(quadSouth[0], $"res://VoxelData/QuadData/{NewVoxelName.Text}South.tres", ResourceSaver.SaverFlags.ChangePath);
-            ResourceSaver.Save(quadWest[0], $"res://VoxelData/QuadData/{NewVoxelName.Text}West.tres", ResourceSaver.SaverFlags.ChangePath);
-            ResourceSaver.Save(quadDown[0], $"res://VoxelData/QuadData/{NewVoxelName.Text}Down.tres", ResourceSaver.SaverFlags.ChangePath);
+            template.UpFace.Clear();
+            template.NorthFace.Clear();
+            template.EastFace.Clear();
+            template.SouthFace.Clear();
+            template.WestFace.Clear();
+            template.DownFace.Clear();
 
-            template.UpFace = quadUp;
-            template.NorthFace = quadNorth;
-            template.EastFace = quadEast;
-            template.SouthFace = quadSouth;
-            template.WestFace = quadWest;
-            template.DownFace = quadDown;
+            quadUp.vertices = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateUp.tres").vertices;
+            quadNorth.vertices = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateNorth.tres").vertices;
+            quadEast.vertices = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateEast.tres").vertices;
+            quadSouth.vertices = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateSouth.tres").vertices;
+            quadWest.vertices = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateWest.tres").vertices;
+            quadDown.vertices = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateDown.tres").vertices;
+
+            quadUp.Normals = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateUp.tres").Normals;
+            quadNorth.Normals = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateNorth.tres").Normals;
+            quadEast.Normals = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateEast.tres").Normals;
+            quadSouth.Normals = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateSouth.tres").Normals;
+            quadWest.Normals = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateWest.tres").Normals;
+            quadDown.Normals = ResourceLoader.Load<QuadData>("res://VoxelData/QuadData/TemplateDown.tres").Normals;
+
+            template.UpFace.Add(quadUp);
+            template.NorthFace.Add(quadNorth);
+            template.EastFace.Add(quadEast);
+            template.SouthFace.Add(quadSouth);
+            template.WestFace.Add(quadWest);
+            template.DownFace.Add(quadDown);
 
             template.ID = ItemList.ItemCount + 1;
             
@@ -270,6 +286,7 @@ public partial class VoxelMaker : Node3D
             //copy quads, hook up quads to voxel
             ValueChange();
             RefreshList();
+            ChunkMeshManager.Instance().InitializeVoxelData();
         }
     }
 }

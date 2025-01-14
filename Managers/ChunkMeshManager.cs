@@ -177,14 +177,11 @@ public partial class ChunkMeshManager : Node
             if (name.Contains(".tres"))
             {
                 faces.Add(ResourceLoader.Load<FaceData>($"res://VoxelData/FaceData/{name}", cacheMode: ResourceLoader.CacheMode.Ignore));
-                GD.Print($"adding {name}");
             }
         }
 
         foreach (FaceData faceData in faces)
         {
-            //get QuadInData Offset, 
-            
             Array<Array<QuadData>> quads = faceData.GetFacesArray();
             Array<QuadData> blockquad = new Array<QuadData>();
 
@@ -213,6 +210,8 @@ public partial class ChunkMeshManager : Node
             Buffer.BlockCopy(quadIndices, 0, FaceData, faceData.ID * 32, 32);
             FaceQuadResourceDictionary[faceData] = blockquad;
         }
+
+        GD.Print($"total quads on initialization: {QuadOffset}");
 
         Buffer.BlockCopy(QuadInData, 0, VoxelData, 0, 256 * 4000);
         Buffer.BlockCopy(FaceData, 0, VoxelData, 256 * 4000, 32 * 4000);
