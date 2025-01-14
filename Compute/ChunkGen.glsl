@@ -41,7 +41,7 @@ void main () {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
 				if (CutoffBuffer.Layer2[z][x] > 0.5 && CutoffBuffer.Layer3[z][x] > 0.5) {
 					if(NoiseBuffer.Terrain1[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * 18) > y) {
-						ChunkBuffer.chunk[x][y][z] = 1;
+						ChunkBuffer.chunk[x][y][z] = 3;
 					} else {
 						ChunkBuffer.chunk[x][y][z] = 0;
 					}

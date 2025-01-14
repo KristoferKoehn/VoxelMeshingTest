@@ -99,7 +99,6 @@ public partial class VoxelMaker : Node3D
                 break; //only get the first one. No duplicate names considered
             }
         }
-        GD.Print($"changing voxel {SelectedFaceID}: ");
         foreach (int idx in selected)
         {
             switch (idx)
@@ -108,42 +107,36 @@ public partial class VoxelMaker : Node3D
                     foreach (QuadData qd in currentFace.UpFace)
                     {
                         AssignQuadValues(qd);
-                        GD.Print($"upface assign quad values ");
                     }
                     break;
                 case 1:
                     foreach (QuadData qd in currentFace.NorthFace)
                     {
                         AssignQuadValues(qd);
-                        GD.Print($"north assign quad values ");
                     }
                     break;
                 case 2:
                     foreach (QuadData qd in currentFace.EastFace)
                     {
                         AssignQuadValues(qd);
-                        GD.Print($"east assign quad values ");
                     }
                     break;
                 case 3:
                     foreach (QuadData qd in currentFace.SouthFace)
                     {
                         AssignQuadValues(qd);
-                        GD.Print($"south assign quad values ");
                     }
                     break;
                 case 4:
                     foreach (QuadData qd in currentFace.WestFace)
                     {
                         AssignQuadValues(qd);
-                        GD.Print($"west assign quad values ");
                     }
                     break;
                 case 5:
                     foreach (QuadData qd in currentFace.DownFace)
                     {
                         AssignQuadValues(qd);
-                        GD.Print($"downface assign quad values ");
                     }
                     break;
                 default:

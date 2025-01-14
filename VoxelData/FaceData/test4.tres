@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="FaceData" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="FaceData" load_steps=9 format=3 uid="uid://tx6d13ug8st7"]
 
 [ext_resource type="Script" path="res://Classes/QuadData.cs" id="1_rnqyg"]
 [ext_resource type="Script" path="res://Classes/FaceData.cs" id="2_ufd0b"]
