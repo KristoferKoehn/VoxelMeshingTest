@@ -58,7 +58,7 @@ public partial class ChunkMeshManager : Node
         QuadUniform.AddId(QuadBuffer);
 
 
-        GreedyBuffer = rd.StorageBufferCreate(6291456); //6291456
+        GreedyBuffer = rd.StorageBufferCreate(6291456 + GameConstants.BUFFER_SIZE); //6291456
         //greedy uniform
         GreedyUniform = new RDUniform();
         GreedyUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
@@ -72,9 +72,13 @@ public partial class ChunkMeshManager : Node
          await Task.Run(() =>
          {
 
-             RDShaderFile shaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkMesherFast4.glsl");
+             RDShaderFile shaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkMesherFast5.glsl");
              RDShaderSpirV shaderBytecode = shaderFile.GetSpirV();
              Rid ShaderRID = rd.ShaderCreateFromSpirV(shaderBytecode);
+
+             RDShaderFile GreedyShaderFile = GD.Load<RDShaderFile>("res://Compute/GreedyMesher.glsl");
+             RDShaderSpirV GreedyShaderBytecode = GreedyShaderFile.GetSpirV();
+             Rid GreedyShaderRID = rd.ShaderCreateFromSpirV(GreedyShaderBytecode);
 
              while (IsInsideTree() && !IsQueuedForDeletion())
              {
@@ -129,7 +133,7 @@ public partial class ChunkMeshManager : Node
                      }
                      else
                      {
-                         GeneratePChunkMesh5(ChunkToUpdate.ChunkData, ChunkToUpdate, ShaderRID);
+                         GeneratePChunkMesh5(ChunkToUpdate.ChunkData, ChunkToUpdate, ShaderRID, GreedyShaderRID);
                      }
                      GD.Print($"mesh timing ms: {sw.ElapsedMilliseconds}");
                  }
@@ -224,41 +228,8 @@ public partial class ChunkMeshManager : Node
 
     }
 
-    public void GeneratePChunkMesh5(int[,,] Data, Chunk ch, Rid ShaderRID = new Rid())
+    public void GeneratePChunkMesh5(int[,,] Data, Chunk ch, Rid ShaderRID = new Rid(), Rid GreedyShaderRID = new Rid())
     {
-
-        if (!ShaderRID.IsValid)
-        {
-            //RenderingDevice rd = RenderingServer.CreateLocalRenderingDevice();
-            RDShaderFile shaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkMesherFast4.glsl");
-            RDShaderSpirV shaderBytecode = shaderFile.GetSpirV();
-            ShaderRID = rd.ShaderCreateFromSpirV(shaderBytecode);
-            GD.Print("invalid shader RID, creating...");
-        }
-
-        /*
-        bool NonZero = false;
-        int i = 0;
-        Vector3 vec = new Vector3();
-        for (int j = 0; j < GameConstants.CHUNK_DATA_SIZE; j++)
-        {
-            for (int k = 0; k < GameConstants.CHUNK_DATA_SIZE; k++)
-            {
-                for (int l = 0; l < GameConstants.CHUNK_DATA_SIZE; l++)
-                {
-                    if (Data[j, k, l] == 1)
-                    {
-                        NonZero = true;
-                        i++;
-                        vec = new Vector3(j, k, l);
-                        //GD.Print($"{j}, {k}, {l}");
-                    }
-                }
-            }
-        }
-        GD.Print($"nonzero generation: {NonZero} with {i} ones, at {vec}"); */
-
-
 
         long ComputeList = rd.ComputeListBegin();
         //compute uniform
@@ -274,7 +245,7 @@ public partial class ChunkMeshManager : Node
         uint BufferSection = 786432 * 4;
 
         //Rid QuadBuffer = rd.StorageBufferCreate(BufferSize);
-        Rid QuadCountBuffer = rd.StorageBufferCreate(sizeof(int) * 2);
+        Rid QuadCountBuffer = rd.StorageBufferCreate(sizeof(int) * 4);
         Rid ChunkDataBuffer = rd.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
         Rid ChunkDimensionalBuffer = rd.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
 
@@ -318,8 +289,8 @@ public partial class ChunkMeshManager : Node
         rd.Sync();
 
         byte[] countBytes = rd.BufferGetData(QuadCountBuffer);
-        int[] Count = new int[2];
-        Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 2);
+        int[] Count = new int[4];
+        Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 4);
 
         if (Count[0] == 0)
         {
@@ -330,6 +301,27 @@ public partial class ChunkMeshManager : Node
             rd.FreeRid(ChunkDimensionalBuffer);
 
             return;
+        }
+
+        if (Count[1] != 0)
+        {
+            if (GreedyShaderRID.IsValid)
+            {
+
+                long GreedyComputeList = rd.ComputeListBegin();
+                Rid GreedyPipelineRID = rd.ComputePipelineCreate(GreedyShaderRID);
+                Rid GreedyUniformSet = rd.UniformSetCreate(Uniforms, GreedyShaderRID, 0);
+                rd.ComputeListBindUniformSet(GreedyComputeList, GreedyUniformSet, 0);
+                rd.ComputeListBindComputePipeline(GreedyComputeList, GreedyPipelineRID);
+                rd.ComputeListDispatch(GreedyComputeList, 64 * 6 , 1, 1);
+                rd.ComputeListEnd();
+                rd.Submit();
+                rd.Sync();
+
+                countBytes = rd.BufferGetData(QuadCountBuffer);
+                Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 4);
+
+            }
         }
 
         byte[] VBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 0, (uint)Count[0] * 48);
@@ -352,7 +344,10 @@ public partial class ChunkMeshManager : Node
         Vector2[] UVs = BytesToVec2(UVBuffer, Count[0]);
         Color[] Colors = BytesToColor(CBuffer, Count[0]);
         //just copying over this shtuff ez pz
-
+        GD.Print($"Chunk size: {Count[0]}");
+        GD.Print($"Greedy size: {Count[1]}");
+        GD.Print($"full test size: {Count[2]}");
+        GD.Print($"Greeded(pad) size: {Count[3]}");
         int[] Indices = new int[Count[0] * 6];
         Buffer.BlockCopy(IBuffer, 0, Indices, 0, Indices.Length * 4);
 
@@ -362,8 +357,28 @@ public partial class ChunkMeshManager : Node
         ar[(int)Mesh.ArrayType.Index] = Indices;
         ar[(int)Mesh.ArrayType.Color] = Colors;
 
-        rd.BufferClear(QuadCountBuffer, 0, 8);
+        /*
+        int[,,] greedy = new int[64 * 6, 64, 64];
+        byte[] gbytes = rd.BufferGetData(GreedyBuffer, 0, 64 * 64 * 64 * 6 * 4);
+        Buffer.BlockCopy(gbytes, 0, greedy, 0, 64 * 64 * 64 * 6 * 4);
 
+        for (int i = 0; i < 64 * 6; i++)
+        {
+            for (int j = 0; j < 64; j++)
+            {
+                for (int k = 0; k < 64; k++)
+                {
+                    if (greedy[i, j, k] != 0)
+                    {
+                        GD.Print($"greedy at {i}, {j}, {k} = {greedy[i, j, k]}");
+                    }
+                }
+            }
+        }
+        */
+
+        rd.BufferClear(QuadCountBuffer, 0, 16);
+        rd.BufferClear(GreedyBuffer, 0, 6291456 + GameConstants.BUFFER_SIZE);
 
         if (!IsInstanceValid(ch) || ch == null || ch.IsQueuedForDeletion())
         {
@@ -381,9 +396,6 @@ public partial class ChunkMeshManager : Node
         ArrayMesh am = new ArrayMesh();
 
         am.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, ar);
-
-
-
 
         ch.MeshInstance.Mesh = am;
 

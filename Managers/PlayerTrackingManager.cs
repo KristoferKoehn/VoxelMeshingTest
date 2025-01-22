@@ -9,7 +9,7 @@ public partial class PlayerTrackingManager : Node
     private static PlayerTrackingManager instance;
 
     public Vector3 TrackerPosition { get; set; } = Vector3.Zero;
-    public Basis TrackerBasis { get; set; }
+    public Basis TrackerBasis { get; set; } = Basis.Identity;
 
     public static PlayerTrackingManager Instance()
     {

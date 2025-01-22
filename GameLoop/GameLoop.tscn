@@ -1,6 +1,7 @@
-[gd_scene load_steps=34 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=32 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
+[ext_resource type="Environment" uid="uid://dgbvwfvwe75vl" path="res://Resources/EnvironmentResource.tres" id="2_7k4c0"]
 [ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
 [ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
 [ext_resource type="Shader" path="res://Resources/mobius.gdshader" id="4_hfeiy"]
@@ -39,24 +40,6 @@ fractal_octaves = 1
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_gywmo"]
 frequency = 0.001
-
-[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_j18j3"]
-
-[sub_resource type="Sky" id="Sky_ir56b"]
-sky_material = SubResource("PhysicalSkyMaterial_j18j3")
-
-[sub_resource type="Environment" id="Environment_fngh7"]
-background_mode = 2
-sky = SubResource("Sky_ir56b")
-tonemap_mode = 3
-sdfgi_min_cell_size = 0.9
-sdfgi_cascade0_distance = 57.6
-sdfgi_max_distance = 921.6
-volumetric_fog_enabled = true
-volumetric_fog_density = 0.005
-volumetric_fog_albedo = Color(0.301961, 0.403922, 0.6, 1)
-volumetric_fog_anisotropy = 0.4
-volumetric_fog_length = 89.6
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_vys8h"]
 render_priority = 0
@@ -170,10 +153,13 @@ GenQualityValue = SubResource("FastNoiseLite_gywmo")
 RayCast = NodePath("Camera3D/RayCast3D")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_fngh7")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.351178, 0.846132, -0.400918, -0.66146, 0.527252, 0.533363, 0.66268, 0.0778861, 0.744842, 0, 0, 0)
+shadow_enabled = true
+directional_shadow_mode = 0
+directional_shadow_fade_start = 1.0
+directional_shadow_max_distance = 350.0
 
 [node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
 script = ExtResource("4_cg07s")
@@ -181,6 +167,7 @@ TrackingItem = NodePath("../Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 0, 0)
+environment = ExtResource("2_7k4c0")
 current = true
 script = ExtResource("3_o0vww")
 sensitivity = 0.2

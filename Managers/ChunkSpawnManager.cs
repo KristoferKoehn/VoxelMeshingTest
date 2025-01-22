@@ -149,6 +149,11 @@ public partial class ChunkSpawnManager : Node
                                 if (!chunks.Contains(new Vector3I(i, 0, j)) && !Chunks.ContainsKey(new Vector3I(i, 0, j))) {
                                     chunks.Add(new Vector3I(i, 0, j));
                                 }
+                                /*
+                                if (!chunks.Contains(new Vector3I(i, 1, j)) && !Chunks.ContainsKey(new Vector3I(i, 1, j)))
+                                {
+                                    chunks.Add(new Vector3I(i, 1, j));
+                                }*/
                                 //InitializeChunk(i, 0, j);
                                 //GenerateChunkMesh(i, 0, j);
                             }

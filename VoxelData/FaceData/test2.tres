@@ -10,7 +10,7 @@ Color = PackedColorArray(0.929688, 0.814445, 0.435791, 1, 0.929412, 0.815686, 0.
 Normals = Vector3(0, -1, 0)
 Greedy = false
 UVTextureIndex = 512.0
-UVMetallicityIndex = 1023.01
+UVMetallicityIndex = 0.0
 UVTransparencyIndex = 0.0
 UVEmissivenessIndex = 0.0
 
@@ -21,7 +21,7 @@ Color = PackedColorArray(0.929688, 0.814445, 0.435791, 1, 0.929412, 0.815686, 0.
 Normals = Vector3(-1, 0, 0)
 Greedy = false
 UVTextureIndex = 512.0
-UVMetallicityIndex = 1023.01
+UVMetallicityIndex = 0.0
 UVTransparencyIndex = 0.0
 UVEmissivenessIndex = 0.0
 
@@ -32,7 +32,7 @@ Color = PackedColorArray(0.929688, 0.814445, 0.435791, 1, 0.929412, 0.815686, 0.
 Normals = Vector3(0, 0, -1)
 Greedy = false
 UVTextureIndex = 512.0
-UVMetallicityIndex = 1023.01
+UVMetallicityIndex = 0.0
 UVTransparencyIndex = 0.0
 UVEmissivenessIndex = 0.0
 
@@ -65,7 +65,7 @@ Color = PackedColorArray(0.929688, 0.814445, 0.435791, 1, 0.929412, 0.815686, 0.
 Normals = Vector3(1, 0, 0)
 Greedy = false
 UVTextureIndex = 512.0
-UVMetallicityIndex = 1023.01
+UVMetallicityIndex = 0.0
 UVTransparencyIndex = 0.0
 UVEmissivenessIndex = 0.0
 

@@ -61,11 +61,25 @@ layout(set = 0, binding = 0, std430) buffer vertexbuffer {
 
 layout(set = 0, binding = 5, std430) buffer greedybuffer {
 	int data[CHUNK_SIZE * 6][CHUNK_SIZE][CHUNK_SIZE];
+	float vertices[MAX_BUFFER_LENGTH];			//0
+	float normals[MAX_BUFFER_LENGTH];			//1
+	float UV[MAX_BUFFER_LENGTH];				//2
+	float colors[MAX_BUFFER_LENGTH];			//3
+	float custom0[MAX_BUFFER_LENGTH];			//4
+	float CollisionVertices[MAX_BUFFER_LENGTH];	//5
+	float EmissiveColor[MAX_BUFFER_LENGTH];		//6
+	int indices[MAX_BUFFER_LENGTH];				//7
+	//expansion testing
+	float data1[MAX_BUFFER_LENGTH];				//8
+	float data2[MAX_BUFFER_LENGTH];				//9
+	float data3[MAX_BUFFER_LENGTH];				//10
+	float data4[MAX_BUFFER_LENGTH];				//11
+	
 } GreedyBuffer;
 
 layout(set = 0, binding = 1, std430) buffer quadcount {
 	int count;
-	int WorkgroupCounter;
+	int greedycount;
 } QuadCount;
 
 layout(set = 0, binding = 2, std430) buffer chunkdata{
@@ -90,8 +104,7 @@ vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 }
 
 void ApplyUV(float UVIndex, int IndexTicket) {
-	//offset by 1 pixel down and to the right
-	vec2 start = vec2( mod(int(UVIndex), 32), int(UVIndex) / 32) * 1.0/32.0;// + vec2(1.0/2112.0, 1.0/2112.0);
+	vec2 start = vec2( mod(int(UVIndex), 32), int(UVIndex) / 32) * 1.0/32.0;
 	vec2 finish = start + vec2(1.0/32.0, 1.0/32.0);
 	VertexBuffer.UV[IndexTicket * 8 + 0] = finish.x;
 	VertexBuffer.UV[IndexTicket * 8 + 1] = finish.y;

@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://c8egwmc6ms4nx"
+path="res://.godot/imported/GreedyMesher.glsl-bf4dce278c9ceee4f63b92b3e6c5aa2a.res"
+
+[deps]
+
+source_file="res://Compute/GreedyMesher.glsl"
+dest_files=["res://.godot/imported/GreedyMesher.glsl-bf4dce278c9ceee4f63b92b3e6c5aa2a.res"]
+
+[params]
+

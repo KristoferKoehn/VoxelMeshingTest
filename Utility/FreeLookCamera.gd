@@ -29,6 +29,9 @@ var _e = false
 var _shift = false
 var _alt = false
 
+func _init():
+	RenderingServer.set_debug_generate_wireframes(true)
+
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -64,6 +67,13 @@ func _input(event):
 				_shift = event.pressed
 			KEY_ALT:
 				_alt = event.pressed
+
+	if event is InputEventKey and Input.is_key_pressed(KEY_P):
+		var vp = get_viewport()
+		vp.debug_draw = (vp.debug_draw + 1 ) % 6
+		#vp.debug_draw = Viewport.DEBUG_DRAW_INTERNAL_BUFFER
+
+
 
 # Updates mouselook and movement every frame
 func _process(delta):

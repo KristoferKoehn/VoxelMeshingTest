@@ -27,6 +27,8 @@ layout(set = 0, binding = 2, std430) buffer chunkbuffer {
 layout(set = 0, binding = 3, std430) buffer chunkdimensions{
 	int ChunkSize;
 	int WorkGroupSide;
+	vec2 padding;
+	vec4 ChunkCoordinate;
 } ChunkDimensions;
 
 void main () {
@@ -39,6 +41,12 @@ void main () {
 	for (int x = Gx * WorkGroupDataLength; x < (Gx + 1) * WorkGroupDataLength; x++) {
 		for (int y = Gy * WorkGroupDataLength; y < (Gy + 1) * WorkGroupDataLength; y++) {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
+			
+				if (y < 1) {
+					ChunkBuffer.chunk[x][y][z] = 0;
+					continue;
+				}
+			
 				if (CutoffBuffer.Layer2[z][x] > 0.5 && CutoffBuffer.Layer3[z][x] > 0.5) {
 					if(NoiseBuffer.Terrain1[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * 18) > y) {
 						ChunkBuffer.chunk[x][y][z] = 3;
