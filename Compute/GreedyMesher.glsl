@@ -228,26 +228,34 @@ void main () {
 	//up, north, east, south, west, down
 	switch (face) {
 		case 0:
+			
 			StartPosition = ivec3(0, GreedyIndex, 0);
 			ForwardDirection = ivec3(0, 0, 1);
 			SideDirection = ivec3(1, 0, 0);	
+			
 			break;
 		case 1:
-			return;
+			StartPosition = ivec3((64 * 1), 0, GreedyIndex - (64 * 1));
+			ForwardDirection = ivec3(0, 1, 0);
+			SideDirection = ivec3(1, 0, 0);
 			break;
 		case 2:
-			return;
+			StartPosition = ivec3(GreedyIndex, 0, 0);
+			ForwardDirection = ivec3(0, 1, 0);
+			SideDirection = ivec3(0, 0, 1);
 			break;
 		case 3:
-			return;
+			StartPosition = ivec3((64 * 3), 0, GreedyIndex - (64 * 3));
+			ForwardDirection = ivec3(0, 1, 0);
+			SideDirection = ivec3(1, 0, 0);
 			break;
 		case 4:
-			StartPosition = ivec3( GreedyIndex - (64 * 4), 0, 0);
+			StartPosition = ivec3(GreedyIndex, 0, 0);
 			ForwardDirection = ivec3(0, 1, 0);
 			SideDirection = ivec3(0, 0, 1);
 			break;
 		case 5:
-			StartPosition = ivec3((64 * 5), GreedyIndex - (64 * 4), 0);
+			StartPosition = ivec3((64 * 5), GreedyIndex - (64 * 5), 0);
 			ForwardDirection = ivec3(0, 0, 1);
 			SideDirection = ivec3(1, 0, 0);	
 			break;
@@ -255,20 +263,67 @@ void main () {
 	
 	
 	if (ForwardDirection != vec3(0)) {
+	
 		ivec3 CurrentPos = StartPosition;
 		bool visited[CHUNK_SIZE][CHUNK_SIZE];
-		for (int i = 0; i < CHUNK_SIZE + 1; i++) {
-			for (int j = 0; j < CHUNK_SIZE + 1; j++) {
+		
+		for (int i = 0; i < CHUNK_SIZE; i++) {
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+			
+			/*
+			
+			if not visited
+			
+				position
+				length
+				width
+				bool expand = true
+				
+				while expand
+				
+					expand forward ? yes : no
+					expand down ? yes : no
+					
+					if we expand, set visited to true at that spot
+					
+				whence done
+					expand vertices
+					greedy transfer
+			
+			*/
+				/*
+				if (!visited[i][j]) {
+					vec3 position = StartPosition + ForwardDirection * i + SideDirection * j;
+					int length = 1;
+					int width = 1;
+					bool expand = true;
+					int CurrentFace = -1;
+					
+					if (CurrentFace == -1 && GreedyBuffer.data[position.x][position.y][position.z] != 0) {
+						CurrentFace = GreedyBuffer.data1[GreedyBuffer.data[position.x][position.y][position.z]];
+					}
+					
+					while (expand) {
+					
+						//check if forward is expandable
+						vec3 probe = (position + length * ForwardDirection);
+						if (GreedyBuffer.data[probe.x][probe.y][probe.z] )
+						
+						//check if side is expandable
+						
+					}
+
+				} */
+			
 				if (GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z] != 0) {
 					GreedyTransfer(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]);
 					atomicAdd(QuadCount.padding, 1);
 				}
 				CurrentPos = CurrentPos + ForwardDirection;
 			}
+			CurrentPos = CurrentPos - ForwardDirection * 64;
 			CurrentPos = CurrentPos + SideDirection;
-		}		
+		}
 	}
-
-
 }
 

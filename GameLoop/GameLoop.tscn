@@ -209,7 +209,3 @@ mesh = ExtResource("9_i1jmx")
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.51805, 0)
 mesh = SubResource("QuadMesh_1avtn")
-
-[node name="OmniLight3D" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.90718, 2.79382, -16.553)
-omni_range = 10.0

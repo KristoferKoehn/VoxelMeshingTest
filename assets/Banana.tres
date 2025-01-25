@@ -7,6 +7,7 @@ code = "shader_type spatial;
 render_mode unshaded;
 
 uniform sampler2D animation2 : filter_linear;
+uniform float time;
 varying vec4 vertex_color;
 
 void vertex() {
@@ -39,6 +40,7 @@ void fragment() {
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pfurf"]
 render_priority = 0
 shader = SubResource("Shader_hdgmp")
+shader_parameter/time = 1.87
 shader_parameter/animation2 = ExtResource("1_7diun")
 
 [resource]

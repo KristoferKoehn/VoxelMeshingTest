@@ -126,7 +126,7 @@ public partial class ChunkMeshManager : Node
 
                  if (ChunkToUpdate != null) {
                      chunks.Remove(ChunkToUpdate);
-                     Stopwatch sw = Stopwatch.StartNew();
+
                      if (!IsInstanceValid(ChunkToUpdate) || ChunkToUpdate == null || ChunkToUpdate.IsQueuedForDeletion())
                      {
                          GD.Print("rejecting deleted chunk");
@@ -135,7 +135,6 @@ public partial class ChunkMeshManager : Node
                      {
                          GeneratePChunkMesh5(ChunkToUpdate.ChunkData, ChunkToUpdate, ShaderRID, GreedyShaderRID);
                      }
-                     GD.Print($"mesh timing ms: {sw.ElapsedMilliseconds}");
                  }
 
                  foreach (Chunk chunk in chunks)
@@ -231,6 +230,7 @@ public partial class ChunkMeshManager : Node
     public void GeneratePChunkMesh5(int[,,] Data, Chunk ch, Rid ShaderRID = new Rid(), Rid GreedyShaderRID = new Rid())
     {
 
+        Stopwatch sw = Stopwatch.StartNew();
         long ComputeList = rd.ComputeListBegin();
         //compute uniform
         byte[] inputBytes = new byte[Data.Length * sizeof(int)];
@@ -244,11 +244,9 @@ public partial class ChunkMeshManager : Node
 
         uint BufferSection = 786432 * 4;
 
-        //Rid QuadBuffer = rd.StorageBufferCreate(BufferSize);
         Rid QuadCountBuffer = rd.StorageBufferCreate(sizeof(int) * 4);
         Rid ChunkDataBuffer = rd.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
         Rid ChunkDimensionalBuffer = rd.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
-
         //output quad count uniform
         RDUniform QuadCountUniform = new RDUniform();
         QuadCountUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
@@ -302,7 +300,7 @@ public partial class ChunkMeshManager : Node
 
             return;
         }
-
+        
         if (Count[1] != 0)
         {
             if (GreedyShaderRID.IsValid)
@@ -320,16 +318,16 @@ public partial class ChunkMeshManager : Node
 
                 countBytes = rd.BufferGetData(QuadCountBuffer);
                 Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 4);
-
             }
         }
 
         byte[] VBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 0, (uint)Count[0] * 48);
         byte[] NBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 1, (uint)Count[0] * 48);
-        byte[] UVBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 2, (uint)Count[0] * 32);
+        //byte[] UVBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 2, (uint)Count[0] * 32);
         byte[] CBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 3, (uint)Count[0] * 64);
         byte[] ColBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 5, (uint)Count[0] * 72);
         byte[] IBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 7, (uint)Count[0] * (4 * 6));
+
         Godot.Collections.Array ar = new Godot.Collections.Array();
         ar.Resize((int)Mesh.ArrayType.Max);
 
@@ -341,41 +339,24 @@ public partial class ChunkMeshManager : Node
         Vector3[] Collision = (Vector3[])GD.BytesToVar(Colbytes);
         Vector3[] Vertices = BytesToVec3(VBuffer, Count[0]);
         Vector3[] Normals = BytesToVec3(NBuffer, Count[0]);
-        Vector2[] UVs = BytesToVec2(UVBuffer, Count[0]);
+        //Vector2[] UVs = BytesToVec2(UVBuffer, Count[0]);
         Color[] Colors = BytesToColor(CBuffer, Count[0]);
-        //just copying over this shtuff ez pz
+
+        /*
         GD.Print($"Chunk size: {Count[0]}");
         GD.Print($"Greedy size: {Count[1]}");
         GD.Print($"full test size: {Count[2]}");
         GD.Print($"Greeded(pad) size: {Count[3]}");
+        */
+
         int[] Indices = new int[Count[0] * 6];
         Buffer.BlockCopy(IBuffer, 0, Indices, 0, Indices.Length * 4);
 
         ar[(int)Mesh.ArrayType.Vertex] = Vertices;
         ar[(int)Mesh.ArrayType.Normal] = Normals;
-        ar[(int)Mesh.ArrayType.TexUV] = UVs;
+        //ar[(int)Mesh.ArrayType.TexUV] = UVs;
         ar[(int)Mesh.ArrayType.Index] = Indices;
         ar[(int)Mesh.ArrayType.Color] = Colors;
-
-        /*
-        int[,,] greedy = new int[64 * 6, 64, 64];
-        byte[] gbytes = rd.BufferGetData(GreedyBuffer, 0, 64 * 64 * 64 * 6 * 4);
-        Buffer.BlockCopy(gbytes, 0, greedy, 0, 64 * 64 * 64 * 6 * 4);
-
-        for (int i = 0; i < 64 * 6; i++)
-        {
-            for (int j = 0; j < 64; j++)
-            {
-                for (int k = 0; k < 64; k++)
-                {
-                    if (greedy[i, j, k] != 0)
-                    {
-                        GD.Print($"greedy at {i}, {j}, {k} = {greedy[i, j, k]}");
-                    }
-                }
-            }
-        }
-        */
 
         rd.BufferClear(QuadCountBuffer, 0, 16);
         rd.BufferClear(GreedyBuffer, 0, 6291456 + GameConstants.BUFFER_SIZE);
@@ -394,10 +375,11 @@ public partial class ChunkMeshManager : Node
         
         ch.ConcavePolygon.SetFaces(Collision);
         ArrayMesh am = new ArrayMesh();
-
+        ch.DoneMeshing();
         am.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, ar);
-
+        GD.Print($"Fully Meshed: {sw.ElapsedMilliseconds}");
         ch.MeshInstance.Mesh = am;
+        
 
         rd.FreeRid(UniformSet);
         rd.FreeRid(pipelineRID);

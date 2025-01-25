@@ -470,7 +470,7 @@ void AOUpFace(int index, vec3 voxelPos, bool greedy) {
 		
 		Northwest = true;
 		Northeast = true;
-	}
+	} 
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) {
 		if (greedy) {
 			AOGreedyDimmer(index, NorthEast);
@@ -527,8 +527,15 @@ void AOUpFace(int index, vec3 voxelPos, bool greedy) {
 		}
 		Southwest = true;
 	}
+	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
-		FlipFace(index);
+		if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
+			if (greedy) {
+				FlipGreedyFace(index);
+			} else {
+				FlipFace(index);
+			}
+		}
 	}
 	
 }
@@ -585,7 +592,6 @@ void AODownFace(int index, vec3 voxelPos, bool greedy) {
 		Southeast = true;
 		Southwest = true;
 	}
-	
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z) + 1] != 0) {
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);	
@@ -618,8 +624,15 @@ void AODownFace(int index, vec3 voxelPos, bool greedy) {
 		}
 		Southwest = true;
 	}
+	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
-		FlipFace(index);
+		if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
+			if (greedy) {
+				FlipGreedyFace(index);
+			} else {
+				FlipFace(index);
+			}
+		}
 	}
 	
 }
@@ -706,9 +719,14 @@ void AONorthFace(int index, vec3 voxelPos, bool greedy) {
 			AODimmer(index, SouthWest);
 		}
 		Southwest = true;
-	}
+	} 
+	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
-		FlipFace(index);
+		if (greedy) {
+			FlipGreedyFace(index);
+		} else {
+			FlipFace(index);
+		}
 	}
 }
 
@@ -795,8 +813,13 @@ void AOEastFace(int index, vec3 voxelPos, bool greedy) {
 		}
 		Southwest = true;
 	}
+	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
-		FlipFace(index);
+		if (greedy) {
+			FlipGreedyFace(index);
+		} else {
+			FlipFace(index);
+		}
 	}
 }
 
@@ -883,8 +906,13 @@ void AOSouthFace(int index, vec3 voxelPos, bool greedy) {
 		}
 		Southwest = true;
 	}
+	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
-		FlipFace(index);
+		if (greedy) {
+			FlipGreedyFace(index);
+		} else {
+			FlipFace(index);
+		}
 	}
 }
 
@@ -971,8 +999,13 @@ void AOWestFace(int index, vec3 voxelPos, bool greedy) {
 		}
 		Southwest = true;
 	}
+	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
-		FlipFace(index);
+		if (greedy) {
+			FlipGreedyFace(index);
+		} else {
+			FlipFace(index);
+		}
 	}
 }
 
@@ -980,9 +1013,8 @@ void AOWestFace(int index, vec3 voxelPos, bool greedy) {
 void GreedyData(QuadIn q, int face, int blocktype, vec3 position) {
 	int IndexTicket = atomicAdd(QuadCount.greedycount, 1) + 1;
 	ApplyGreedyVertices(AddPosition( q.vertices, vec3(position.x - ChunkDimensions.ChunkSize/2 - 1, position.y - ChunkDimensions.ChunkSize/2 - 1, position.z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
-
 	GreedyBuffer.data[int(position.x) + face * CHUNK_SIZE][int(position.y)][int(position.z)] = IndexTicket;
-
+	GreedyBuffer.data1[IndexTicket] = blocktype;
 	vec4 n = vec4(q.normX, q.normY, q.normZ, blocktype);
 	vec4[3] norm;
 	norm[0] = n;
@@ -991,7 +1023,7 @@ void GreedyData(QuadIn q, int face, int blocktype, vec3 position) {
 	ApplyGreedyNormals(norm, IndexTicket);
 	ApplyGreedyColor(q.color, IndexTicket);
 	ApplyGreedyUV(q.custom0.x, IndexTicket);
-
+	
 	switch (face) {
 		case 0:
 			AOUpFace(IndexTicket, position, true);		
@@ -1011,7 +1043,7 @@ void GreedyData(QuadIn q, int face, int blocktype, vec3 position) {
 		case 5:
 			AODownFace(IndexTicket, position, true);			
 			break;
-	}
+	} 
 }
 
 /*
@@ -1067,7 +1099,6 @@ void main () {
 						ApplyNormals(norm, IndexTicket);
 						ApplyColor(q.color, IndexTicket);
 						ApplyIndices(IndexTicket);
-
 						ApplyUV(q.custom0.x, IndexTicket);
 						CollisionMeshAssign(AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
 						AOUpFace(IndexTicket, vec3(x, y, z), false);

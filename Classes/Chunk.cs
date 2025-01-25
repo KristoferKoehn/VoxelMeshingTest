@@ -13,6 +13,7 @@ public partial class Chunk : Node3D
 
     public bool Generated = false;
     public bool Meshed = false;
+    public bool Animating = false;
     public bool Collision = false;
 
     public MeshInstance3D MeshInstance;
@@ -74,75 +75,36 @@ public partial class Chunk : Node3D
         }
         Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
         
-        if ((pos - GlobalPosition).Length() > 640)
+        if ((pos - GlobalPosition).Length() > 480 && !Animating)
         {
-
-            //Visible = false;
-            //Visibility = Visible;
-            //ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
-            //QueueFree();
-            GD.Print($"Despawning chunk at: {GlobalPosition}");
-            ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
-            QueueFree();
-            return;
-        }
-        else if ((pos - GlobalPosition).Length() > 1000)
-        {
-            
-            //for this to work, the chunk needs to be deregistered. it should really just reset state
-            //delete pchunk mesh or whatever then flip the bools back to default
-
+            Animating = true;
+            Tween tween = GetTree().CreateTween();
+            tween.SetTrans(Tween.TransitionType.Spring);
+            tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, -32, 0), 0.5);
+            tween.Finished += () => {
+                GD.Print($"Despawning chunk at: {GlobalPosition}");
+                ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
+                //QueueFree();
+                CallDeferred("queue_free");
+            };
 
         }
-        else 
-        {
-            if (!Visible) {
-                Remesh();
-            }
-            Visible = true;
-            Visibility = Visible;
-        }
-        
-        //checks out
-        //GD.Print($"UP: {Up}, NORTH: {North}, EAST: {East}, SOUTH: {South}, WEST: {West}, DOWN: {Down}");
-        ArrayMesh arrayMesh = new ArrayMesh();
-        if (!Meshed)
-        {
-            if (meshbytes != null)
-            {
-                PChunkByteIngestion(meshbytes);
-            }
-        }
-
         if (Regen)
         {
             Remesh();
         }
-    }
 
-    public void PChunkByteAssignment(byte[] quadbytes)
-    {
-        meshbytes = quadbytes;
-        Meshed = false;
-    }
-
-    public void PChunkByteIngestion(byte[] quadbytes)
-    {
-        if (MeshInstance != null)
+        if (Meshed)
         {
-            MeshInstance.QueueFree();
+            Meshed = false;
+
+            Tween tween = GetTree().CreateTween();
+            tween.SetTrans(Tween.TransitionType.Spring);
+            tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, 32, 0), 0.5);
+            tween.Finished += tween.Dispose;
+            tween.Finished += () => { Animating = false; };
+            
         }
-
-        var PChunk = ClassDB.Instantiate("PChunk");
-        PChunk.AsGodotObject().Call("set_bytes2", quadbytes, true);
-        AddChild((MeshInstance3D)PChunk);
-        MeshInstance = (MeshInstance3D)PChunk;
-        MeshInstance.Mesh.CallDeferred(Mesh.MethodName.SurfaceSetMaterial, 0, GD.Load<ShaderMaterial>("res://Resources/Test.tres"));
-        Meshed = true;
-
-        Vector3[] vertices = (Vector3[])PChunk.AsGodotObject().Call("GetCollisionMesh");
-        ConcavePolygon.SetFaces(vertices);
-        Collision = true;
     }
 
     public void Remesh()
@@ -163,6 +125,13 @@ public partial class Chunk : Node3D
         GD.Print($"data position : {BlockPosition} at {ChunkCoordinates}");
         ChangePackets.Add(new Tuple<Vector3I, int>(BlockPosition, data));
         Regen = true;
+    }
+
+    public void DoneMeshing()
+    {
+        Meshed = true;
+        Animating = true;
+        GlobalPosition += new Vector3(0, -32, 0);
     }
 
 }
