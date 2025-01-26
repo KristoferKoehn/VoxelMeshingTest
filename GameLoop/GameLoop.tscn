@@ -34,12 +34,12 @@ fractal_type = 2
 fractal_octaves = 1
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_f85dx"]
-frequency = 0.001
+frequency = 0.0073
 fractal_type = 2
 fractal_octaves = 1
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_gywmo"]
-frequency = 0.001
+frequency = 0.0047
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_vys8h"]
 render_priority = 0

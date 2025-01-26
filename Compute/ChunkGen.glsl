@@ -48,7 +48,7 @@ void main () {
 				}
 			
 				if (CutoffBuffer.Layer2[z][x] > 0.5 && CutoffBuffer.Layer3[z][x] > 0.5) {
-					if(NoiseBuffer.Terrain1[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * 18) > y) {
+					if(NoiseBuffer.Terrain1[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * CutoffBuffer.Layer2[z][x] * CutoffBuffer.Layer3[z][x] * 12) > y) {
 						ChunkBuffer.chunk[x][y][z] = 3;
 					} else {
 						ChunkBuffer.chunk[x][y][z] = 0;

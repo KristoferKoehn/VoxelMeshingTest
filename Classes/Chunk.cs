@@ -75,16 +75,15 @@ public partial class Chunk : Node3D
         }
         Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
         
-        if ((pos - GlobalPosition).Length() > 480 && !Animating)
+        if ((pos - GlobalPosition).Length() > 520 && !Animating)
         {
-
-
 
             Animating = true;
             Tween tween = GetTree().CreateTween();
             tween.SetTrans(Tween.TransitionType.Spring);
             tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, -32, 0), 0.5);
             tween.Finished += () => {
+                tween.Dispose();
                 GD.Print($"Despawning chunk at: {GlobalPosition}");
                 ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
                 //QueueFree();
