@@ -37,7 +37,7 @@ public partial class Chunk : Node3D
     public bool Down = false;
 
     public bool ImmediateChunk = false;
-    public bool Visibility = true;
+    public bool FirstGenerated = false;
 
     public Chunk()
     {
@@ -77,6 +77,9 @@ public partial class Chunk : Node3D
         
         if ((pos - GlobalPosition).Length() > 480 && !Animating)
         {
+
+
+
             Animating = true;
             Tween tween = GetTree().CreateTween();
             tween.SetTrans(Tween.TransitionType.Spring);
@@ -85,6 +88,7 @@ public partial class Chunk : Node3D
                 GD.Print($"Despawning chunk at: {GlobalPosition}");
                 ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
                 //QueueFree();
+
                 CallDeferred("queue_free");
             };
 
@@ -96,14 +100,18 @@ public partial class Chunk : Node3D
 
         if (Meshed)
         {
-            Meshed = false;
+            if (!FirstGenerated) {
+                Tween tween = GetTree().CreateTween();
+                tween.SetTrans(Tween.TransitionType.Spring);
+                tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, 32, 0), 0.5);
+                tween.Finished += tween.Dispose;
+                tween.Finished += () => { 
+                    Animating = false;
+                    FirstGenerated = true;
+                };
+            }
 
-            Tween tween = GetTree().CreateTween();
-            tween.SetTrans(Tween.TransitionType.Spring);
-            tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, 32, 0), 0.5);
-            tween.Finished += tween.Dispose;
-            tween.Finished += () => { Animating = false; };
-            
+            Meshed = false;
         }
     }
 
@@ -130,8 +138,13 @@ public partial class Chunk : Node3D
     public void DoneMeshing()
     {
         Meshed = true;
-        Animating = true;
-        GlobalPosition += new Vector3(0, -32, 0);
+        if (!FirstGenerated)
+        {
+            Animating = true;
+            GlobalPosition += new Vector3(0, -32, 0);
+        }
+
+
     }
 
 }
