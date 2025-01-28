@@ -228,33 +228,49 @@ void main () {
 	//up, north, east, south, west, down
 	switch (face) {
 		case 0:
-			
+		
+			//make sure forward is north
+			//sideways is west
 			StartPosition = ivec3(0, GreedyIndex, 0);
 			ForwardDirection = ivec3(0, 0, 1);
 			SideDirection = ivec3(1, 0, 0);	
-			
 			break;
 		case 1:
+		
+			//make sure forward is north
+			//sideways is west
 			StartPosition = ivec3((64 * 1), 0, GreedyIndex - (64 * 1));
 			ForwardDirection = ivec3(0, 1, 0);
 			SideDirection = ivec3(1, 0, 0);
 			break;
 		case 2:
+		
+			//make sure forward is north
+			//sideways is west
 			StartPosition = ivec3(GreedyIndex, 0, 0);
 			ForwardDirection = ivec3(0, 1, 0);
 			SideDirection = ivec3(0, 0, 1);
 			break;
 		case 3:
+		
+			//make sure forward is north
+			//sideways is west
 			StartPosition = ivec3((64 * 3), 0, GreedyIndex - (64 * 3));
 			ForwardDirection = ivec3(0, 1, 0);
 			SideDirection = ivec3(1, 0, 0);
 			break;
 		case 4:
+		
+			//make sure forward is north
+			//sideways is west
 			StartPosition = ivec3(GreedyIndex, 0, 0);
 			ForwardDirection = ivec3(0, 1, 0);
 			SideDirection = ivec3(0, 0, 1);
 			break;
 		case 5:
+		
+			//make sure forward is north
+			//sideways is west
 			StartPosition = ivec3((64 * 5), GreedyIndex - (64 * 5), 0);
 			ForwardDirection = ivec3(0, 0, 1);
 			SideDirection = ivec3(1, 0, 0);	
@@ -304,7 +320,7 @@ void main () {
 					}
 					
 					while (expand) {
-					
+						
 						//check if forward is expandable
 						vec3 probe = (position + length * ForwardDirection);
 						if (GreedyBuffer.data[probe.x][probe.y][probe.z] )
