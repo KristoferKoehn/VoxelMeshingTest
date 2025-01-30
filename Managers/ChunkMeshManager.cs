@@ -308,6 +308,7 @@ public partial class ChunkMeshManager : Node
             return;
         }
         
+        
         if (Count[1] != 0)
         {
             if (GreedyShaderRID.IsValid)
@@ -328,7 +329,7 @@ public partial class ChunkMeshManager : Node
                 GD.Print($"end greedy pipeline: {sw.ElapsedMilliseconds}");
 
             }
-        }
+        } 
 
         byte[] VBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 0, (uint)Count[0] * 48);
         byte[] NBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 1, (uint)Count[0] * 48);

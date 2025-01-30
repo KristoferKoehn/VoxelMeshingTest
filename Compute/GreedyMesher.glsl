@@ -356,64 +356,33 @@ void main () {
 			
 			*/
 	
-	if (ForwardDirection != vec3(0)) {
-	
-		ivec3 CurrentPos = StartPosition;
-		bool visited[CHUNK_SIZE][CHUNK_SIZE];
-		int StretchyFace = -1;
-		for (int i = 0; i < CHUNK_SIZE; i++) {
-			//StretchyFace = -1;
-			for (int j = 0; j < CHUNK_SIZE; j++) {
-				if (StretchyFace == -1) {
-					StretchyFace = GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z];
-				}
-				
-				if(GetBlockType(StretchyFace) == GetBlockType(GreedyBuffer.data[CurrentPos.x + ForwardDirection.x][CurrentPos.y + ForwardDirection.y][CurrentPos.z + ForwardDirection.z])) {
-					NorthStretch(StretchyFace, ForwardDirection);
-				} else {
-					GreedyTransfer(StretchyFace);
-					StretchyFace = -1;
-				}
-				
-				
-				/*
-				if (!visited[i][j]) {
-					vec3 position = StartPosition + ForwardDirection * i + SideDirection * j;
-					int length = 1;
-					int width = 1;
-					bool expand = true;
-					int CurrentFace = -1;
-					
-					if (CurrentFace == -1 && GreedyBuffer.data[position.x][position.y][position.z] != 0) {
-						CurrentFace = GetBlockType(GreedyBuffer.data[position.x][position.y][position.z]);
-					}
-					
-					
-					while (expand) {
-						
-						//check if forward is expandable
-						vec3 probe = (position + length * ForwardDirection);
-						if (GreedyBuffer.data[probe.x][probe.y][probe.z] )
-						
-						//check if side is expandable
-						
-					}
-
-				} 
-				
-				
-				
-				if (GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z] != 0) {
-					WestStretch(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z], SideDirection);
-					GreedyTransfer(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]);
-					atomicAdd(QuadCount.padding, 1);
-				}*/
-				
-				CurrentPos = CurrentPos + ForwardDirection;
+	ivec3 CurrentPos = StartPosition;
+	bool visited[CHUNK_SIZE][CHUNK_SIZE];
+	int StretchyFace = -1;
+	for (int i = 0; i < CHUNK_SIZE; i++) {
+		ivec3 CPos = CurrentPos;
+		for (int j = 0; j < CHUNK_SIZE + 1; j++) {
+		
+			if (GetBlockType(GreedyBuffer.data[CPos.x][CPos.y][CPos.z]) == 0) {
+				CPos = CPos + ForwardDirection;
+				continue;
 			}
-			CurrentPos = CurrentPos - ForwardDirection * 64;
-			CurrentPos = CurrentPos + SideDirection;
+		
+			if (StretchyFace == -1) {
+				StretchyFace = GreedyBuffer.data[CPos.x][CPos.y][CPos.z];
+			}
+			
+			if(GetBlockType(StretchyFace) == GetBlockType(GreedyBuffer.data[CPos.x + ForwardDirection.x][CPos.y + ForwardDirection.y][CPos.z + ForwardDirection.z])) {
+				NorthStretch(StretchyFace, ForwardDirection);
+			} else {
+				GreedyTransfer(StretchyFace);
+				StretchyFace = -1;
+			}
+			CPos = CPos + ForwardDirection;
 		}
+		StretchyFace = -1;
+		CurrentPos = CurrentPos + SideDirection;
 	}
+
 }
 
