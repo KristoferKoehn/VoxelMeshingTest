@@ -536,7 +536,6 @@ void AOUpFace(int index, vec3 voxelPos, bool greedy) {
 			}
 		}
 	}
-	
 }
 
 void AODownFace(int index, vec3 voxelPos, bool greedy) {

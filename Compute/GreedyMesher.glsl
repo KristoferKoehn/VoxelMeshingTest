@@ -106,6 +106,10 @@ vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 	return vert;
 }
 
+int GetBlockType(int IndexTicket) {
+	return int(GreedyBuffer.data1[IndexTicket]);
+}
+
 void NorthStretch(int GreedyIndex, vec3 forward) {
 	int rIndex = GreedyIndex * 12;
 	
@@ -156,6 +160,8 @@ void WestStretch(int GreedyIndex, vec3 sideways) {
 }
 
 void GreedyTransfer(int greedyTicket) {
+	if (greedyTicket == 0) return;
+
 	int IndexTicket = atomicAdd(QuadCount.count, 1);
 	
 	VertexBuffer.vertices[IndexTicket * 12 + 0] =  GreedyBuffer.vertices[greedyTicket * 12 + 0]; //0 x
@@ -326,14 +332,8 @@ void main () {
 	}
 	
 	
-	if (ForwardDirection != vec3(0)) {
 	
-		ivec3 CurrentPos = StartPosition;
-		bool visited[CHUNK_SIZE][CHUNK_SIZE];
-		
-		for (int i = 0; i < CHUNK_SIZE; i++) {
-			for (int j = 0; j < CHUNK_SIZE; j++) {
-			
+				
 			/*
 			
 			if not visited
@@ -355,6 +355,27 @@ void main () {
 					greedy transfer
 			
 			*/
+	
+	if (ForwardDirection != vec3(0)) {
+	
+		ivec3 CurrentPos = StartPosition;
+		bool visited[CHUNK_SIZE][CHUNK_SIZE];
+		int StretchyFace = -1;
+		for (int i = 0; i < CHUNK_SIZE; i++) {
+			//StretchyFace = -1;
+			for (int j = 0; j < CHUNK_SIZE; j++) {
+				if (StretchyFace == -1) {
+					StretchyFace = GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z];
+				}
+				
+				if(GetBlockType(StretchyFace) == GetBlockType(GreedyBuffer.data[CurrentPos.x + ForwardDirection.x][CurrentPos.y + ForwardDirection.y][CurrentPos.z + ForwardDirection.z])) {
+					NorthStretch(StretchyFace, ForwardDirection);
+				} else {
+					GreedyTransfer(StretchyFace);
+					StretchyFace = -1;
+				}
+				
+				
 				/*
 				if (!visited[i][j]) {
 					vec3 position = StartPosition + ForwardDirection * i + SideDirection * j;
@@ -364,8 +385,9 @@ void main () {
 					int CurrentFace = -1;
 					
 					if (CurrentFace == -1 && GreedyBuffer.data[position.x][position.y][position.z] != 0) {
-						CurrentFace = GreedyBuffer.data1[GreedyBuffer.data[position.x][position.y][position.z]];
+						CurrentFace = GetBlockType(GreedyBuffer.data[position.x][position.y][position.z]);
 					}
+					
 					
 					while (expand) {
 						
@@ -377,13 +399,16 @@ void main () {
 						
 					}
 
-				} */
-			
+				} 
+				
+				
+				
 				if (GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z] != 0) {
-					//WestStretch(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z], SideDirection);
+					WestStretch(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z], SideDirection);
 					GreedyTransfer(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]);
 					atomicAdd(QuadCount.padding, 1);
-				}
+				}*/
+				
 				CurrentPos = CurrentPos + ForwardDirection;
 			}
 			CurrentPos = CurrentPos - ForwardDirection * 64;
