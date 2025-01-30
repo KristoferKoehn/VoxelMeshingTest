@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 using System;
 using System.Collections.Generic;
+using VoxelMeshingTest.Classes;
 
 
 public partial class Chunk : Node3D
@@ -14,6 +15,7 @@ public partial class Chunk : Node3D
     public bool Generated = false;
     public bool Meshed = false;
     public bool Animating = false;
+    public bool Deleting = false;
     public bool Collision = false;
 
     public MeshInstance3D MeshInstance;
@@ -36,8 +38,11 @@ public partial class Chunk : Node3D
     public bool Up = false;
     public bool Down = false;
 
-    public bool ImmediateChunk = false;
     public bool FirstGenerated = false;
+
+
+    public Godot.Collections.Array MeshData = null;
+
 
     public Chunk()
     {
@@ -70,20 +75,18 @@ public partial class Chunk : Node3D
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
     {
-        if (ChunkData == null) {
-            return; 
-        }
         Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
         
-        if ((pos - GlobalPosition).Length() > 520 && !Animating)
+        if ((pos - GlobalPosition).Length() > GameConstants.SPAWN_RADIUS * 64 * 1.2 && !Deleting)
         {
 
             Animating = true;
+            Deleting = true;
             Tween tween = GetTree().CreateTween();
             tween.SetTrans(Tween.TransitionType.Spring);
-            tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, -32, 0), 0.5);
+            tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, -32, 0), 0.3);
             tween.Finished += () => {
-                tween.Dispose();
+
                 GD.Print($"Despawning chunk at: {GlobalPosition}");
                 ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
                 //QueueFree();
@@ -92,6 +95,7 @@ public partial class Chunk : Node3D
             };
 
         }
+
         if (Regen)
         {
             Remesh();
@@ -103,7 +107,6 @@ public partial class Chunk : Node3D
                 Tween tween = GetTree().CreateTween();
                 tween.SetTrans(Tween.TransitionType.Spring);
                 tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, 32, 0), 0.5);
-                tween.Finished += tween.Dispose;
                 tween.Finished += () => { 
                     Animating = false;
                     FirstGenerated = true;
@@ -111,6 +114,22 @@ public partial class Chunk : Node3D
             }
 
             Meshed = false;
+        }
+
+        if (MeshData != null)
+        {
+            ArrayMesh am = new ArrayMesh();
+            if (MeshInstance != null)
+            {
+                MeshInstance.QueueFree();
+            }
+
+            MeshInstance = new MeshInstance3D();
+            AddChild(MeshInstance);
+            MeshInstance.Mesh = am;
+            am.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, MeshData);
+            MeshData = null;
+            MeshInstance.MaterialOverride = GD.Load<ShaderMaterial>("res://Resources/Test.tres");
         }
     }
 
@@ -142,8 +161,5 @@ public partial class Chunk : Node3D
             Animating = true;
             GlobalPosition += new Vector3(0, -32, 0);
         }
-
-
     }
-
 }

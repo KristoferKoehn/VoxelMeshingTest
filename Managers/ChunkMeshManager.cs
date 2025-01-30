@@ -85,9 +85,12 @@ public partial class ChunkMeshManager : Node
                  List<Chunk> chunks = new List<Chunk>();
                  while (ChunksToUpdate.TryDequeue(out Chunk chunk))
                  {
-                     if (IsInstanceValid(chunk) && chunk != null && !chunk.IsQueuedForDeletion())
+                     if (IsInstanceValid(chunk) && chunk != null && !chunk.IsQueuedForDeletion() && !chunk.Deleting)
                      {
-                         chunks.Add(chunk);
+                         if (!chunks.Contains(chunk))
+                         {
+                             chunks.Add(chunk);
+                         }
                      }
                  }
 
@@ -102,13 +105,13 @@ public partial class ChunkMeshManager : Node
 
                      Vector3 FacingAngle = pBasis * new Vector3(0, 0, 1); /// hopefully this makes sense. rotate a south ray to camera
                      float bestFacing = 1.0f;
-                     float dotFacing = distance.Dot(FacingAngle);
+                     float dotFacing = distance.Normalized().Dot(FacingAngle);
+                     
                      if (ChunkToUpdate == null)
                      {
                          ChunkToUpdate = chunks[i];
                          bestFacing = dotFacing;
-                     }
-                     if (dotFacing < bestFacing)
+                     } else if (dotFacing < bestFacing)
                      {
                          if (ChunkToUpdate == null)
                          {
@@ -124,10 +127,11 @@ public partial class ChunkMeshManager : Node
 
                  }
 
+
                  if (ChunkToUpdate != null) {
                      chunks.Remove(ChunkToUpdate);
 
-                     if (!IsInstanceValid(ChunkToUpdate) || ChunkToUpdate == null || ChunkToUpdate.IsQueuedForDeletion())
+                     if (!IsInstanceValid(ChunkToUpdate) || ChunkToUpdate == null || ChunkToUpdate.IsQueuedForDeletion() || ChunkToUpdate.Deleting)
                      {
                          GD.Print("rejecting deleted chunk");
                      }
@@ -139,7 +143,10 @@ public partial class ChunkMeshManager : Node
 
                  foreach (Chunk chunk in chunks)
                  {
-                     ChunksToUpdate.Enqueue(chunk);
+                     if (!ChunksToUpdate.Contains(chunk))
+                     {
+                         ChunksToUpdate.Enqueue(chunk);
+                     }
                  }
              }
          });
@@ -361,7 +368,7 @@ public partial class ChunkMeshManager : Node
         rd.BufferClear(QuadCountBuffer, 0, 16);
         rd.BufferClear(GreedyBuffer, 0, 6291456 + GameConstants.BUFFER_SIZE);
 
-        if (!IsInstanceValid(ch) || ch == null || ch.IsQueuedForDeletion())
+        if (!IsInstanceValid(ch) || ch == null || ch.IsQueuedForDeletion() || ch.Deleting)
         {
             GD.Print("rejecting deleted chunk");
             return;
@@ -372,13 +379,22 @@ public partial class ChunkMeshManager : Node
             ch.MeshInstance = new MeshInstance3D();
             ch.AddChild(ch.MeshInstance);
         }
-        
-        ch.ConcavePolygon.SetFaces(Collision);
+
+        //ch.ConcavePolygon.SetFaces(Collision);
+        ch.ConcavePolygon.CallDeferred("set_faces", Collision);
+        /*
         ArrayMesh am = new ArrayMesh();
+        
+        am.CallDeferred("add_surface_from_arrays", (int)Mesh.PrimitiveType.Triangles, ar);
+        //am.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, ar);
+        */
         ch.DoneMeshing();
-        am.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, ar);
+        ch.MeshData = ar;
+
         GD.Print($"Fully Meshed: {sw.ElapsedMilliseconds}");
-        ch.MeshInstance.Mesh = am;
+
+
+        //ch.MeshInstance.Mesh = am;
         
 
         rd.FreeRid(UniformSet);

@@ -80,9 +80,12 @@ public partial class ChunkSpawnManager : Node
 
     public void DeregisterChunk(Chunk chunk, Vector3I pos)
     {
-        Chunks.Remove(pos);
-        ChunkList.Remove(chunk);
-        chunk.QueueFree();
+        if (Chunks.ContainsKey(pos))
+        {
+            Chunks.Remove(pos);
+            ChunkList.Remove(chunk);
+            chunk.QueueFree();
+        }
     }
 
     bool CheckChunk(int x, int y, int z)

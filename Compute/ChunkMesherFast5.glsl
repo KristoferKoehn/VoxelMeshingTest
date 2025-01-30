@@ -446,8 +446,7 @@ void AOUpFace(int index, vec3 voxelPos, bool greedy) {
 	bool Southwest = false;
 	
 	vec3 targpos = voxelPos + vec3(0, 1, 0);
-	
-	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) {
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) { //west 1, 0, 0
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, SouthWest);
@@ -459,7 +458,7 @@ void AOUpFace(int index, vec3 voxelPos, bool greedy) {
 		Northwest = true;
 		Southwest = true;
 	}
-	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) {
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) { //north 0, 0, 1
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, NorthEast);
@@ -547,7 +546,7 @@ void AODownFace(int index, vec3 voxelPos, bool greedy) {
 	bool Southwest = false;
 	
 	vec3 targpos = voxelPos + vec3(0, -1, 0);
-	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) {
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) { //west -1, 0, 0
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, SouthWest);
@@ -558,7 +557,7 @@ void AODownFace(int index, vec3 voxelPos, bool greedy) {
 		Northwest = true;
 		Southwest = true;
 	}
-	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) {
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) { //north 0, 0, 1
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, NorthEast);
@@ -644,7 +643,7 @@ void AONorthFace(int index, vec3 voxelPos, bool greedy) {
 	bool Southwest = false;
 	
 	vec3 targpos = voxelPos + vec3(0, 0, -1);
-	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) {
+	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) { //1, 0, 0
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, SouthWest);
@@ -655,7 +654,7 @@ void AONorthFace(int index, vec3 voxelPos, bool greedy) {
 		Northwest = true;
 		Southwest = true;
 	}
-	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) {
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) { //0, 1, 0
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, NorthEast);
@@ -737,7 +736,7 @@ void AOEastFace(int index, vec3 voxelPos, bool greedy) {
 	bool Southwest = false;
 	
 	vec3 targpos = voxelPos + vec3(-1, 0, 0);
-	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) - 1] != 0) {
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) - 1] != 0) { // 0, 0, -1
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, SouthWest);
@@ -748,7 +747,7 @@ void AOEastFace(int index, vec3 voxelPos, bool greedy) {
 		Northwest = true;
 		Southwest = true;
 	}
-	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) {
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) { // 0, 1, 0
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, NorthEast);
@@ -830,7 +829,7 @@ void AOSouthFace(int index, vec3 voxelPos, bool greedy) {
 	bool Southwest = false;
 	
 	vec3 targpos = voxelPos + vec3(0, 0, 1);
-	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) {
+	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) { //-1, 0, 0
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, SouthWest);
@@ -841,7 +840,7 @@ void AOSouthFace(int index, vec3 voxelPos, bool greedy) {
 		Northwest = true;
 		Southwest = true;
 	}
-	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) {
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) { //0, 1, 0
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, NorthEast);
@@ -923,7 +922,7 @@ void AOWestFace(int index, vec3 voxelPos, bool greedy) {
 	bool Southwest = false;
 	
 	vec3 targpos = voxelPos + vec3(1, 0, 0);
-	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) {
+	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) { //0, 0, 1
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, SouthWest);
@@ -934,7 +933,7 @@ void AOWestFace(int index, vec3 voxelPos, bool greedy) {
 		Northwest = true;
 		Southwest = true;
 	}
-	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) {
+	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) { // 0, 1, 0
 		if (greedy) {
 			AOGreedyDimmer(index, NorthWest);
 			AOGreedyDimmer(index, NorthEast);

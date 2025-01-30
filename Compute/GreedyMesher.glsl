@@ -106,6 +106,55 @@ vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 	return vert;
 }
 
+void NorthStretch(int GreedyIndex, vec3 forward) {
+	int rIndex = GreedyIndex * 12;
+	
+	/*
+	GreedyBuffer.vertices[rIndex + 0 * 3 + 0] = GreedyBuffer.vertices[rIndex + 0 * 3 + 0] + 1;
+	GreedyBuffer.vertices[rIndex + 0 * 3 + 1] = GreedyBuffer.vertices[rIndex + 0 * 3 + 1] + 1;
+	GreedyBuffer.vertices[rIndex + 0 * 3 + 2] = GreedyBuffer.vertices[rIndex + 0 * 3 + 2] + 1;
+	
+	
+	GreedyBuffer.vertices[rIndex + 1 * 3 + 0] = GreedyBuffer.vertices[rIndex + 1 * 3 + 0] + 1;
+	GreedyBuffer.vertices[rIndex + 1 * 3 + 1] = GreedyBuffer.vertices[rIndex + 1 * 3 + 1] + 1;
+	GreedyBuffer.vertices[rIndex + 1 * 3 + 2] = GreedyBuffer.vertices[rIndex + 1 * 3 + 2] + 1;
+	*/
+	
+	GreedyBuffer.vertices[rIndex + 2 * 3 + 0] = GreedyBuffer.vertices[rIndex + 2 * 3 + 0] + forward.x;
+	GreedyBuffer.vertices[rIndex + 2 * 3 + 1] = GreedyBuffer.vertices[rIndex + 2 * 3 + 1] + forward.y;
+	GreedyBuffer.vertices[rIndex + 2 * 3 + 2] = GreedyBuffer.vertices[rIndex + 2 * 3 + 2] + forward.z;
+	
+	GreedyBuffer.vertices[rIndex + 3 * 3 + 0] = GreedyBuffer.vertices[rIndex + 3 * 3 + 0] + forward.x;
+	GreedyBuffer.vertices[rIndex + 3 * 3 + 1] = GreedyBuffer.vertices[rIndex + 3 * 3 + 1] + forward.y;
+	GreedyBuffer.vertices[rIndex + 3 * 3 + 2] = GreedyBuffer.vertices[rIndex + 3 * 3 + 2] + forward.z;
+	
+}
+
+void WestStretch(int GreedyIndex, vec3 sideways) {
+	int rIndex = GreedyIndex * 12;
+	
+	/*
+	GreedyBuffer.vertices[rIndex + 0 * 3 + 0] = GreedyBuffer.vertices[rIndex + 0 * 3 + 0] + 1;
+	GreedyBuffer.vertices[rIndex + 0 * 3 + 1] = GreedyBuffer.vertices[rIndex + 0 * 3 + 1] + 1;
+	GreedyBuffer.vertices[rIndex + 0 * 3 + 2] = GreedyBuffer.vertices[rIndex + 0 * 3 + 2] + 1;
+	*/
+	
+	GreedyBuffer.vertices[rIndex + 1 * 3 + 0] = GreedyBuffer.vertices[rIndex + 1 * 3 + 0] + sideways.x;
+	GreedyBuffer.vertices[rIndex + 1 * 3 + 1] = GreedyBuffer.vertices[rIndex + 1 * 3 + 1] + sideways.y;
+	GreedyBuffer.vertices[rIndex + 1 * 3 + 2] = GreedyBuffer.vertices[rIndex + 1 * 3 + 2] + sideways.z;
+	
+	GreedyBuffer.vertices[rIndex + 2 * 3 + 0] = GreedyBuffer.vertices[rIndex + 2 * 3 + 0] + sideways.x;
+	GreedyBuffer.vertices[rIndex + 2 * 3 + 1] = GreedyBuffer.vertices[rIndex + 2 * 3 + 1] + sideways.y;
+	GreedyBuffer.vertices[rIndex + 2 * 3 + 2] = GreedyBuffer.vertices[rIndex + 2 * 3 + 2] + sideways.z;
+	
+	/*
+	GreedyBuffer.vertices[rIndex + 3 * 3 + 0] = GreedyBuffer.vertices[rIndex + 3 * 3 + 0] + sideways.x;
+	GreedyBuffer.vertices[rIndex + 3 * 3 + 1] = GreedyBuffer.vertices[rIndex + 3 * 3 + 1] + sideways.y;
+	GreedyBuffer.vertices[rIndex + 3 * 3 + 2] = GreedyBuffer.vertices[rIndex + 3 * 3 + 2] + sideways.z;
+	*/
+
+}
+
 void GreedyTransfer(int greedyTicket) {
 	int IndexTicket = atomicAdd(QuadCount.count, 1);
 	
@@ -230,7 +279,6 @@ void main () {
 		case 0:
 			//north local is +z
 			//west local is +x
-
 			StartPosition = ivec3(0, GreedyIndex, 0);
 			ForwardDirection = ivec3(0, 0, 1);
 			SideDirection = ivec3(1, 0, 0);	
@@ -247,17 +295,17 @@ void main () {
 		
 			//north +y
 			//west -z
-			StartPosition = ivec3(GreedyIndex, 0, 0);
+			StartPosition = ivec3(GreedyIndex, 0, 64);
 			ForwardDirection = ivec3(0, 1, 0);
-			SideDirection = ivec3(0, 0, 1);
+			SideDirection = ivec3(0, 0, -1);
 			break;
 		case 3:
 		
 			//north +y
 			//wes -x
-			StartPosition = ivec3((64 * 3), 0, GreedyIndex - (64 * 3));
+			StartPosition = ivec3((64 * 4), 0, GreedyIndex - (64 * 3));
 			ForwardDirection = ivec3(0, 1, 0);
-			SideDirection = ivec3(1, 0, 0);
+			SideDirection = ivec3(-1, 0, 0);
 			break;
 		case 4:
 			
@@ -271,9 +319,9 @@ void main () {
 		
 			//north is +z
 			//west is -x
-			StartPosition = ivec3((64 * 5), GreedyIndex - (64 * 5), 0);
+			StartPosition = ivec3((64 * 6), GreedyIndex - (64 * 5), 0);
 			ForwardDirection = ivec3(0, 0, 1);
-			SideDirection = ivec3(1, 0, 0);	
+			SideDirection = ivec3(-1, 0, 0);	
 			break;
 	}
 	
@@ -332,6 +380,7 @@ void main () {
 				} */
 			
 				if (GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z] != 0) {
+					//WestStretch(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z], SideDirection);
 					GreedyTransfer(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]);
 					atomicAdd(QuadCount.padding, 1);
 				}
