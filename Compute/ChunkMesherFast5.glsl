@@ -536,6 +536,10 @@ void AOUpFace(int index, vec3 voxelPos, bool greedy) {
 			}
 		}
 	}
+	
+	if (greedy) {
+		GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + int(Southwest) * 2048 + int(Northeast) * 4096 + int(Southeast) * 8192 + int(Northwest) * 16384;
+	}
 }
 
 void AODownFace(int index, vec3 voxelPos, bool greedy) {
@@ -633,6 +637,10 @@ void AODownFace(int index, vec3 voxelPos, bool greedy) {
 		}
 	}
 	
+	if (greedy) {
+		GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + int(Southwest) * 2048 + int(Northeast) * 4096 + int(Southeast) * 8192 + int(Northwest) * 16384;
+	}
+	
 }
 
 void AONorthFace(int index, vec3 voxelPos, bool greedy) {
@@ -725,6 +733,10 @@ void AONorthFace(int index, vec3 voxelPos, bool greedy) {
 		} else {
 			FlipFace(index);
 		}
+	}
+	
+	if (greedy) {
+		GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + int(Southwest) * 2048 + int(Northeast) * 4096 + int(Southeast) * 8192 + int(Northwest) * 16384;
 	}
 }
 
@@ -819,6 +831,10 @@ void AOEastFace(int index, vec3 voxelPos, bool greedy) {
 			FlipFace(index);
 		}
 	}
+	
+	if (greedy) {
+		GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + int(Southwest) * 2048 + int(Northeast) * 4096 + int(Southeast) * 8192 + int(Northwest) * 16384;
+	}
 }
 
 void AOSouthFace(int index, vec3 voxelPos, bool greedy) {
@@ -912,6 +928,10 @@ void AOSouthFace(int index, vec3 voxelPos, bool greedy) {
 			FlipFace(index);
 		}
 	}
+	
+	if (greedy) {
+		GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + int(Southwest) * 2048 + int(Northeast) * 4096 + int(Southeast) * 8192 + int(Northwest) * 16384;
+	}
 }
 
 void AOWestFace(int index, vec3 voxelPos, bool greedy) {
@@ -1004,6 +1024,10 @@ void AOWestFace(int index, vec3 voxelPos, bool greedy) {
 		} else {
 			FlipFace(index);
 		}
+	}
+	
+	if (greedy) {
+		GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + int(Southwest) * 2048 + int(Northeast) * 4096 + int(Southeast) * 8192 + int(Northwest) * 16384;
 	}
 }
 
@@ -1101,8 +1125,7 @@ void main () {
 						CollisionMeshAssign(AddPosition(q.vertices, vec3(x - ChunkDimensions.ChunkSize/2 - 1, y - ChunkDimensions.ChunkSize/2 - 1, z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
 						AOUpFace(IndexTicket, vec3(x, y, z), false);
 					}
-				} 
-				
+				}
 				
 				//north face
 				if ((ChunkData.data[x][y][z-1] == 0 || VoxelData.FaceData[ChunkData.data[x][y][z-1]].transparent != 0)) {

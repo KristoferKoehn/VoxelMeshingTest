@@ -65,6 +65,7 @@ public partial class ChunkMeshManager : Node
         GreedyUniform.Binding = 5;
         GreedyUniform.AddId(GreedyBuffer);
 
+
     }
 
      async void HandleChunkMeshing()
@@ -301,7 +302,7 @@ public partial class ChunkMeshManager : Node
         {
             if (GreedyShaderRID.IsValid)
             {
-                GD.Print($"start greedy pipeline: {sw.ElapsedMilliseconds}");
+                //GD.Print($"start greedy pipeline: {sw.ElapsedMilliseconds}");
                 long GreedyComputeList = rd.ComputeListBegin();
                 Rid GreedyPipelineRID = rd.ComputePipelineCreate(GreedyShaderRID);
                 Rid GreedyUniformSet = rd.UniformSetCreate(Uniforms, GreedyShaderRID, 0);
@@ -314,7 +315,7 @@ public partial class ChunkMeshManager : Node
 
                 countBytes = rd.BufferGetData(QuadCountBuffer);
                 Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 4);
-                GD.Print($"end greedy pipeline: {sw.ElapsedMilliseconds}");
+                //GD.Print($"end greedy pipeline: {sw.ElapsedMilliseconds}");
 
             }
         }
@@ -380,7 +381,8 @@ public partial class ChunkMeshManager : Node
         if (ch.MeshInstance == null)
         {
             ch.MeshInstance = new MeshInstance3D();
-            ch.AddChild(ch.MeshInstance);
+            ch.CallDeferred("add_child", ch.MeshInstance);
+            //ch.AddChild(ch.MeshInstance);
         }
 
         //ch.ConcavePolygon.SetFaces(Collision);

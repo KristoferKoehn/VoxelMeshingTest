@@ -283,46 +283,43 @@ void main () {
 	//up, north, east, south, west, down
 	switch (face) {
 		case 0:
-			//north local is +z
-			//west local is +x
+			
+			//up case
 			StartPosition = ivec3(0, GreedyIndex, 0);
 			ForwardDirection = ivec3(0, 0, 1);
 			SideDirection = ivec3(1, 0, 0);	
 			break;
-			
 		case 1:
-			//north is +y
-			//west is +x
-			StartPosition = ivec3((64 * 1) + 1, 0, GreedyIndex - (64 * 1));
+		
+			//north case
+			StartPosition = ivec3((64 * 1), 0, GreedyIndex - (64 * 1));
 			ForwardDirection = ivec3(0, 1, 0);
 			SideDirection = ivec3(1, 0, 0);
 			break;
 		case 2:
-			//north +y
-			//west -z
-			StartPosition = ivec3(GreedyIndex, 0, 64);
+		
+			//east case
+			StartPosition = ivec3(GreedyIndex, 0, 63);
 			ForwardDirection = ivec3(0, 1, 0);
 			SideDirection = ivec3(0, 0, -1);
 			break;
 		case 3:
 		
-			//north +y
-			//wes -x
-			StartPosition = ivec3((64 * 4), 0, GreedyIndex - (64 * 3));
+			//south case
+			StartPosition = ivec3((64 * 4 - 1), 0, GreedyIndex - (64 * 3));
 			ForwardDirection = ivec3(0, 1, 0);
 			SideDirection = ivec3(-1, 0, 0);
 			break;
 		case 4:
 			
-			//make sure forward is north
-			//sideways is west
+			//west case
 			StartPosition = ivec3(GreedyIndex, 0, 0);
 			ForwardDirection = ivec3(0, 1, 0);
 			SideDirection = ivec3(0, 0, 1);
 			break;
 		case 5:
-			//north is +z
-			//west is -x
+			
+			//down case
 			StartPosition = ivec3((64 * 6 - 1), GreedyIndex - (64 * 5), 0);
 			ForwardDirection = ivec3(0, 0, 1);
 			SideDirection = ivec3(-1, 0, 0);	
@@ -337,9 +334,11 @@ void main () {
 	for (int i = 0; i < CHUNK_SIZE; i++) {
 		ivec3 CurrentPos = CurrentSidewaysPosition;
 		for (int j = 0; j < CHUNK_SIZE; j++) {
-		
+			
+
 			if (GetBlockType(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]) == 0) {
 				CurrentPos = CurrentPos + ForwardDirection;
+				visited[i][j] = true;
 				continue;
 			}
 		
@@ -349,10 +348,13 @@ void main () {
 			
 			if(GetBlockType(StretchyFace) == GetBlockType(GreedyBuffer.data[CurrentPos.x + ForwardDirection.x][CurrentPos.y + ForwardDirection.y][CurrentPos.z + ForwardDirection.z])) {
 				NorthStretch(StretchyFace, ForwardDirection);
+				visited[i][j] = true;
 			} else { 
 				GreedyTransfer(StretchyFace);
 				StretchyFace = -1;
 			}
+
+			
 			CurrentPos = CurrentPos + ForwardDirection;
 		}
 		
