@@ -265,7 +265,7 @@ detangle greedying from the base mesher
 void main () {
 	int GreedyIndex = int(gl_GlobalInvocationID.x);
 	
-	int face = GreedyIndex / 64;
+	int face = (GreedyIndex) / 64;
 
 	//the idea is to scan along the long-axis, but rotate the direction of the scan to line up with the co-planes.
 	//from 0-383, such that the position is viewed as 64-cubed local, scanning along whichever useful axis, but the
@@ -283,6 +283,7 @@ void main () {
 	//up, north, east, south, west, down
 	switch (face) {
 		case 0:
+		
 			//north local is +z
 			//west local is +x
 			StartPosition = ivec3(0, GreedyIndex, 0);
@@ -290,7 +291,6 @@ void main () {
 			SideDirection = ivec3(1, 0, 0);	
 			break;
 		case 1:
-		
 			//north is +y
 			//west is +x
 			StartPosition = ivec3((64 * 1), 0, GreedyIndex - (64 * 1));
@@ -331,57 +331,35 @@ void main () {
 			break;
 	}
 	
-	
-	
-				
-			/*
-			
-			if not visited
-			
-				position
-				length
-				width
-				bool expand = true
-				
-				while expand
-				
-					expand forward ? yes : no
-					expand down ? yes : no
-					
-					if we expand, set visited to true at that spot
-					
-				whence done
-					expand vertices
-					greedy transfer
-			
-			*/
-	
-	ivec3 CurrentPos = StartPosition;
+	ivec3 CurrentSidewaysPosition = StartPosition;
 	bool visited[CHUNK_SIZE][CHUNK_SIZE];
 	int StretchyFace = -1;
-	for (int i = 0; i < CHUNK_SIZE; i++) {
-		ivec3 CPos = CurrentPos;
-		for (int j = 0; j < CHUNK_SIZE + 1; j++) {
+	for (int i = 0; i < CHUNK_SIZE - 10; i++) {
+		ivec3 CurrentPos = CurrentSidewaysPosition;
+		for (int j = 0; j < CHUNK_SIZE - 10; j++) {
 		
-			if (GetBlockType(GreedyBuffer.data[CPos.x][CPos.y][CPos.z]) == 0) {
-				CPos = CPos + ForwardDirection;
+			if (GetBlockType(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]) == 0) {
+				CurrentPos = CurrentPos + ForwardDirection;
 				continue;
 			}
 		
 			if (StretchyFace == -1) {
-				StretchyFace = GreedyBuffer.data[CPos.x][CPos.y][CPos.z];
+				StretchyFace = GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z];
 			}
 			
-			if(GetBlockType(StretchyFace) == GetBlockType(GreedyBuffer.data[CPos.x + ForwardDirection.x][CPos.y + ForwardDirection.y][CPos.z + ForwardDirection.z])) {
+			if(GetBlockType(StretchyFace) == GetBlockType(GreedyBuffer.data[CurrentPos.x + ForwardDirection.x][CurrentPos.y + ForwardDirection.y][CurrentPos.z + ForwardDirection.z])) {
 				NorthStretch(StretchyFace, ForwardDirection);
 			} else {
 				GreedyTransfer(StretchyFace);
 				StretchyFace = -1;
 			}
-			CPos = CPos + ForwardDirection;
+			CurrentPos = CurrentPos + ForwardDirection;
 		}
-		StretchyFace = -1;
-		CurrentPos = CurrentPos + SideDirection;
+		if (StretchyFace != -1) {
+			GreedyTransfer(StretchyFace);
+			StretchyFace = -1;
+		}
+		CurrentSidewaysPosition = CurrentSidewaysPosition + SideDirection;
 	}
 
 }
