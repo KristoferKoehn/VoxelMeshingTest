@@ -297,18 +297,6 @@ public partial class ChunkMeshManager : Node
         int[] Count = new int[4];
         Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 4);
 
-        if (Count[0] == 0)
-        {
-            rd.FreeRid(UniformSet);
-            rd.FreeRid(pipelineRID);
-            rd.FreeRid(QuadCountBuffer);
-            rd.FreeRid(ChunkDataBuffer);
-            rd.FreeRid(ChunkDimensionalBuffer);
-
-            return;
-        }
-        
-        
         if (Count[1] != 0)
         {
             if (GreedyShaderRID.IsValid)
@@ -329,7 +317,19 @@ public partial class ChunkMeshManager : Node
                 GD.Print($"end greedy pipeline: {sw.ElapsedMilliseconds}");
 
             }
-        } 
+        }
+
+        if (Count[0] == 0)
+        {
+            rd.FreeRid(UniformSet);
+            rd.FreeRid(pipelineRID);
+            rd.FreeRid(QuadCountBuffer);
+            rd.FreeRid(ChunkDataBuffer);
+            rd.FreeRid(ChunkDimensionalBuffer);
+
+            return;
+        }
+
 
         byte[] VBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 0, (uint)Count[0] * 48);
         byte[] NBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 1, (uint)Count[0] * 48);

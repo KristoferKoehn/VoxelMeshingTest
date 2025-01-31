@@ -283,22 +283,21 @@ void main () {
 	//up, north, east, south, west, down
 	switch (face) {
 		case 0:
-		
 			//north local is +z
 			//west local is +x
 			StartPosition = ivec3(0, GreedyIndex, 0);
 			ForwardDirection = ivec3(0, 0, 1);
 			SideDirection = ivec3(1, 0, 0);	
 			break;
+			
 		case 1:
 			//north is +y
 			//west is +x
-			StartPosition = ivec3((64 * 1), 0, GreedyIndex - (64 * 1));
+			StartPosition = ivec3((64 * 1) + 1, 0, GreedyIndex - (64 * 1));
 			ForwardDirection = ivec3(0, 1, 0);
 			SideDirection = ivec3(1, 0, 0);
 			break;
 		case 2:
-		
 			//north +y
 			//west -z
 			StartPosition = ivec3(GreedyIndex, 0, 64);
@@ -322,21 +321,22 @@ void main () {
 			SideDirection = ivec3(0, 0, 1);
 			break;
 		case 5:
-		
 			//north is +z
 			//west is -x
-			StartPosition = ivec3((64 * 6), GreedyIndex - (64 * 5), 0);
+			StartPosition = ivec3((64 * 6 - 1), GreedyIndex - (64 * 5), 0);
 			ForwardDirection = ivec3(0, 0, 1);
 			SideDirection = ivec3(-1, 0, 0);	
 			break;
+		default:
+			return;
 	}
-	
+
 	ivec3 CurrentSidewaysPosition = StartPosition;
 	bool visited[CHUNK_SIZE][CHUNK_SIZE];
 	int StretchyFace = -1;
-	for (int i = 0; i < CHUNK_SIZE - 10; i++) {
+	for (int i = 0; i < CHUNK_SIZE; i++) {
 		ivec3 CurrentPos = CurrentSidewaysPosition;
-		for (int j = 0; j < CHUNK_SIZE - 10; j++) {
+		for (int j = 0; j < CHUNK_SIZE; j++) {
 		
 			if (GetBlockType(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]) == 0) {
 				CurrentPos = CurrentPos + ForwardDirection;
@@ -349,12 +349,13 @@ void main () {
 			
 			if(GetBlockType(StretchyFace) == GetBlockType(GreedyBuffer.data[CurrentPos.x + ForwardDirection.x][CurrentPos.y + ForwardDirection.y][CurrentPos.z + ForwardDirection.z])) {
 				NorthStretch(StretchyFace, ForwardDirection);
-			} else {
+			} else { 
 				GreedyTransfer(StretchyFace);
 				StretchyFace = -1;
 			}
 			CurrentPos = CurrentPos + ForwardDirection;
 		}
+		
 		if (StretchyFace != -1) {
 			GreedyTransfer(StretchyFace);
 			StretchyFace = -1;

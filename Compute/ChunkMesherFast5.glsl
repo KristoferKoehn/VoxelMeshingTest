@@ -1011,7 +1011,7 @@ void AOWestFace(int index, vec3 voxelPos, bool greedy) {
 void GreedyData(QuadIn q, int face, int blocktype, vec3 position) {
 	int IndexTicket = atomicAdd(QuadCount.greedycount, 1) + 1;
 	ApplyGreedyVertices(AddPosition( q.vertices, vec3(position.x - ChunkDimensions.ChunkSize/2 - 1, position.y - ChunkDimensions.ChunkSize/2 - 1, position.z - ChunkDimensions.ChunkSize/2 - 1)), IndexTicket);
-	GreedyBuffer.data[int(position.x) + face * CHUNK_SIZE][int(position.y)][int(position.z)] = IndexTicket;
+	GreedyBuffer.data[int(position.x - 1) + face * CHUNK_SIZE][int(position.y - 1)][int(position.z - 1)] = IndexTicket;
 	GreedyBuffer.data1[IndexTicket] = blocktype;
 	vec4 n = vec4(q.normX, q.normY, q.normZ, blocktype);
 	vec4[3] norm;
