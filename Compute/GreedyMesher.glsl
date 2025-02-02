@@ -335,7 +335,7 @@ void main () {
 		ivec3 CurrentPos = CurrentSidewaysPosition;
 		for (int j = 0; j < CHUNK_SIZE; j++) {
 			
-
+			
 			if (GetBlockType(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]) == 0) {
 				CurrentPos = CurrentPos + ForwardDirection;
 				visited[i][j] = true;

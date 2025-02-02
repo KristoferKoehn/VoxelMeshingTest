@@ -61,8 +61,8 @@ public partial class ChunkSpawnManager : Node
         Vector3I pos = new Vector3I(x, y, z);
 
         //Chunks[pos].ChunkData = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
-        Chunks[pos].ChunkData = ChunkGeneratorManager.Instance().ComputeGenerateChunk(pos);
         Chunks[pos].ChunkCoordinates = pos;
+        Chunks[pos].ChunkData = ChunkGeneratorManager.Instance().ComputeGenerateChunk(pos);
         ChunkMeshManager.Instance().RequestChunkMeshUpdate(Chunks[pos]);
     }
 
@@ -80,11 +80,17 @@ public partial class ChunkSpawnManager : Node
 
     public void DeregisterChunk(Chunk chunk, Vector3I pos)
     {
+
+        if (chunk.ChunkData == null)
+        {
+            GD.Print("Deleting ungenerated chunk");
+            return;
+        }
+
         if (Chunks.ContainsKey(pos))
         {
             Chunks.Remove(pos);
             ChunkList.Remove(chunk);
-            chunk.QueueFree();
         }
     }
 
@@ -174,7 +180,7 @@ public partial class ChunkSpawnManager : Node
                         {
 
                             Vector3 distance = chunks[i] * GameConstants.CHUNK_SIZE - PlayerTrackingManager.Instance().GetPlayerLocation();
-                            float bestFacing = 1.0f;
+                            float bestFacing = -1.0f;
                             float dotFacing = distance.Dot(FacingAngle);
                             if (bestFacing > dotFacing)
                             {

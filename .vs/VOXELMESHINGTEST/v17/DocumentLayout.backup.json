@@ -3,28 +3,28 @@
   "WorkspaceRootPath": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\managers\\playertrackingmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:managers\\playertrackingmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\managers\\chunkspawnmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:managers\\chunkspawnmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\managers\\chunkgeneratormanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:managers\\chunkgeneratormanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\managers\\chunkspawnmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:managers\\chunkspawnmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\classes\\chunk.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:classes\\chunk.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\managers\\chunkmeshmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:managers\\chunkmeshmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\classes\\chunk.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:classes\\chunk.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\classes\\gameconstants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:classes\\gameconstants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\managers\\playertrackingmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:managers\\playertrackingmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\gameloop\\gameloop.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -38,17 +38,30 @@
       "DocumentGroups": [
         {
           "DockedWidth": 404,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 0,
+              "Title": "ChunkSpawnManager.cs",
+              "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\ChunkSpawnManager.cs",
+              "RelativeDocumentMoniker": "Managers\\ChunkSpawnManager.cs",
+              "ToolTip": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\ChunkSpawnManager.cs",
+              "RelativeToolTip": "Managers\\ChunkSpawnManager.cs",
+              "ViewState": "AgIAAGEAAAAAAAAAAAAswIUAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-02T19:54:04.145Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "GameConstants.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Classes\\GameConstants.cs",
               "RelativeDocumentMoniker": "Classes\\GameConstants.cs",
               "ToolTip": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Classes\\GameConstants.cs",
               "RelativeToolTip": "Classes\\GameConstants.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAqAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-17T21:26:49.157Z",
               "EditorCaption": ""
@@ -68,26 +81,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ChunkSpawnManager.cs",
-              "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\ChunkSpawnManager.cs",
-              "RelativeDocumentMoniker": "Managers\\ChunkSpawnManager.cs",
-              "ToolTip": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\ChunkSpawnManager.cs",
-              "RelativeToolTip": "Managers\\ChunkSpawnManager.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAtwBoAAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-28T05:55:09.554Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 5,
               "Title": "PlayerTrackingManager.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\PlayerTrackingManager.cs",
               "RelativeDocumentMoniker": "Managers\\PlayerTrackingManager.cs",
               "ToolTip": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\PlayerTrackingManager.cs",
               "RelativeToolTip": "Managers\\PlayerTrackingManager.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAawBUAAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-10T04:24:11.714Z",
               "EditorCaption": ""
@@ -100,7 +100,7 @@
               "RelativeDocumentMoniker": "Managers\\ChunkGeneratorManager.cs",
               "ToolTip": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\ChunkGeneratorManager.cs",
               "RelativeToolTip": "Managers\\ChunkGeneratorManager.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAvwCAAAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAswCkAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-10T03:59:54.752Z",
               "EditorCaption": ""
@@ -113,20 +113,20 @@
               "RelativeDocumentMoniker": "Managers\\ChunkMeshManager.cs",
               "ToolTip": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\ChunkMeshManager.cs",
               "RelativeToolTip": "Managers\\ChunkMeshManager.cs",
-              "ViewState": "AgIAABYAAAAAAAAAAAD4vygAAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAAGwBAAAAAAAAAAAjwIABAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-12T03:27:26.416Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "Chunk.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Classes\\Chunk.cs",
               "RelativeDocumentMoniker": "Classes\\Chunk.cs",
               "ToolTip": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Classes\\Chunk.cs",
               "RelativeToolTip": "Classes\\Chunk.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAAWwDUAAAATAAAAAAAAAA==",
+              "ViewState": "AgIAAEcAAAAAAAAAAAAWwGAAAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-01T05:02:02.032Z",
               "EditorCaption": ""

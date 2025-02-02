@@ -68,8 +68,6 @@ public partial class Chunk : Node3D
         {
             GD.Print("material fucked");
         }
-
-        Visible = true;
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -82,6 +80,7 @@ public partial class Chunk : Node3D
 
             Animating = true;
             Deleting = true;
+            /*
             Tween tween = GetTree().CreateTween();
             tween.SetTrans(Tween.TransitionType.Spring);
             tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, -32, 0), 0.3);
@@ -92,8 +91,11 @@ public partial class Chunk : Node3D
                 //QueueFree();
 
                 CallDeferred("queue_free");
-            };
 
+            };
+            */
+            ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
+            CallDeferred("queue_free");
         }
 
         if (Regen)
@@ -103,6 +105,7 @@ public partial class Chunk : Node3D
 
         if (Meshed)
         {
+            /*
             if (!FirstGenerated) {
                 Tween tween = GetTree().CreateTween();
                 tween.SetTrans(Tween.TransitionType.Spring);
@@ -112,7 +115,9 @@ public partial class Chunk : Node3D
                     FirstGenerated = true;
                 };
             }
-
+            */
+            Animating = false;
+            FirstGenerated = true;
             Meshed = false;
         }
 
