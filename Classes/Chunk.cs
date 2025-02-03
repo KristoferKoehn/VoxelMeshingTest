@@ -16,7 +16,8 @@ public partial class Chunk : Node3D
     public bool Meshed = false;
     public bool Animating = false;
     public bool Deleting = false;
-    public bool Collision = false;
+    public bool Stale = false;
+
 
     public MeshInstance3D MeshInstance;
     public StaticBody3D SB;

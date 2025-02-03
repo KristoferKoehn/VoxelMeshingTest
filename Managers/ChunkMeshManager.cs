@@ -57,14 +57,12 @@ public partial class ChunkMeshManager : Node
         QuadUniform.Binding = 0;
         QuadUniform.AddId(QuadBuffer);
 
-
         GreedyBuffer = rd.StorageBufferCreate(6291456 + GameConstants.BUFFER_SIZE); //6291456
         //greedy uniform
         GreedyUniform = new RDUniform();
         GreedyUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
         GreedyUniform.Binding = 5;
         GreedyUniform.AddId(GreedyBuffer);
-
 
     }
 
@@ -232,6 +230,72 @@ public partial class ChunkMeshManager : Node
         VoxelDataUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
         VoxelDataUniform.Binding = 4;
         VoxelDataUniform.AddId(VoxelDataBuffer);
+    }
+
+    public ChunkSpawnManager.RenderDeviceFrame InitializeVoxelData(ChunkSpawnManager.RenderDeviceFrame rdFrame)
+    {
+        FaceQuadResourceDictionary.Clear();
+        //rewrite this into a system that generates structs that mirror glsl structs
+        Array<FaceData> faces = new Array<FaceData>();
+
+        byte[] QuadInData = new byte[256 * 4000];
+        byte[] FaceData = new byte[32 * 4000];
+        VoxelData = new byte[256 * 4000 + 32 * 4000];
+        //get list of resources
+        int QuadOffset = 0;
+
+        string[] FaceFiles = DirAccess.GetFilesAt("res://VoxelData/FaceData/");
+        foreach (string name in FaceFiles)
+        {
+            if (name.Contains(".tres"))
+            {
+                faces.Add(ResourceLoader.Load<FaceData>($"res://VoxelData/FaceData/{name}", cacheMode: ResourceLoader.CacheMode.Ignore));
+            }
+        }
+
+        foreach (FaceData faceData in faces)
+        {
+            Array<Array<QuadData>> quads = faceData.GetFacesArray();
+            Array<QuadData> blockquad = new Array<QuadData>();
+
+            int[] quadIndices = new int[8];
+            if (faceData.transparent)
+            {
+                quadIndices[6] = 1;
+            }
+
+            for (int i = 0; i < 6; i++)
+            {
+                quadIndices[i] = QuadOffset;
+                for (int j = 0; j < quads[i].Count; j++)
+                {
+                    if (j != quads[i].Count - 1)
+                    {
+                        quads[i][j].NextFace = QuadOffset + 1;
+                    }
+                    blockquad.Add(quads[i][j]);
+                    byte[] b = quads[i][j].Serialize();
+                    Buffer.BlockCopy(b, 0, QuadInData, QuadOffset * 256, 132);
+                    QuadOffset += 1;
+                }
+            }
+
+            Buffer.BlockCopy(quadIndices, 0, FaceData, faceData.ID * 32, 32);
+            FaceQuadResourceDictionary[faceData] = blockquad;
+        }
+
+        GD.Print($"total quads on initialization: {QuadOffset}");
+
+        Buffer.BlockCopy(QuadInData, 0, VoxelData, 0, 256 * 4000);
+        Buffer.BlockCopy(FaceData, 0, VoxelData, 256 * 4000, 32 * 4000);
+
+        rdFrame.VoxelDataBuffer = rd.StorageBufferCreate(256 * 4000 + 32 * 4000, VoxelData);
+        rdFrame.VoxelDataUniform = new RDUniform();
+        rdFrame.VoxelDataUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        rdFrame.VoxelDataUniform.Binding = 4;
+        rdFrame.VoxelDataUniform.AddId(VoxelDataBuffer);
+
+        return rdFrame;
 
     }
 

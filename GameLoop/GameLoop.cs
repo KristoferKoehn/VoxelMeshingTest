@@ -26,7 +26,7 @@ public partial class GameLoop : Node3D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        GD.Print("WE get here at ready");
+
         RNGManager.Instance();
         ChunkGeneratorManager.Instance();
 
@@ -41,7 +41,7 @@ public partial class GameLoop : Node3D
         ChunkSpawnManager.Instance();
         //ChunkSpawnManager.Instance().GenerateWorld();
 
-        ChunkSpawnManager.Instance().HandleChunkLoading();
+        //ChunkSpawnManager.Instance().HandleChunkLoading();
 
     }
 
