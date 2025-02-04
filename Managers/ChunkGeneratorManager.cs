@@ -25,6 +25,8 @@ public partial class ChunkGeneratorManager : Node
 
     ConcurrentQueue<RenderingDevice> ConcurrentRenderDevices { get; set; } = new();
 
+    private object GeneratedChunksLock = new object();
+
     public static ChunkGeneratorManager Instance()
 	{
 		if (instance == null)
@@ -206,7 +208,10 @@ public partial class ChunkGeneratorManager : Node
     {
 
         int[,,] chunk;
-        GeneratedChunks.TryGetValue(pos, out chunk);
+        lock (GeneratedChunksLock)
+        {
+            GeneratedChunks.TryGetValue(pos, out chunk);
+        }
         if (chunk != null)
         {
             return chunk;
@@ -329,9 +334,10 @@ public partial class ChunkGeneratorManager : Node
         chunk = new int[66, 66, 66];
 
         Buffer.BlockCopy(chunkData, 0, chunk, 0, chunkData.Length);
-
-        GeneratedChunks[pos] = chunk;
-
+        lock (GeneratedChunksLock)
+        {
+            GeneratedChunks[pos] = chunk;
+        }
         rdFrame.GeneratorRenderDevice.FreeRid(UniformSet);
         rdFrame.GeneratorRenderDevice.FreeRid(pipelineRID);
         rdFrame.GeneratorRenderDevice.FreeRid(ChunkBuffer);

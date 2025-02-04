@@ -1,6 +1,8 @@
 using Godot;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using VoxelMeshingTest.Classes;
@@ -13,6 +15,8 @@ public partial class ChunkSpawnManager : Node
     private static ChunkSpawnManager instance;
 
     private object lockObj = new object();
+    private object CandidateLock = new object();
+    private object ChunkDictLock = new object();
     private List<Thread> ThreadList = new List<Thread>();
     private int ThreadCountTarget = GameConstants.CHUNK_THREADS;
 
@@ -36,7 +40,7 @@ public partial class ChunkSpawnManager : Node
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
-        
+        new Thread(() => GetCandidateChunks()).Start();
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -51,7 +55,7 @@ public partial class ChunkSpawnManager : Node
                 // Start new threads
                 for (int i = ThreadList.Count; i < GameConstants.CHUNK_THREADS; i++)
                 {
-                    Thread thread = new Thread(() => ChunkerThread(i));
+                    Thread thread = new Thread(() => ChunkerThread(i - 1));
                     thread.IsBackground = true;
                     ThreadList.Add(thread);
                     thread.Start();
@@ -60,7 +64,12 @@ public partial class ChunkSpawnManager : Node
             else if (GameConstants.CHUNK_THREADS < ThreadList.Count)
             {
                 // Let extra threads exit gracefully
+                GD.Print("Removing ended threads");
                 ThreadList.RemoveAll(t => !t.IsAlive);
+            }
+            else
+            {
+                //do nothing
             }
         }
     }
@@ -247,6 +256,7 @@ public partial class ChunkSpawnManager : Node
 
     void ChunkerThread(int threadID)
     {
+        GD.Print($"thread {threadID} initialized");
         //initialize the RD 
         RenderDeviceFrame rdFrame = new RenderDeviceFrame();
         rdFrame.MesherRenderDevice = RenderingServer.CreateLocalRenderingDevice();
@@ -278,7 +288,11 @@ public partial class ChunkSpawnManager : Node
         rdFrame.GreedyUniform.Binding = 5;
         rdFrame.GreedyUniform.AddId(rdFrame.GreedyBuffer);
 
-        rdFrame = ChunkMeshManager.Instance().InitializeVoxelData(rdFrame);
+        rdFrame.VoxelDataBuffer = rdFrame.MesherRenderDevice.StorageBufferCreate(256 * 4000 + 32 * 4000, ChunkMeshManager.Instance().GetVoxelDataBytes());
+        rdFrame.VoxelDataUniform = new RDUniform();
+        rdFrame.VoxelDataUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        rdFrame.VoxelDataUniform.Binding = 4;
+        rdFrame.VoxelDataUniform.AddId(rdFrame.VoxelDataBuffer);
 
 
         while (IsInsideTree() && !IsQueuedForDeletion())
@@ -296,42 +310,154 @@ public partial class ChunkSpawnManager : Node
 
                     rdFrame.GeneratorRenderDevice.FreeRid(rdFrame.TerrainShaderRID);
                     rdFrame.GeneratorRenderDevice.Free();
-
                     break;
                 }
                 
             }
-            //do the stuff
-            int[,,] ChData = ChunkGeneratorManager.Instance().ComputeGenerateChunk2(new Vector3I(0, 0, 0), rdFrame);
+
+            List<Vector3I> PosList = new List<Vector3I>();
+
+
+            Vector3I Candidate = Vector3I.Zero;
+            lock (CandidateLock)
+            {
+                //while can get chunks
+                //pull chunks out
+                while (ChunkCandidates.TryDequeue(out Vector3I candidate))
+                {
+                    if (!PosList.Contains(candidate))
+                    {
+                        PosList.Add(candidate);
+                    }
+                }
+
+                if (PosList.Count == 0)
+                {
+
+                    continue;
+                }
+
+                Candidate = FindBestPosition(PlayerTrackingManager.Instance().GetPlayerBasis() * new Vector3(0, 0, -1), PlayerTrackingManager.Instance().GetPlayerLocation(), PosList);
+                //Vector3I Candidate = PosList[0];
+
+                PosList.Remove(Candidate);
+
+                foreach (Vector3I pos in PosList)
+                {
+                    ChunkCandidates.Enqueue(pos);
+                }
+            }
             
+
+            //do the stuff
+            int[,,] ChData = ChunkGeneratorManager.Instance().ComputeGenerateChunk2(Candidate, rdFrame);
+            Chunk chunk = new Chunk();
+            chunk.ChunkData = ChData;
+            chunk.ChunkPosition = new Vector3(Candidate.X * GameConstants.CHUNK_SIZE, Candidate.Y * GameConstants.CHUNK_SIZE, Candidate.Z * GameConstants.CHUNK_SIZE);
+            chunk = ChunkMeshManager.Instance().GenerateChunkMesh(ChData, chunk, rdFrame);
+            lock (ChunkDictLock)
+            {
+                if (Chunks.ContainsKey(Candidate) && Chunks[Candidate] != null)
+                {
+                    if (IsInstanceValid(Chunks[Candidate]) && !Chunks[Candidate].IsQueuedForDeletion())
+                    {
+                        Chunks[Candidate].CallDeferred("queue_free");
+                    }
+
+                }
+                Chunks[Candidate] = chunk;
+            }
+            CallDeferred("add_child", chunk);
+
         }
 
     }
 
+    Vector3I FindBestPosition(Vector3 forwardView, Vector3 PlayerPosition, List<Vector3I> positions)
+    {
+
+        Vector3 bestPosition = positions[0];
+        float minDistance = bestPosition.Length();
+        float bestAlignment = bestPosition.Normalized().Dot(forwardView);
+
+        // First, find the closest position to the origin
+        for (int i = 1; i < positions.Count; i++)
+        {
+            float distance = (PlayerPosition - new Vector3(positions[i].X, positions[i].Y, positions[i].Z) * 64).Length();
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                bestPosition = positions[i];
+                bestAlignment = bestPosition.Dot(forwardView);
+            }
+            else if (Math.Abs(distance - minDistance) < 1e-6) // If equal distance, check alignment
+            {
+                float alignment = new Vector3(positions[i].X, positions[i].Y, positions[i].Z ).Dot(forwardView);
+                if (alignment > bestAlignment)
+                {
+                    bestPosition = positions[i];
+                    bestAlignment = alignment;
+                }
+            }
+
+        }
+
+        return new Vector3I((int)bestPosition.X, (int)bestPosition.Y, (int)bestPosition.Z);
+    }
+
     public void GetCandidateChunks()
     {
-        Vector3 playerPos = PlayerTrackingManager.Instance().GetPlayerLocation();
-        Vector3I PlayerCoordinate = (Vector3I)(playerPos / GameConstants.CHUNK_SIZE);
-        for (int i = 0; i < GameConstants.SPAWN_RADIUS * 2; i++)
+        Vector3I PlayerCoordinateLast = new Vector3I(-20,20,-4000);
+        while (IsInsideTree())
         {
-            for (int j = 0; j < GameConstants.SPAWN_RADIUS * 2; j++)
+            Vector3 playerPos = PlayerTrackingManager.Instance().GetPlayerLocation();
+            Vector3I PlayerCoordinate = (Vector3I)(playerPos / GameConstants.CHUNK_SIZE);
+            PlayerCoordinate = new Vector3I(PlayerCoordinate.X, 0, PlayerCoordinate.Z);
+            if (PlayerCoordinateLast == PlayerCoordinate)
             {
-                Vector3I Pos = PlayerCoordinate + new Vector3I(i, 0, j);
-                if (Chunks.ContainsKey(Pos))
+                continue;
+            }
+            lock (CandidateLock)
+            {
+                for (int i = -GameConstants.SPAWN_RADIUS; i < GameConstants.SPAWN_RADIUS; i++)
                 {
-                    if (Chunks[Pos] != null)
+                    for (int j = -GameConstants.SPAWN_RADIUS; j < GameConstants.SPAWN_RADIUS; j++)
                     {
-                        if (Chunks[Pos].Stale == true)
+                        Vector3I Pos = PlayerCoordinate + new Vector3I(i, 0, j);
+
+                        if ((Pos - PlayerCoordinate).Length() > GameConstants.SPAWN_RADIUS)
                         {
-                            ChunkCandidates.Enqueue(Pos);
+                            continue;
+                        }
+
+
+                        lock (ChunkDictLock)
+                        {
+                            if (Chunks.ContainsKey(Pos))
+                            {
+                                if (Chunks.ContainsKey(Pos) && Chunks[Pos] != null) //it keeps breaking on these so I have to check containskey a bunch
+                                {
+                                    if (Chunks.ContainsKey(Pos) && Chunks[Pos].Stale == true)
+                                    {
+                                        if (!ChunkCandidates.Contains(Pos))
+                                        {
+                                            ChunkCandidates.Enqueue(Pos);
+                                        }
+                                    } //else do nothing
+                                } //else do nothing
+                            }
+                            else
+                            {
+                                if (!ChunkCandidates.Contains(Pos))
+                                {
+                                    ChunkCandidates.Enqueue(Pos);
+                                }
+                            } //else do nothing
                         }
                     }
                 }
-                else
-                {
-                     ChunkCandidates.Enqueue(Pos);
-                }
             }
+            PlayerCoordinateLast = PlayerCoordinate;
         }
     }
 
