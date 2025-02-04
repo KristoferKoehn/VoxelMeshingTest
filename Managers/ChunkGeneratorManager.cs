@@ -206,7 +206,6 @@ public partial class ChunkGeneratorManager : Node
 
     public int[,,] ComputeGenerateChunk2(Vector3I pos, ChunkSpawnManager.RenderDeviceFrame rdFrame)
     {
-
         int[,,] chunk;
         lock (GeneratedChunksLock)
         {
@@ -214,6 +213,7 @@ public partial class ChunkGeneratorManager : Node
         }
         if (chunk != null)
         {
+            GD.Print($"returning chunk at {pos}");
             return chunk;
         }
 
@@ -330,6 +330,9 @@ public partial class ChunkGeneratorManager : Node
         rdFrame.GeneratorRenderDevice.Sync();
 
         byte[] chunkData = rdFrame.GeneratorRenderDevice.BufferGetData(ChunkBuffer);
+        rdFrame.GeneratorRenderDevice.BufferClear(GenBuffer, 0, (uint)NoiseData.Length);
+        rdFrame.GeneratorRenderDevice.BufferClear(CutoffBuffer, 0, (uint)cutoffbytes.Length);
+        rdFrame.GeneratorRenderDevice.BufferClear(ChunkBuffer, 0, (uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4);
 
         chunk = new int[66, 66, 66];
 

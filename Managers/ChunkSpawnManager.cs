@@ -340,12 +340,18 @@ public partial class ChunkSpawnManager : Node
                 Candidate = FindBestPosition(PlayerTrackingManager.Instance().GetPlayerBasis() * new Vector3(0, 0, -1), PlayerTrackingManager.Instance().GetPlayerLocation(), PosList);
                 //Vector3I Candidate = PosList[0];
 
-                PosList.Remove(Candidate);
+                bool test = PosList.Remove(Candidate);
+                if (!test)
+                {
+                    GD.Print($"{Candidate} not removed");
+                }
+                
 
                 foreach (Vector3I pos in PosList)
                 {
                     ChunkCandidates.Enqueue(pos);
                 }
+
             }
             
 
