@@ -17,6 +17,8 @@ public partial class ChunkSpawnManager : Node
     private object lockObj = new object();
     private object CandidateLock = new object();
     private object ChunkDictLock = new object();
+    private object GenerateLock = new object();
+
     private List<Thread> ThreadList = new List<Thread>();
     private int ThreadCountTarget = GameConstants.CHUNK_THREADS;
 
@@ -40,20 +42,26 @@ public partial class ChunkSpawnManager : Node
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
+        ChangeThreading(GameConstants.CHUNK_THREADS);
         new Thread(() => GetCandidateChunks()).Start();
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
 	{
+  
+    }
+
+    public void ChangeThreading(int threads)
+    {
         lock (lockObj)
         {
-            ThreadCountTarget = GameConstants.CHUNK_THREADS;
+            ThreadCountTarget = threads;
 
-            if (GameConstants.CHUNK_THREADS > ThreadList.Count)
+            if (threads > ThreadList.Count)
             {
                 // Start new threads
-                for (int i = ThreadList.Count; i < GameConstants.CHUNK_THREADS; i++)
+                for (int i = ThreadList.Count; i < threads; i++)
                 {
                     Thread thread = new Thread(() => ChunkerThread(i - 1));
                     thread.IsBackground = true;
@@ -61,7 +69,7 @@ public partial class ChunkSpawnManager : Node
                     thread.Start();
                 }
             }
-            else if (GameConstants.CHUNK_THREADS < ThreadList.Count)
+            else if (threads < ThreadList.Count)
             {
                 // Let extra threads exit gracefully
                 GD.Print("Removing ended threads");
@@ -72,6 +80,7 @@ public partial class ChunkSpawnManager : Node
                 //do nothing
             }
         }
+
     }
 
     void GeneratePChunk(int x, int y, int z)
@@ -312,13 +321,12 @@ public partial class ChunkSpawnManager : Node
                     rdFrame.GeneratorRenderDevice.Free();
                     break;
                 }
-                
             }
 
             List<Vector3I> PosList = new List<Vector3I>();
 
-
             Vector3I Candidate = Vector3I.Zero;
+            Chunk chunk = null;
             lock (CandidateLock)
             {
                 //while can get chunks
@@ -333,11 +341,10 @@ public partial class ChunkSpawnManager : Node
 
                 if (PosList.Count == 0)
                 {
-
                     continue;
                 }
 
-                Candidate = FindBestPosition(PlayerTrackingManager.Instance().GetPlayerBasis() * new Vector3(0, 0, -1), PlayerTrackingManager.Instance().GetPlayerLocation(), PosList);
+                Candidate = FindBestPosition(PlayerTrackingManager.Instance().GetPlayerBasis().GetRotationQuaternion() * new Vector3(0, 0, -1), PlayerTrackingManager.Instance().GetPlayerLocation(), PosList);
                 //Vector3I Candidate = PosList[0];
 
                 bool test = PosList.Remove(Candidate);
@@ -346,37 +353,38 @@ public partial class ChunkSpawnManager : Node
                     GD.Print($"{Candidate} not removed");
                 }
                 
-
                 foreach (Vector3I pos in PosList)
                 {
                     ChunkCandidates.Enqueue(pos);
                 }
 
-            }
-            
+                chunk = new Chunk();
 
-            //do the stuff
-            int[,,] ChData = ChunkGeneratorManager.Instance().ComputeGenerateChunk2(Candidate, rdFrame);
-            Chunk chunk = new Chunk();
-            chunk.ChunkData = ChData;
-            chunk.ChunkPosition = new Vector3(Candidate.X * GameConstants.CHUNK_SIZE, Candidate.Y * GameConstants.CHUNK_SIZE, Candidate.Z * GameConstants.CHUNK_SIZE);
-            chunk = ChunkMeshManager.Instance().GenerateChunkMesh(ChData, chunk, rdFrame);
-            lock (ChunkDictLock)
-            {
                 if (Chunks.ContainsKey(Candidate) && Chunks[Candidate] != null)
                 {
                     if (IsInstanceValid(Chunks[Candidate]) && !Chunks[Candidate].IsQueuedForDeletion())
                     {
                         Chunks[Candidate].CallDeferred("queue_free");
                     }
-
                 }
                 Chunks[Candidate] = chunk;
             }
+
+            int[,,] ChData;
+            //do the stuff
+            lock (GenerateLock)
+            {
+                ChData = ChunkGeneratorManager.Instance().ComputeGenerateChunk2(Candidate, rdFrame);
+            }
+
+
+            chunk.ChunkData = ChData;
+            chunk.ChunkPosition = new Vector3(Candidate.X * GameConstants.CHUNK_SIZE, Candidate.Y * GameConstants.CHUNK_SIZE, Candidate.Z * GameConstants.CHUNK_SIZE);
+            chunk.ChunkCoordinates = Candidate;
+            chunk = ChunkMeshManager.Instance().GenerateChunkMesh(ChData, chunk, rdFrame);
+
             CallDeferred("add_child", chunk);
-
         }
-
     }
 
     Vector3I FindBestPosition(Vector3 forwardView, Vector3 PlayerPosition, List<Vector3I> positions)

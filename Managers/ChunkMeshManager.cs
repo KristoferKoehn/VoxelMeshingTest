@@ -626,7 +626,6 @@ public partial class ChunkMeshManager : Node
 
         //ch.MeshInstance.Mesh = am;
 
-
         RDFrame.MesherRenderDevice.FreeRid(UniformSet);
         RDFrame.MesherRenderDevice.FreeRid(pipelineRID);
         RDFrame.MesherRenderDevice.FreeRid(QuadCountBuffer);

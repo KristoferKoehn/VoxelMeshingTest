@@ -56,12 +56,13 @@ public partial class ChunkGeneratorManager : Node
 	{
         
         int[,,] chunk;
+        
         GeneratedChunks.TryGetValue(pos, out chunk);
         if (chunk != null)
         {
             return chunk;
         }
-
+        
 
         RenderingDevice rd = null;
         do {
@@ -207,6 +208,7 @@ public partial class ChunkGeneratorManager : Node
     public int[,,] ComputeGenerateChunk2(Vector3I pos, ChunkSpawnManager.RenderDeviceFrame rdFrame)
     {
         int[,,] chunk;
+        /*
         lock (GeneratedChunksLock)
         {
             GeneratedChunks.TryGetValue(pos, out chunk);
@@ -215,7 +217,7 @@ public partial class ChunkGeneratorManager : Node
         {
             GD.Print($"returning chunk at {pos}");
             return chunk;
-        }
+        } */
 
         Vector3I pos2D = new Vector3I(pos.X, pos.Z, 0);
 
@@ -330,17 +332,19 @@ public partial class ChunkGeneratorManager : Node
         rdFrame.GeneratorRenderDevice.Sync();
 
         byte[] chunkData = rdFrame.GeneratorRenderDevice.BufferGetData(ChunkBuffer);
-        rdFrame.GeneratorRenderDevice.BufferClear(GenBuffer, 0, (uint)NoiseData.Length);
-        rdFrame.GeneratorRenderDevice.BufferClear(CutoffBuffer, 0, (uint)cutoffbytes.Length);
+
+        rdFrame.GeneratorRenderDevice.BufferClear(GenBuffer, 0, TerrainSize);
+        rdFrame.GeneratorRenderDevice.BufferClear(CutoffBuffer, 0, CutoffLayersSize);
         rdFrame.GeneratorRenderDevice.BufferClear(ChunkBuffer, 0, (uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4);
 
         chunk = new int[66, 66, 66];
 
         Buffer.BlockCopy(chunkData, 0, chunk, 0, chunkData.Length);
+        /*
         lock (GeneratedChunksLock)
         {
             GeneratedChunks[pos] = chunk;
-        }
+        }*/
         rdFrame.GeneratorRenderDevice.FreeRid(UniformSet);
         rdFrame.GeneratorRenderDevice.FreeRid(pipelineRID);
         rdFrame.GeneratorRenderDevice.FreeRid(ChunkBuffer);
