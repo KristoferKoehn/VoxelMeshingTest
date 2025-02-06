@@ -1,5 +1,4 @@
 using Godot;
-using Godot.Collections;
 using System;
 using System.Collections.Generic;
 using VoxelMeshingTest.Classes;
@@ -57,10 +56,21 @@ public partial class Chunk : Node3D
         CollisionShape.Shape = ConcavePolygon;
     }
 
+    public override void _EnterTree()
+    {
+        GlobalPosition = ChunkPosition;
+        Meshed = true;
+        if (!FirstGenerated)
+        {
+            Animating = true;
+            GlobalPosition += new Vector3(0, -32, 0);
+        }
+    }
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-        GlobalPosition = ChunkPosition;
+        
 
         if (MeshInstance != null)
         {
@@ -76,12 +86,10 @@ public partial class Chunk : Node3D
     {
         Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
         
-        if ((pos - GlobalPosition).Length() > GameConstants.SPAWN_RADIUS * 64 * 1.2 && !Deleting)
+        
+        if ((pos - GlobalPosition).Length() > GameConstants.DESPAWN_RADIUS * 128 && !Animating)
         {
-
             Animating = true;
-            Deleting = true;
-            /*
             Tween tween = GetTree().CreateTween();
             tween.SetTrans(Tween.TransitionType.Spring);
             tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, -32, 0), 0.3);
@@ -94,10 +102,7 @@ public partial class Chunk : Node3D
                 CallDeferred("queue_free");
 
             };
-            */
-            ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
-            CallDeferred("queue_free");
-        }
+        } 
 
         if (Regen)
         {
@@ -106,7 +111,7 @@ public partial class Chunk : Node3D
 
         if (Meshed)
         {
-            /*
+            
             if (!FirstGenerated) {
                 Tween tween = GetTree().CreateTween();
                 tween.SetTrans(Tween.TransitionType.Spring);
@@ -116,9 +121,10 @@ public partial class Chunk : Node3D
                     FirstGenerated = true;
                 };
             }
-            */
+            /*
             Animating = false;
             FirstGenerated = true;
+            */
             Meshed = false;
         }
 
@@ -139,6 +145,7 @@ public partial class Chunk : Node3D
         }
     }
 
+    // queue data change system 
     public void Remesh()
     {
 
@@ -158,6 +165,7 @@ public partial class Chunk : Node3D
         ChangePackets.Add(new Tuple<Vector3I, int>(BlockPosition, data));
         Regen = true;
     }
+    //end queue data change system. SHould I care about this
 
     public void DoneMeshing()
     {

@@ -48,7 +48,7 @@ public partial class ChunkMeshManager : Node
 	public override void _Ready()
 	{
         InitializeVoxelData();
-        HandleChunkMeshing();
+        //HandleChunkMeshing();
 
         QuadBuffer = rd.StorageBufferCreate(GameConstants.BUFFER_SIZE);
         //output quad uniform
@@ -472,7 +472,6 @@ public partial class ChunkMeshManager : Node
     public Chunk GenerateChunkMesh(int[,,] Data, Chunk ch, ChunkSpawnManager.RenderDeviceFrame RDFrame)
     {
 
-        Stopwatch sw = Stopwatch.StartNew();
         long ComputeList = RDFrame.MesherRenderDevice.ComputeListBegin();
         //compute uniform
         byte[] inputBytes = new byte[Data.Length * sizeof(int)];
@@ -621,7 +620,6 @@ public partial class ChunkMeshManager : Node
         */
         ch.MeshData = ar;
 
-        GD.Print($"Fully Meshed: {sw.ElapsedMilliseconds}");
 
 
         //ch.MeshInstance.Mesh = am;

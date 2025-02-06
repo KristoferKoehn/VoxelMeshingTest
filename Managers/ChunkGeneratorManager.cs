@@ -310,7 +310,6 @@ public partial class ChunkGeneratorManager : Node
         ChunkDimensionalUniform.Binding = 3;
         ChunkDimensionalUniform.AddId(ChunkDimensionalBuffer);
 
-
         Array<RDUniform> Uniforms = new Array<RDUniform>() {
             CutoffUniform,
             GenUniform,

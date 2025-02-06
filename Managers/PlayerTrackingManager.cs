@@ -9,7 +9,9 @@ public partial class PlayerTrackingManager : Node
     private static PlayerTrackingManager instance;
 
     public Vector3 TrackerPosition { get; set; } = Vector3.Zero;
+    public Vector3 PreviousPosition { get; set; } = Vector3.Zero;
     public Basis TrackerBasis { get; set; } = Basis.Identity;
+    public Vector3 TrackerVelocity { get; set; } = Vector3.Zero;
 
     public static PlayerTrackingManager Instance()
     {
@@ -25,6 +27,11 @@ public partial class PlayerTrackingManager : Node
     public Vector3 GetPlayerLocation()
     {
         return instance.TrackerPosition;
+    }
+
+    public Vector3 GetPlayerVelocity()
+    {
+        return instance.TrackerVelocity;
     }
 
     public Basis GetPlayerBasis()
@@ -49,6 +56,8 @@ public partial class PlayerTrackingManager : Node
 	public override void _Process(double delta)
 	{
         TrackerPosition = TrackingItem.GlobalPosition;
+        TrackerVelocity = TrackerPosition - PreviousPosition;
         TrackerBasis = TrackingItem.Basis;
+        PreviousPosition = TrackerPosition;
 	}
 }
