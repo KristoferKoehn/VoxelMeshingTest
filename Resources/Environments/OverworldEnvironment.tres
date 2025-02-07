@@ -1,0 +1,23 @@
+[gd_resource type="Environment" load_steps=3 format=3 uid="uid://cqnbus2k8ayj7"]
+
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_j18j3"]
+use_debanding = false
+
+[sub_resource type="Sky" id="Sky_ir56b"]
+sky_material = SubResource("PhysicalSkyMaterial_j18j3")
+
+[resource]
+background_mode = 2
+sky = SubResource("Sky_ir56b")
+ambient_light_source = 3
+tonemap_mode = 3
+sdfgi_use_occlusion = true
+sdfgi_min_cell_size = 0.9
+sdfgi_cascade0_distance = 57.6
+sdfgi_max_distance = 921.6
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.01
+volumetric_fog_albedo = Color(0.301961, 0.403922, 0.6, 1)
+volumetric_fog_anisotropy = 0.4
+volumetric_fog_length = 89.6
+volumetric_fog_temporal_reprojection_enabled = false

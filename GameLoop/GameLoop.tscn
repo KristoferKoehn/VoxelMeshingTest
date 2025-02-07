@@ -1,18 +1,16 @@
-[gd_scene load_steps=32 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=25 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
-[ext_resource type="Environment" uid="uid://dgbvwfvwe75vl" path="res://Resources/EnvironmentResource.tres" id="2_7k4c0"]
+[ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_874if"]
 [ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
 [ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
-[ext_resource type="Shader" path="res://Resources/mobius.gdshader" id="4_hfeiy"]
 [ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
 [ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
-[ext_resource type="Material" uid="uid://pjlbdrjc0a5l" path="res://Resources/Test.tres" id="7_26wtc"]
 [ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="9_i1jmx"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_upyia"]
 noise_type = 3
-frequency = 0.0167
+frequency = 0.006
 fractal_type = 2
 fractal_octaves = 2
 metadata/_preview_in_3d_space_ = true
@@ -29,7 +27,7 @@ fractal_octaves = 1
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_7gieq"]
 noise_type = 2
-frequency = 0.0141
+frequency = 0.0107
 fractal_type = 2
 fractal_octaves = 1
 
@@ -39,22 +37,7 @@ fractal_type = 2
 fractal_octaves = 1
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_gywmo"]
-frequency = 0.0047
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_vys8h"]
-render_priority = 0
-shader = ExtResource("4_hfeiy")
-shader_parameter/zNear = 981.74
-shader_parameter/zFar = 1000.0
-shader_parameter/outlineThickness = 1.5
-shader_parameter/outlineColor = Color(0, 0, 0, 1)
-shader_parameter/wiggleFrequency = 0.08
-shader_parameter/wiggleAmplitude = 2.0
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_dirhm"]
-material = SubResource("ShaderMaterial_vys8h")
-flip_faces = true
-orientation = 2
+frequency = 0.0123
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6ropx"]
 render_priority = 0
@@ -67,24 +50,6 @@ shader_parameter/_ascii_tex = ExtResource("6_b6r5k")
 material = SubResource("ShaderMaterial_6ropx")
 flip_faces = true
 size = Vector2(2, 2)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ep0ea"]
-material = ExtResource("7_26wtc")
-
-[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_xfmry"]
-points = PackedVector3Array(-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, 0.5, 0.5, 0.5, -0.5, -0.5, -0.5, -0.5, 0.5, -0.5, 0.5, -0.5)
-
-[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_qkm5e"]
-spread = 180.0
-flatness = 0.77
-initial_velocity_min = 5.0
-initial_velocity_max = 5.0
-radial_accel_min = 100.0
-radial_accel_max = 100.0
-tangential_accel_min = 50.0
-tangential_accel_max = 50.0
-damping_min = 100.0
-damping_max = 100.0
 
 [sub_resource type="Shader" id="Shader_xmxvo"]
 code = "shader_type spatial;
@@ -155,9 +120,11 @@ RayCast = NodePath("Camera3D/RayCast3D")
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.351178, 0.846132, -0.400918, -0.66146, 0.527252, 0.533363, 0.66268, 0.0778861, 0.744842, 0, 0, 0)
+transform = Transform3D(-0.0332743, -0.999262, -0.0191979, 0.845322, -0.0383859, 0.532877, -0.53322, 0.00150269, 0.845976, 0, 0, 0)
+light_energy = 0.85
 shadow_enabled = true
-directional_shadow_mode = 0
+shadow_blur = 0.697
+directional_shadow_mode = 1
 directional_shadow_fade_start = 1.0
 directional_shadow_max_distance = 350.0
 
@@ -167,15 +134,9 @@ TrackingItem = NodePath("../Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 0, 0)
-environment = ExtResource("2_7k4c0")
-current = true
+environment = ExtResource("3_874if")
 script = ExtResource("3_o0vww")
 sensitivity = 0.2
-
-[node name="mobius" type="MeshInstance3D" parent="Camera3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
-visible = false
-mesh = SubResource("PlaneMesh_dirhm")
 
 [node name="ascii" type="MeshInstance3D" parent="Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
@@ -185,27 +146,12 @@ mesh = SubResource("QuadMesh_hty1b")
 [node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
 target_position = Vector3(0, 0, -10)
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.8619)
-mesh = SubResource("BoxMesh_ep0ea")
-
-[node name="StaticBody3D" type="StaticBody3D" parent="MeshInstance3D"]
-visible = false
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="MeshInstance3D/StaticBody3D"]
-visible = false
-shape = SubResource("ConvexPolygonShape3D_xfmry")
-
-[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.42567, 3.77997, 5.69126)
-emitting = false
-process_material = SubResource("ParticleProcessMaterial_qkm5e")
-draw_pass_1 = ExtResource("9_i1jmx")
-
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 21.9706, 0)
+visible = false
 mesh = ExtResource("9_i1jmx")
 
 [node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.51805, 0)
+visible = false
 mesh = SubResource("QuadMesh_1avtn")
