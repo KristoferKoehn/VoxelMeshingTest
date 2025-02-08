@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=19 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_874if"]
@@ -6,7 +6,6 @@
 [ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
 [ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
 [ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
-[ext_resource type="PackedScene" uid="uid://blf8bkjp7a466" path="res://Controllers/ThirdPersonController.tscn" id="9_3jbp6"]
 [ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="9_i1jmx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6ropx"]
@@ -97,7 +96,6 @@ script = ExtResource("4_cg07s")
 TrackingItem = NodePath("../Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-process_mode = 4
 transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 17, 0)
 environment = ExtResource("3_874if")
 script = ExtResource("3_o0vww")
@@ -121,6 +119,3 @@ mesh = ExtResource("9_i1jmx")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.51805, 0)
 visible = false
 mesh = SubResource("QuadMesh_1avtn")
-
-[node name="Player3D" parent="." instance=ExtResource("9_3jbp6")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 37, 0)

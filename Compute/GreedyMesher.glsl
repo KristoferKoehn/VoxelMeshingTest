@@ -243,18 +243,15 @@ void GreedyTransfer(int greedyTicket) {
 	VertexBuffer.indices[IndexTicket * 6 + 5] = IndexTicket * 4 + 3;
 }
 
-bool StretchNorth(vec3 pos, int length, int width, int block) { //this needs north dir and west dir for this frame. maybe length is replaced by vec3 = North * length? could subtract for the distance
-	//int y_pos = pos.y + length + 1;
-	
-	if (y_pos > 64) {
-		return false;
-	}
+/*
+bool StretchNorth(ivec3 pos, ivec3 north_dist, ivec3 west_dist, int block) { //this needs north dir and west dir for this frame. maybe length is replaced by vec3 = North * length?
+	vec3 n_pos = north_dist + normalize(north_dist);
 
 	for (int i = pos.x; i < pos.x + width; i++) {
 		
 	}	
 }
-
+*/
 
 void main () {
 	int GreedyIndex = int(gl_GlobalInvocationID.x);

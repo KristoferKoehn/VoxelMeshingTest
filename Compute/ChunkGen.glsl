@@ -98,12 +98,14 @@ void main () {
 				}
 				
 				
-				if (perlinNoise2D(ChunkPosition.xz + vec2(float(x - 1) / 64.0, float(z - 1) / 64.0), seed) * 33 + 33 > float(y)) {
+				if (perlinNoise2D(ChunkPosition.xz + vec2(float(x - 1) / 64.0, float(z - 1) / 64.0), seed) * 16 + 33 > float(y)) {
+					/*
 					if (perlinNoise3D(ChunkPosition.xyz + vec3(float(x - 1) / 64.0, float(y - 1) / 64.0, float(z - 1) / 64.0), seed) > 0) {
 						ChunkBuffer.chunk[x][y][z] = 2;
 					} else {
 						ChunkBuffer.chunk[x][y][z] = 0;
-					}
+					}*/
+					ChunkBuffer.chunk[x][y][z] = 2;
 				} else {
 					ChunkBuffer.chunk[x][y][z] = 0;
 				}
