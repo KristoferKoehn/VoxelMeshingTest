@@ -41,7 +41,7 @@ public partial class ChunkGeneratorManager : Node
 
 	}
 
-    public int[,,] ComputeGenerateChunk2(Vector3I pos, ChunkSpawnManager.RenderDeviceFrame rdFrame)
+    public int[,,] ComputeGenerateChunk(Vector3I pos, ChunkSpawnManager.RenderDeviceFrame rdFrame)
     {
         int[,,] chunk;
       

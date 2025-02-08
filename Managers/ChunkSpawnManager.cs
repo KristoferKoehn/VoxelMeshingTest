@@ -17,8 +17,6 @@ public partial class ChunkSpawnManager : Node
     private static ChunkSpawnManager instance;
 
     private object lockObj = new object();
-    private object CandidateLock = new object();
-    private object ChunkDictLock = new object();
     private object GenerateLock = new object();
 
     private List<Thread> ThreadList = new List<Thread>();
@@ -264,17 +262,18 @@ public partial class ChunkSpawnManager : Node
             int[,,] ChData;
             //do the stuff
 
-            ChData = ChunkGeneratorManager.Instance().ComputeGenerateChunk2(Candidate, rdFrame);
+            ChData = ChunkGeneratorManager.Instance().ComputeGenerateChunk(Candidate, rdFrame);
 
 
             double GenerateStamp = sw.ElapsedMilliseconds;
             
-
-
             chunk.ChunkData = ChData;
             chunk.ChunkPosition = new Vector3(Candidate.X * GameConstants.CHUNK_SIZE, Candidate.Y * GameConstants.CHUNK_SIZE, Candidate.Z * GameConstants.CHUNK_SIZE);
             chunk.ChunkCoordinates = Candidate;
-            ChunkMeshManager.Instance().GenerateChunkMesh(ChData, chunk, rdFrame);
+            lock (GenerateLock)
+            {
+                ChunkMeshManager.Instance().GenerateChunkMesh(ChData, chunk, rdFrame);
+            }
             double MeshStamp = sw.ElapsedMilliseconds;
 
             CallDeferred("add_child", chunk);
@@ -299,7 +298,7 @@ public partial class ChunkSpawnManager : Node
             float alignment = (worldPos - PlayerPosition).Normalized().Dot(forwardView);
 
             // Weighted score: prioritize alignment but still consider distance
-            float score = alignment - (distance * 0.01f); // Adjust weighting as needed
+            float score = alignment - (distance * 0.001f); // Adjust weighting as needed
 
             if (score > bestScore)
             {

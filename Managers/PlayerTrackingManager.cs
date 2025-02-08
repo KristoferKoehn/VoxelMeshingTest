@@ -50,15 +50,15 @@ public partial class PlayerTrackingManager : Node
         {
             instance = this;
         }
-        TrackingItem = GetViewport().GetCamera3D();
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+        TrackingItem = GetViewport().GetCamera3D();
         TrackerPosition = TrackingItem.GlobalPosition;
         TrackerVelocity = TrackerPosition - PreviousPosition;
-        TrackerBasis = TrackingItem.Basis;
+        TrackerBasis = TrackingItem.GlobalBasis;
         PreviousPosition = TrackerPosition;
-	}
+    }
 }

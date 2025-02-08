@@ -243,24 +243,18 @@ void GreedyTransfer(int greedyTicket) {
 	VertexBuffer.indices[IndexTicket * 6 + 5] = IndexTicket * 4 + 3;
 }
 
-/*
-on each face, check if greedy. if so, call the greedy data function
+bool StretchNorth(vec3 pos, int length, int width, int block) { //this needs north dir and west dir for this frame. maybe length is replaced by vec3 = North * length? could subtract for the distance
+	//int y_pos = pos.y + length + 1;
+	
+	if (y_pos > 64) {
+		return false;
+	}
 
-detangle greedying from the base mesher
-
-	-greedy data function -DONE with current feature set.
- 		-keeps track of all the faces (same as indexticket)
-		-puts the data in the greedy version of the buffer
-		-puts the index in the greedy matrix
-		-AOs the face 
+	for (int i = pos.x; i < pos.x + width; i++) {
 		
-	-greedy step
-		-dance move
-		-selects worker from group (idk how many, we can change later I guess?)
-		-determines orientation of face
-		-walks along on one axis until stops, checks if it can expand the other way. if not, take that greedyindex and slap it in the quadindex.
-		-that should be it!!!
-*/
+	}	
+}
+
 
 void main () {
 	int GreedyIndex = int(gl_GlobalInvocationID.x);
@@ -334,8 +328,25 @@ void main () {
 	for (int i = 0; i < CHUNK_SIZE; i++) {
 		ivec3 CurrentPos = CurrentSidewaysPosition;
 		for (int j = 0; j < CHUNK_SIZE; j++) {
+			/*
+			i,j is starting position
+			int length = 1
+			int width = 1
+			
+			functions that loop over a side to check if expandable
+			CheckExpandNorth
+			
+			while(expandedNorth || expandedWest) {
+				if (GetBlockType(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]) == 0) {
+					CurrentPos = CurrentPos + ForwardDirection;
+					visited[i][j] = true;
+					continue;
+				}
+			}
 			
 			
+			
+			*/
 			if (GetBlockType(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]) == 0) {
 				CurrentPos = CurrentPos + ForwardDirection;
 				visited[i][j] = true;
