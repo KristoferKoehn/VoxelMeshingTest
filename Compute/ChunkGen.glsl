@@ -17,30 +17,25 @@ layout(set = 0, binding = 3, std430) buffer chunkdimensions{
 	vec4 ChunkCoordinate;
 } ChunkDimensions;
 
-// Hash function to generate pseudo-random gradients
 vec2 hash2(vec2 p, float seed) {
     p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
     return -1.0 + 2.0 * fract(sin(p + seed) * 43758.5453123);
 }
 
-// 2D Perlin noise function
 float perlinNoise2D(vec2 p, float seed) {
     vec2 i = floor(p);
     vec2 f = fract(p);
 
-    // Compute gradients at the four corners of the cell
     vec2 g00 = hash2(i + vec2(0.0, 0.0), seed);
     vec2 g10 = hash2(i + vec2(1.0, 0.0), seed);
     vec2 g01 = hash2(i + vec2(0.0, 1.0), seed);
     vec2 g11 = hash2(i + vec2(1.0, 1.0), seed);
 
-    // Compute dot products between gradient and position offset
     float d00 = dot(g00, f - vec2(0.0, 0.0));
     float d10 = dot(g10, f - vec2(1.0, 0.0));
     float d01 = dot(g01, f - vec2(0.0, 1.0));
     float d11 = dot(g11, f - vec2(1.0, 1.0));
 
-    // Smooth interpolation
     vec2 u = f * f * (3.0 - 2.0 * f);
     return mix(mix(d00, d10, u.x), mix(d01, d11, u.x), u.y);
 }
