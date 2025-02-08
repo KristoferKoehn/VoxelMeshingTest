@@ -209,15 +209,7 @@ public partial class ChunkGeneratorManager : Node
     {
         int[,,] chunk;
         /*
-        lock (GeneratedChunksLock)
-        {
-            GeneratedChunks.TryGetValue(pos, out chunk);
-        }
-        if (chunk != null)
-        {
-            GD.Print($"returning chunk at {pos}");
-            return chunk;
-        } */
+        
 
         Vector3I pos2D = new Vector3I(pos.X, pos.Z, 0);
 
@@ -264,8 +256,13 @@ public partial class ChunkGeneratorManager : Node
             Buffer.BlockCopy(data, 0, NoiseData, (data.Length * i), data.Length);
             i++;
         }
+        */
 
+        uint ImageByteSize = (uint)(4 * (GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE));
+        uint CutoffLayersSize = ImageByteSize * 3;
+        uint TerrainSize = (uint)(CutoffLayersSize * GameConstants.CHUNK_DATA_SIZE);
         byte[] cutoffbytes = new byte[CutoffLayersSize];
+        byte[] NoiseData = new byte[TerrainSize];
 
         Image cutoff = SurfaceCutoff.GetImage(66, 66, normalize: false);
         Image temperature = BiomeTemp.GetImage(66, 66, normalize: false);
@@ -285,9 +282,10 @@ public partial class ChunkGeneratorManager : Node
         Rid GenBuffer = rdFrame.GeneratorRenderDevice.StorageBufferCreate(TerrainSize, NoiseData);
         Rid ChunkBuffer = rdFrame.GeneratorRenderDevice.StorageBufferCreate((uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4);
 
-        byte[] DimensionBytes = new byte[sizeof(int) * 2];
-        Buffer.BlockCopy(new int[] { GameConstants.CHUNK_DATA_SIZE, 66 }, 0, DimensionBytes, 0, DimensionBytes.Length);
-        Rid ChunkDimensionalBuffer = rdFrame.GeneratorRenderDevice.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
+        byte[] DimensionBytes = new byte[32];
+        Buffer.BlockCopy(new float[] { GameConstants.CHUNK_DATA_SIZE, 33, 0, 0, pos.X, pos.Y, pos.Z, 0 }, 0, DimensionBytes, 0, 32);
+
+        Rid ChunkDimensionalBuffer = rdFrame.GeneratorRenderDevice.StorageBufferCreate((uint)DimensionBytes.Length, DimensionBytes);
 
         RDUniform CutoffUniform = new RDUniform();
         CutoffUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
@@ -324,13 +322,24 @@ public partial class ChunkGeneratorManager : Node
 
         rdFrame.GeneratorRenderDevice.ComputeListBindUniformSet(ComputeList, UniformSet, 0);
         rdFrame.GeneratorRenderDevice.ComputeListBindComputePipeline(ComputeList, pipelineRID);
-        rdFrame.GeneratorRenderDevice.ComputeListDispatch(ComputeList, 66, 66, 66);
+        rdFrame.GeneratorRenderDevice.ComputeListDispatch(ComputeList, 33, 33, 33);
 
         rdFrame.GeneratorRenderDevice.ComputeListEnd();
         rdFrame.GeneratorRenderDevice.Submit();
         rdFrame.GeneratorRenderDevice.Sync();
 
         byte[] chunkData = rdFrame.GeneratorRenderDevice.BufferGetData(ChunkBuffer);
+
+        byte[] output = new byte[64];
+        output = rdFrame.GeneratorRenderDevice.BufferGetData(CutoffBuffer, 0, (uint)output.Length * 64);
+        float[] floats = new float[16];
+        Buffer.BlockCopy(output, 0, floats, 0, 64);
+
+        foreach (float f in floats)
+        {
+            GD.Print($"{f}");
+        }
+        
 
         rdFrame.GeneratorRenderDevice.BufferClear(GenBuffer, 0, TerrainSize);
         rdFrame.GeneratorRenderDevice.BufferClear(CutoffBuffer, 0, CutoffLayersSize);
@@ -344,6 +353,19 @@ public partial class ChunkGeneratorManager : Node
         {
             GeneratedChunks[pos] = chunk;
         }*/
+
+        int blockCount = 0;
+        foreach (int block in chunk)
+        {
+            if (block == 0)
+                blockCount++;
+        }
+
+
+
+
+
+        //GD.Print($"getting this many zeros {blockCount} out of {66* 66* 66} blocks");
         rdFrame.GeneratorRenderDevice.FreeRid(UniformSet);
         rdFrame.GeneratorRenderDevice.FreeRid(pipelineRID);
         rdFrame.GeneratorRenderDevice.FreeRid(ChunkBuffer);

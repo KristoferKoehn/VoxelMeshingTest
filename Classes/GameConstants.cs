@@ -11,6 +11,6 @@ namespace VoxelMeshingTest.Classes
         public static uint BUFFER_SIZE = 786432 * 12 * 4;
         public static int SPAWN_RADIUS = 8;
         public static int DESPAWN_RADIUS = SPAWN_RADIUS + 1;
-        public static int CHUNK_THREADS = 2;
+        public static int CHUNK_THREADS = 1;
     }
 }

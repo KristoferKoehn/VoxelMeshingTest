@@ -25,52 +25,59 @@ layout(set = 0, binding = 2, std430) buffer chunkbuffer {
 } ChunkBuffer; 
 
 layout(set = 0, binding = 3, std430) buffer chunkdimensions{
-	int ChunkSize;
-	int WorkGroupSide;
+	float ChunkSize;
+	float WorkGroupSide;
 	vec2 padding;
 	vec4 ChunkCoordinate;
 } ChunkDimensions;
 
+// Hash function to generate pseudo-random gradients
+vec2 hash2(vec2 p, float seed) {
+    p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+    return -1.0 + 2.0 * fract(sin(p + seed) * 43758.5453123);
+}
+
+// 2D Perlin noise function
+float perlinNoise2D(vec2 p, float seed) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+
+    // Compute gradients at the four corners of the cell
+    vec2 g00 = hash2(i + vec2(0.0, 0.0), seed);
+    vec2 g10 = hash2(i + vec2(1.0, 0.0), seed);
+    vec2 g01 = hash2(i + vec2(0.0, 1.0), seed);
+    vec2 g11 = hash2(i + vec2(1.0, 1.0), seed);
+
+    // Compute dot products between gradient and position offset
+    float d00 = dot(g00, f - vec2(0.0, 0.0));
+    float d10 = dot(g10, f - vec2(1.0, 0.0));
+    float d01 = dot(g01, f - vec2(0.0, 1.0));
+    float d11 = dot(g11, f - vec2(1.0, 1.0));
+
+    // Smooth interpolation
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(d00, d10, u.x), mix(d01, d11, u.x), u.y);
+}
+
 void main () {
-	int WorkGroupDataLength = ChunkDimensions.ChunkSize / ChunkDimensions.WorkGroupSide;
+	int WorkGroupDataLength = 2;
 
 	int Gx = int(floor(gl_GlobalInvocationID.x));
 	int Gy = int(floor(gl_GlobalInvocationID.y));
 	int Gz = int(floor(gl_GlobalInvocationID.z));
 	
+	vec3 ChunkPosition = ChunkDimensions.ChunkCoordinate.xyz * 64.0 * 2000.0;
+	float seed = 5.0;
+	
 	for (int x = Gx * WorkGroupDataLength; x < (Gx + 1) * WorkGroupDataLength; x++) {
 		for (int y = Gy * WorkGroupDataLength; y < (Gy + 1) * WorkGroupDataLength; y++) {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
-			
-				if (y < 1) {
-					ChunkBuffer.chunk[x][y][z] = 0;
-					continue;
+				if ( CutoffBuffer.Layer1[0][x] == 0 || CutoffBuffer.Layer1[0][x] == -0) {
+					CutoffBuffer.Layer1[0][x] = perlinNoise2D(ChunkPosition.xz + vec2(x - 1, z - 1) * 2000.0, seed);
 				}
-			
-				if (CutoffBuffer.Layer2[z][x] > 0.5 && CutoffBuffer.Layer3[z][x] > 0.5) {
-					if(NoiseBuffer.Terrain1[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * CutoffBuffer.Layer2[z][x] * CutoffBuffer.Layer3[z][x] * 12) > y) {
-						ChunkBuffer.chunk[x][y][z] = 3;
-					} else {
-						ChunkBuffer.chunk[x][y][z] = 0;
-					}
-				} else if (CutoffBuffer.Layer2[z][x] > 0.5 && CutoffBuffer.Layer3[z][x] < 0.5) {
-					if(NoiseBuffer.Terrain1[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * 18) > y) {
-						ChunkBuffer.chunk[x][y][z] = 2;
-					} else {
-						ChunkBuffer.chunk[x][y][z] = 0;
-					}
-				} else if (CutoffBuffer.Layer2[z][x] > 0.5 && CutoffBuffer.Layer2[z][x] > 0.5) {
-					if(NoiseBuffer.Terrain3[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * 18) > y) {
-						ChunkBuffer.chunk[x][y][z] = 3;
-					} else {
-						ChunkBuffer.chunk[x][y][z] = 0;
-					}
-				}  else if (CutoffBuffer.Layer2[z][x] < 0.5 && CutoffBuffer.Layer3[z][x] > 0.5) {
-					if(NoiseBuffer.Terrain2[z][y][x] > 0.7 && (12.0 + CutoffBuffer.Layer1[z][x] * 18) > y) {
-						ChunkBuffer.chunk[x][y][z] = 4;
-					} else {
-						ChunkBuffer.chunk[x][y][z] = 0;
-					}
+				
+				if (perlinNoise2D(ChunkPosition.xz + vec2(x - 1, z - 1) * 2000.0, seed) * 20000000.0 + 2 > float(y)) {
+					ChunkBuffer.chunk[x][y][z] = 2;
 				} else {
 					ChunkBuffer.chunk[x][y][z] = 0;
 				}
