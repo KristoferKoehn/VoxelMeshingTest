@@ -118,7 +118,6 @@ public partial class ChunkSpawnManager : Node
         public RDUniform GreedyUniform;
     }
 
-
     void ChunkerThread(int threadID)
     {
         GD.Print($"thread {threadID} initializing");
@@ -311,7 +310,6 @@ public partial class ChunkSpawnManager : Node
 
         return bestPosition;
     }
-
 
     public Chunk GetChunk(Vector3I pos)
     {

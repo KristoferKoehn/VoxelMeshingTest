@@ -38,7 +38,7 @@ func _enter_tree():
 	_gravity = 0.0
 	var function = func(): 
 		_gravity = -30.0
-	get_tree().create_timer(2).timeout.connect(function)
+	get_tree().create_timer(5).timeout.connect(function)
 
 func _input(event):
 	if event.is_action_pressed("click"):

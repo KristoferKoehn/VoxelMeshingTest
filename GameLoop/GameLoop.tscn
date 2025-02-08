@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=19 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_874if"]
@@ -7,37 +7,6 @@
 [ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
 [ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
 [ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="9_i1jmx"]
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_upyia"]
-noise_type = 3
-frequency = 0.006
-fractal_type = 2
-fractal_octaves = 2
-metadata/_preview_in_3d_space_ = true
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_wqx2m"]
-frequency = 0.0512
-fractal_type = 3
-fractal_octaves = 1
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_hju6s"]
-noise_type = 5
-frequency = 0.1206
-fractal_octaves = 1
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_7gieq"]
-noise_type = 2
-frequency = 0.0107
-fractal_type = 2
-fractal_octaves = 1
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_f85dx"]
-frequency = 0.0073
-fractal_type = 2
-fractal_octaves = 1
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_gywmo"]
-frequency = 0.0123
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6ropx"]
 render_priority = 0
@@ -109,12 +78,6 @@ material = SubResource("ShaderMaterial_vse3g")
 
 [node name="GameLoop" type="Node3D" node_paths=PackedStringArray("RayCast")]
 script = ExtResource("1_aic3m")
-Terrain1 = SubResource("FastNoiseLite_upyia")
-Terrain2 = SubResource("FastNoiseLite_wqx2m")
-Terrain3 = SubResource("FastNoiseLite_hju6s")
-SurfaceCutoff = SubResource("FastNoiseLite_7gieq")
-TemperatureValues = SubResource("FastNoiseLite_f85dx")
-GenQualityValue = SubResource("FastNoiseLite_gywmo")
 RayCast = NodePath("Camera3D/RayCast3D")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]

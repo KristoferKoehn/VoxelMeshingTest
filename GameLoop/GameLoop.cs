@@ -4,19 +4,6 @@ using VoxelMeshingTest.Classes;
 
 public partial class GameLoop : Node3D
 {
-    [Export]
-    public FastNoiseLite Terrain1 { get; set; }
-    [Export]
-    public FastNoiseLite Terrain2 { get; set; }
-    [Export]
-    public FastNoiseLite Terrain3 { get; set; }
-    [Export]
-    public FastNoiseLite SurfaceCutoff { get; set; }
-    [Export]
-    public FastNoiseLite TemperatureValues { get; set; }
-    [Export]
-    public FastNoiseLite GenQualityValue { get; set; }
-
 
     [Export]
     RayCast3D RayCast { get; set; }
@@ -26,23 +13,10 @@ public partial class GameLoop : Node3D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-
         RNGManager.Instance();
         ChunkGeneratorManager.Instance();
-
-        ChunkGeneratorManager.Terrain1 = Terrain1;
-        ChunkGeneratorManager.Terrain2 = Terrain2;
-        ChunkGeneratorManager.Terrain3 = Terrain3;
-        ChunkGeneratorManager.SurfaceCutoff = SurfaceCutoff;
-        ChunkGeneratorManager.BiomeTemp = TemperatureValues;
-        ChunkGeneratorManager.BiomeQual = GenQualityValue;
         ChunkMeshManager.Instance();
-        //ChunkGeneratorManager.Instance().PreGenerate();
         ChunkSpawnManager.Instance();
-        //ChunkSpawnManager.Instance().GenerateWorld();
-
-        //ChunkSpawnManager.Instance().HandleChunkLoading();
-
     }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.

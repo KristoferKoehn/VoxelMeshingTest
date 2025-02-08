@@ -6,20 +6,6 @@ const int CHUNK_DATA_LENGTH = 64 + 2;
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-
-layout(set = 0, binding = 0, std430) buffer cutoffbuffer {
-	float Layer1[CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH];
-	float Layer2[CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH];
-	float Layer3[CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH];
-} CutoffBuffer;
-
-
-layout(set = 0, binding = 1, std430) buffer noisebuffer {
-	float Terrain1[CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH];
-	float Terrain2[CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH];
-	float Terrain3[CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH];
-} NoiseBuffer;
-
 layout(set = 0, binding = 2, std430) buffer chunkbuffer {
 	int chunk[CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH];
 } ChunkBuffer; 
@@ -66,17 +52,14 @@ void main () {
 	int Gy = int(floor(gl_GlobalInvocationID.y));
 	int Gz = int(floor(gl_GlobalInvocationID.z));
 	
-	vec3 ChunkPosition = ChunkDimensions.ChunkCoordinate.xyz * 64.0 * 2000.0;
+	vec3 ChunkPosition = ChunkDimensions.ChunkCoordinate.xyz;
 	float seed = 5.0;
 	
 	for (int x = Gx * WorkGroupDataLength; x < (Gx + 1) * WorkGroupDataLength; x++) {
 		for (int y = Gy * WorkGroupDataLength; y < (Gy + 1) * WorkGroupDataLength; y++) {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
-				if ( CutoffBuffer.Layer1[0][x] == 0 || CutoffBuffer.Layer1[0][x] == -0) {
-					CutoffBuffer.Layer1[0][x] = perlinNoise2D(ChunkPosition.xz + vec2(x - 1, z - 1) * 2000.0, seed);
-				}
 				
-				if (perlinNoise2D(ChunkPosition.xz + vec2(x - 1, z - 1) * 2000.0, seed) * 20000000.0 + 2 > float(y)) {
+				if (perlinNoise2D(ChunkPosition.xz + vec2(float(x - 1) / 64.0, float(z - 1) / 64.0), seed) * 33 + 33 > float(y)) {
 					ChunkBuffer.chunk[x][y][z] = 2;
 				} else {
 					ChunkBuffer.chunk[x][y][z] = 0;
