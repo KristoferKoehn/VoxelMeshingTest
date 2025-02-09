@@ -33,7 +33,6 @@ public partial class VoxelMaker : Node3D
         ch.ChunkData = data;
 		AddChild(ch);
 		ch.Generated = true;
-		ch.Remesh();
 		RefreshList();
 	}
 
@@ -56,7 +55,7 @@ public partial class VoxelMaker : Node3D
 	public void RefreshBlock()
 	{
 		ChunkMeshManager.Instance().InitializeVoxelData();
-        ch.Remesh();
+        ch.Stale = true;
 	}
 
 	public void RefreshList()

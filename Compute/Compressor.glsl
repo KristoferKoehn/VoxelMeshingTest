@@ -7,11 +7,6 @@ const int CHUNK_SIZE = 64;
 const int MAX_BUFFER_LENGTH = 786432;
 const float AOVAL = 0.6;
 
-const int NorthWest = 2;
-const int NorthEast = 3;
-const int SouthEast = 0;
-const int SouthWest = 1;
-
 //256 bytes
 struct QuadIn {
 	//48bytes
@@ -59,31 +54,43 @@ layout(set = 0, binding = 0, std430) buffer vertexbuffer {
 	
 } VertexBuffer;
 
-layout(set = 0, binding = 5, std430) buffer greedybuffer {
-	int data[CHUNK_SIZE * 6][CHUNK_SIZE][CHUNK_SIZE];
-	
-	float vertices[MAX_BUFFER_LENGTH];			//0
-	float normals[MAX_BUFFER_LENGTH];			//1
-	float UV[MAX_BUFFER_LENGTH];				//2
-	float colors[MAX_BUFFER_LENGTH];			//3
-	float custom0[MAX_BUFFER_LENGTH];			//4
-	float CollisionVertices[MAX_BUFFER_LENGTH];	//5
-	float EmissiveColor[MAX_BUFFER_LENGTH];		//6
-	int indices[MAX_BUFFER_LENGTH];				//7
-	//expansion testing
-	float data1[MAX_BUFFER_LENGTH];				//8
-	float data2[MAX_BUFFER_LENGTH];				//9
-	float data3[MAX_BUFFER_LENGTH];				//10
-	float data4[MAX_BUFFER_LENGTH];				//11
-	
-} GreedyBuffer;
-
 layout(set = 0, binding = 1, std430) buffer quadcount {
 	int count;
 	int greedycount;
 	int test;
 	int padding;
 } QuadCount;
+
+layout(set = 0, binding = 6, std430) buffer finalbuffer {
+	float vertices[MAX_BUFFER_LENGTH];			//0 12 floats
+	float normals[MAX_BUFFER_LENGTH];			//1 12 floats
+	float UV[MAX_BUFFER_LENGTH];				//2 8 floats
+	float colors[MAX_BUFFER_LENGTH];			//3 16 floats
+	float custom0[MAX_BUFFER_LENGTH];			//4 16 floats
+	float CollisionVertices[MAX_BUFFER_LENGTH];	//5 18 floats
+	float EmissiveColor[MAX_BUFFER_LENGTH];		//6 16 floats
+	int indices[MAX_BUFFER_LENGTH];				//7 6 ints
+	//expansion testing
+	float data1[MAX_BUFFER_LENGTH];				//8
+	float data2[MAX_BUFFER_LENGTH];				//9
+	float data3[MAX_BUFFER_LENGTH];				//10
+	float data4[MAX_BUFFER_LENGTH];				//11
+} FinalBuffer;
+
+
+/*
+
+vertices = 12
+vertices * count = normals_offset
+normals = 12
+normals * count + normals_offset = uv_offset
+uvs = 8
+uvs * count + normals_offset + uv_offset = custom0_offset
+collision * count + custom0_offset + normals_offset + uv_offset = collision_offset
+emissive = 16
+emissive * count + collision_offset + custom0_offset + normals_offset + uv_offset = index_offset
+
+*/
 
 layout(set = 0, binding = 2, std430) buffer chunkdata{
 	int data[CHUNK_SIZE + 2][CHUNK_SIZE + 2][CHUNK_SIZE + 2];
@@ -94,71 +101,7 @@ layout(set = 0, binding = 3, std430) buffer chunkdimensions{
 	int WorkGroupSide;
 } ChunkDimensions;
 
-layout(set = 0, binding = 4, std430) buffer voxeldata{
-	QuadIn QuadInput[4000];
-	Face FaceData[4000];
-} VoxelData;
-
-vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
-	vert[0] = vert[0] + pos.xyzx;
-	vert[1] = vert[1] + pos.yzxy;
-	vert[2] = vert[2] + pos.zxyz;
-	return vert;
-}
-
-int GetBlockType(int IndexTicket) {
-	return int(GreedyBuffer.data1[IndexTicket]);
-}
-
-void NorthStretch(int GreedyIndex, vec3 forward) {
-	int rIndex = GreedyIndex * 12;
-	
-	/*
-	GreedyBuffer.vertices[rIndex + 0 * 3 + 0] = GreedyBuffer.vertices[rIndex + 0 * 3 + 0] + 1;
-	GreedyBuffer.vertices[rIndex + 0 * 3 + 1] = GreedyBuffer.vertices[rIndex + 0 * 3 + 1] + 1;
-	GreedyBuffer.vertices[rIndex + 0 * 3 + 2] = GreedyBuffer.vertices[rIndex + 0 * 3 + 2] + 1;
-	
-	
-	GreedyBuffer.vertices[rIndex + 1 * 3 + 0] = GreedyBuffer.vertices[rIndex + 1 * 3 + 0] + 1;
-	GreedyBuffer.vertices[rIndex + 1 * 3 + 1] = GreedyBuffer.vertices[rIndex + 1 * 3 + 1] + 1;
-	GreedyBuffer.vertices[rIndex + 1 * 3 + 2] = GreedyBuffer.vertices[rIndex + 1 * 3 + 2] + 1;
-	*/
-	
-	GreedyBuffer.vertices[rIndex + 2 * 3 + 0] = GreedyBuffer.vertices[rIndex + 2 * 3 + 0] + forward.x;
-	GreedyBuffer.vertices[rIndex + 2 * 3 + 1] = GreedyBuffer.vertices[rIndex + 2 * 3 + 1] + forward.y;
-	GreedyBuffer.vertices[rIndex + 2 * 3 + 2] = GreedyBuffer.vertices[rIndex + 2 * 3 + 2] + forward.z;
-	
-	GreedyBuffer.vertices[rIndex + 3 * 3 + 0] = GreedyBuffer.vertices[rIndex + 3 * 3 + 0] + forward.x;
-	GreedyBuffer.vertices[rIndex + 3 * 3 + 1] = GreedyBuffer.vertices[rIndex + 3 * 3 + 1] + forward.y;
-	GreedyBuffer.vertices[rIndex + 3 * 3 + 2] = GreedyBuffer.vertices[rIndex + 3 * 3 + 2] + forward.z;
-	
-}
-
-void WestStretch(int GreedyIndex, vec3 sideways) {
-	int rIndex = GreedyIndex * 12;
-	
-	/*
-	GreedyBuffer.vertices[rIndex + 0 * 3 + 0] = GreedyBuffer.vertices[rIndex + 0 * 3 + 0] + 1;
-	GreedyBuffer.vertices[rIndex + 0 * 3 + 1] = GreedyBuffer.vertices[rIndex + 0 * 3 + 1] + 1;
-	GreedyBuffer.vertices[rIndex + 0 * 3 + 2] = GreedyBuffer.vertices[rIndex + 0 * 3 + 2] + 1;
-	*/
-	
-	GreedyBuffer.vertices[rIndex + 1 * 3 + 0] = GreedyBuffer.vertices[rIndex + 1 * 3 + 0] + sideways.x;
-	GreedyBuffer.vertices[rIndex + 1 * 3 + 1] = GreedyBuffer.vertices[rIndex + 1 * 3 + 1] + sideways.y;
-	GreedyBuffer.vertices[rIndex + 1 * 3 + 2] = GreedyBuffer.vertices[rIndex + 1 * 3 + 2] + sideways.z;
-	
-	GreedyBuffer.vertices[rIndex + 2 * 3 + 0] = GreedyBuffer.vertices[rIndex + 2 * 3 + 0] + sideways.x;
-	GreedyBuffer.vertices[rIndex + 2 * 3 + 1] = GreedyBuffer.vertices[rIndex + 2 * 3 + 1] + sideways.y;
-	GreedyBuffer.vertices[rIndex + 2 * 3 + 2] = GreedyBuffer.vertices[rIndex + 2 * 3 + 2] + sideways.z;
-	
-	/*
-	GreedyBuffer.vertices[rIndex + 3 * 3 + 0] = GreedyBuffer.vertices[rIndex + 3 * 3 + 0] + sideways.x;
-	GreedyBuffer.vertices[rIndex + 3 * 3 + 1] = GreedyBuffer.vertices[rIndex + 3 * 3 + 1] + sideways.y;
-	GreedyBuffer.vertices[rIndex + 3 * 3 + 2] = GreedyBuffer.vertices[rIndex + 3 * 3 + 2] + sideways.z;
-	*/
-
-}
-
+/*
 void GreedyTransfer(int greedyTicket) {
 	if (greedyTicket == 0) return;
 
@@ -241,143 +184,9 @@ void GreedyTransfer(int greedyTicket) {
 	VertexBuffer.indices[IndexTicket * 6 + 3] = IndexTicket * 4 + 0;
 	VertexBuffer.indices[IndexTicket * 6 + 4] = IndexTicket * 4 + 2;
 	VertexBuffer.indices[IndexTicket * 6 + 5] = IndexTicket * 4 + 3;
-}
+} */
 
 void main () {
-	int GreedyIndex = int(gl_GlobalInvocationID.x);
 	
-	int face = (GreedyIndex) / 64;
-
-	//the idea is to scan along the long-axis, but rotate the direction of the scan to line up with the co-planes.
-	//from 0-383, such that the position is viewed as 64-cubed local, scanning along whichever useful axis, but the
-	//'real position' within the array is adjusted as such: pos.x = pos.x + face * 64 after the rotation.
-	
-	//this switch case will assign the 'forward' advance and the 'sideways' advance direction OR the rotation frame for the face.
-	
-	//consider a stack of 2d grids, where we walk from the top left to the bottom right, advancing down and to the right.
-	//we advance down as much as we can, then to the right. Once we cannot advance, we transfer the greedy data to the 
-	//vertex buffer, and continue onward.
-	
-	ivec3 StartPosition = ivec3(0);
-	ivec3 ForwardDirection = ivec3(0);
-	ivec3 SideDirection = ivec3(0);
-	//up, north, east, south, west, down
-	switch (face) {
-		case 0:
-			
-			//up case
-			StartPosition = ivec3(0, GreedyIndex, 0);
-			ForwardDirection = ivec3(0, 0, 1);
-			SideDirection = ivec3(1, 0, 0);	
-			break;
-		case 1:
-		
-			//north case
-			StartPosition = ivec3((64 * 1), 0, GreedyIndex - (64 * 1));
-			ForwardDirection = ivec3(0, 1, 0);
-			SideDirection = ivec3(1, 0, 0);
-			break;
-		case 2:
-		
-			//east case
-			StartPosition = ivec3(GreedyIndex, 0, 63);
-			ForwardDirection = ivec3(0, 1, 0);
-			SideDirection = ivec3(0, 0, -1);
-			break;
-		case 3:
-		
-			//south case
-			StartPosition = ivec3((64 * 4 - 1), 0, GreedyIndex - (64 * 3));
-			ForwardDirection = ivec3(0, 1, 0);
-			SideDirection = ivec3(-1, 0, 0);
-			break;
-		case 4:
-			
-			//west case
-			StartPosition = ivec3(GreedyIndex, 0, 0);
-			ForwardDirection = ivec3(0, 1, 0);
-			SideDirection = ivec3(0, 0, 1);
-			break;
-		case 5:
-			
-			//down case
-			StartPosition = ivec3((64 * 6 - 1), GreedyIndex - (64 * 5), 0);
-			ForwardDirection = ivec3(0, 0, 1);
-			SideDirection = ivec3(-1, 0, 0);	
-			break;
-		default:
-			return;
-	}
-
-	ivec3 CurrentSidewaysPosition = StartPosition;
-	bool visited[CHUNK_SIZE][CHUNK_SIZE];
-	for (int i = 0; i < CHUNK_SIZE; i++) {
-		for (int j = 0; j < CHUNK_SIZE; j++) {
-			visited[i][j] = false;
-		}
-	}
-	
-	int StretchyFace = -1;
-	for (int i = 0; i < CHUNK_SIZE; i++) {
-		ivec3 CurrentPos = CurrentSidewaysPosition;
-		int height = 1;
-		for (int j = 0; j < CHUNK_SIZE; j++) {
-			if (GetBlockType(GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z]) == 0  || visited[i][j]) {
-				CurrentPos = CurrentPos + ForwardDirection;
-				visited[i][j] = true;
-				continue;
-			}
-		
-			if (StretchyFace == -1) {
-				StretchyFace = GreedyBuffer.data[CurrentPos.x][CurrentPos.y][CurrentPos.z];
-				height = 1;
-			}
-			
-			if(GetBlockType(StretchyFace) == GetBlockType(GreedyBuffer.data[CurrentPos.x + ForwardDirection.x][CurrentPos.y + ForwardDirection.y][CurrentPos.z + ForwardDirection.z]) && j != CHUNK_SIZE -1 && !visited[i][j+1]) {
-				NorthStretch(StretchyFace, ForwardDirection);
-				height++;
-				visited[i][j] = true;
-			} else {
-				visited[i][j] = true;
-				bool expanding = true;
-				ivec3 probe_pos = CurrentPos;
-				int width = 1;
-				if (i != CHUNK_SIZE -1) {
-					while (expanding && i + width < CHUNK_SIZE) {
-						//loop over side adjacency
-						
-						probe_pos = probe_pos + SideDirection;
-						for(int k = 0; k < height; k++) {
-							if (GetBlockType(StretchyFace) != GetBlockType(GreedyBuffer.data[probe_pos.x - ForwardDirection.x * k][probe_pos.y - ForwardDirection.y * k][probe_pos.z - ForwardDirection.z * k]) || visited[i + width][j - k]) {
-								expanding = false;
-							}
-						}
-						
-						if (!expanding) continue;
-						
-						WestStretch(StretchyFace, SideDirection);
-						
-						for(int k = 0; k < height; k++) {
-							visited[i+width][j - k] = true;
-						}
-						width++;
-					}
-				}
-				GreedyTransfer(StretchyFace);
-				StretchyFace = -1;
-				height = 1;
-			}
-			
-			CurrentPos = CurrentPos + ForwardDirection;
-		}
-		
-		if (StretchyFace != -1) {
-			GreedyTransfer(StretchyFace);
-			StretchyFace = -1;
-			height = 1;
-		}
-		CurrentSidewaysPosition = CurrentSidewaysPosition + SideDirection;
-	}
-
 }
 

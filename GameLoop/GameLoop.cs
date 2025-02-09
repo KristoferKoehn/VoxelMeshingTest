@@ -81,7 +81,6 @@ public partial class GameLoop : Node3D
                     }
 
                     ch.QueueDataChange(block + new Vector3I(1,1,1), 0);
-                    ch.Regen = true;
                 }
             }
         }
@@ -101,14 +100,14 @@ public partial class GameLoop : Node3D
                         Chunk adjacent = ChunkSpawnManager.Instance().GetChunk(ch.ChunkCoordinates - new Vector3I(-1, 0, 0));
                         if (adjacent != null)
                         {
-                            adjacent.QueueDataChange(block + new Vector3I(1, 1, 1), 1);
+                            adjacent.QueueDataChange(block + new Vector3I(1, 1, 1), 2);
                             GD.Print("did a chunk transfer remeshing");
                         }
                     }
 
                     //ch.ChunkData[(block.Z + 1) + (block.Y + 1) * GameConstants.CHUNK_DATA_SIZE + (block.X + 1) * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE] = 1;
-                    ch.QueueDataChange(block + new Vector3I(1, 1, 1), 1);
-                    ch.Regen = true;
+                    ch.QueueDataChange(block + new Vector3I(1, 1, 1), 2);
+
                     //ch.Remesh();
                 }
             }

@@ -210,7 +210,7 @@ public partial class ChunkMeshManager : Node
 
     public Chunk GenerateChunkMesh(int[,,] Data, Chunk ch, ChunkSpawnManager.RenderDeviceFrame RDFrame)
     {
-
+        Stopwatch sw = Stopwatch.StartNew();
         long ComputeList = RDFrame.MesherRenderDevice.ComputeListBegin();
         //compute uniform
         byte[] inputBytes = new byte[Data.Length * sizeof(int)];
@@ -259,6 +259,9 @@ public partial class ChunkMeshManager : Node
 
         Rid UniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(Uniforms, RDFrame.MesherShaderRID, 0);
 
+
+        float Setupsw = sw.ElapsedMilliseconds;
+
         RDFrame.MesherRenderDevice.ComputeListBindUniformSet(ComputeList, UniformSet, 0);
         RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(ComputeList, pipelineRID);
         RDFrame.MesherRenderDevice.ComputeListDispatch(ComputeList, (uint)WorkGroupSide, (uint)WorkGroupSide, (uint)WorkGroupSide);
@@ -266,29 +269,28 @@ public partial class ChunkMeshManager : Node
         RDFrame.MesherRenderDevice.Submit();
         RDFrame.MesherRenderDevice.Sync();
 
-        byte[] countBytes = RDFrame.MesherRenderDevice.BufferGetData(QuadCountBuffer);
-        int[] Count = new int[4];
-        Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 4);
+        float initmeshingsw = sw.ElapsedMilliseconds;
 
-        if (Count[1] != 0)
-        {
+        int[] Count = new int[4];
+
 
             //GD.Print($"start greedy pipeline: {sw.ElapsedMilliseconds}");
-            long GreedyComputeList = RDFrame.MesherRenderDevice.ComputeListBegin();
-            Rid GreedyPipelineRID = RDFrame.MesherRenderDevice.ComputePipelineCreate(RDFrame.GreedyShaderRID);
-            Rid GreedyUniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(Uniforms, RDFrame.GreedyShaderRID, 0);
-            RDFrame.MesherRenderDevice.ComputeListBindUniformSet(GreedyComputeList, GreedyUniformSet, 0);
-            RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(GreedyComputeList, GreedyPipelineRID);
-            RDFrame.MesherRenderDevice.ComputeListDispatch(GreedyComputeList, 64 * 6, 1, 1);
-            RDFrame.MesherRenderDevice.ComputeListEnd();
-            RDFrame.MesherRenderDevice.Submit();
-            RDFrame.MesherRenderDevice.Sync();
+        long GreedyComputeList = RDFrame.MesherRenderDevice.ComputeListBegin();
+        Rid GreedyPipelineRID = RDFrame.MesherRenderDevice.ComputePipelineCreate(RDFrame.GreedyShaderRID);
+        Rid GreedyUniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(Uniforms, RDFrame.GreedyShaderRID, 0);
+        RDFrame.MesherRenderDevice.ComputeListBindUniformSet(GreedyComputeList, GreedyUniformSet, 0);
+        RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(GreedyComputeList, GreedyPipelineRID);
+        RDFrame.MesherRenderDevice.ComputeListDispatch(GreedyComputeList, 64 * 6, 1, 1);
+        RDFrame.MesherRenderDevice.ComputeListEnd();
+        RDFrame.MesherRenderDevice.Submit();
+        RDFrame.MesherRenderDevice.Sync();
 
-            countBytes = RDFrame.MesherRenderDevice.BufferGetData(QuadCountBuffer);
-            Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 4);
-            //GD.Print($"end greedy pipeline: {sw.ElapsedMilliseconds}");
+        //GD.Print($"end greedy pipeline: {sw.ElapsedMilliseconds}");
 
-        }
+
+        float greedysw = sw.ElapsedMilliseconds;
+        byte[] countBytes = RDFrame.MesherRenderDevice.BufferGetData(QuadCountBuffer);
+        Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 4);
 
         if (Count[0] == 0)
         {
@@ -303,10 +305,15 @@ public partial class ChunkMeshManager : Node
 
         byte[] VBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 0, (uint)Count[0] * 48);
         byte[] NBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 1, (uint)Count[0] * 48);
-        //byte[] UVBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 2, (uint)Count[0] * 32);
         byte[] CBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 3, (uint)Count[0] * 64);
         byte[] ColBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 5, (uint)Count[0] * 72);
         byte[] IBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 7, (uint)Count[0] * (4 * 6));
+
+
+
+        //byte[] UVBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 2, (uint)Count[0] * 32);
+        float datapullingsw = sw.ElapsedMilliseconds;
+
 
         Godot.Collections.Array ar = new Godot.Collections.Array();
         ar.Resize((int)Mesh.ArrayType.Max);
@@ -322,13 +329,16 @@ public partial class ChunkMeshManager : Node
         //Vector2[] UVs = BytesToVec2(UVBuffer, Count[0]);
         Color[] Colors = BytesToColor(CBuffer, Count[0]);
 
+
+        float dataconversionsw = sw.ElapsedMilliseconds;
+
         /*
-        GD.Print($"Chunk size: {Count[0]}");
+        GD.Print($"mesh count: {Count[0]}");
         GD.Print($"Greedy size: {Count[1]}");
         GD.Print($"full test size: {Count[2]}");
         GD.Print($"Greeded(pad) size: {Count[3]}");
-        */
-
+        GD.Print($"setup time: {Setupsw}, initial meshing: {initmeshingsw}, greedy time: {greedysw}, data pulling time: {datapullingsw}, data conversion time: {dataconversionsw}"); */
+        
         int[] Indices = new int[Count[0] * 6];
         Buffer.BlockCopy(IBuffer, 0, Indices, 0, Indices.Length * 4);
 

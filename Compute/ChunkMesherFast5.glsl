@@ -5,7 +5,7 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 const int CHUNK_SIZE = 64;
 const int MAX_BUFFER_LENGTH = 786432;
-const float AOVAL = 0.3;
+const float AOVAL = 0.7;
 
 const int NorthWest = 2;
 const int NorthEast = 3;
@@ -527,92 +527,72 @@ void AODownFace(int index, vec3 voxelPos, bool greedy) {
 	
 	vec3 targpos = voxelPos + vec3(0, -1, 0);
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) { //west -1, 0, 0
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);
-			AOGreedyDimmer(index, SouthWest);
-		} else {
-			AODimmer(index, NorthWest);
-			AODimmer(index, SouthWest);
-		}
 		Northwest = true;
 		Southwest = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) { //north 0, 0, 1
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);
-			AOGreedyDimmer(index, NorthEast);
-		} else {
-			AODimmer(index, NorthWest);
-			AODimmer(index, NorthEast);
-		}
 		Northwest = true;
 		Northeast = true;
 	}
 	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthEast);
-			AOGreedyDimmer(index, SouthEast);	
-		} else {
-			AODimmer(index, NorthEast);
-			AODimmer(index, SouthEast);		
-		}
-
 		Northeast = true;
 		Southeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) - 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, SouthEast);
-			AOGreedyDimmer(index, SouthWest);		
-		} else {
-			AODimmer(index, SouthEast);
-			AODimmer(index, SouthWest);		
-		}
 		Southeast = true;
 		Southwest = true;
 	}
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z) + 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);	
-		} else {
-			AODimmer(index, NorthWest);
-		}
 		Northwest = true;
 	}
 	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z) - 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, SouthEast);	
-		} else {
-			AODimmer(index, SouthEast);
-		}
 		Southeast = true;
 	}
 	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z) + 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthEast);	
-		} else {
-			AODimmer(index, NorthEast);
-		}
 		Northeast = true;
 	}
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z) - 1] != 0) {
+		Southwest = true;
+	}
+	
+	if (Southwest) {
 		if (greedy) {
 			AOGreedyDimmer(index, SouthWest);	
 		} else {
 			AODimmer(index, SouthWest);
 		}
-		Southwest = true;
+	}
+	if (Southeast) {
+		if (greedy) {
+			AOGreedyDimmer(index, SouthEast);	
+		} else {
+			AODimmer(index, SouthEast);
+		}
+	}
+	if (Northeast) {
+		if (greedy) {
+			AOGreedyDimmer(index, NorthEast);	
+		} else {
+			AODimmer(index, NorthEast);
+		}
+	}
+	if (Northwest) {
+		if (greedy) {
+			AOGreedyDimmer(index, NorthWest);	
+		} else {
+			AODimmer(index, NorthWest);
+		}
 	}
 	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
-		if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
-			if (greedy) {
-				FlipGreedyFace(index);
-			} else {
-				FlipFace(index);
-			}
+		if (greedy) {
+			FlipGreedyFace(index);
+			GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + 16384 * 2;
+		} else {
+			FlipFace(index);
 		}
 	}
+	
 	
 	if (greedy) {
 		GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + int(Southwest) * 2048 + int(Northeast) * 4096 + int(Southeast) * 8192 + int(Northwest) * 16384;
@@ -628,86 +608,67 @@ void AONorthFace(int index, vec3 voxelPos, bool greedy) {
 	
 	vec3 targpos = voxelPos + vec3(0, 0, -1);
 	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) { //1, 0, 0
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);
-			AOGreedyDimmer(index, SouthWest);
-		} else {
-			AODimmer(index, NorthWest);
-			AODimmer(index, SouthWest);
-		}
 		Northwest = true;
 		Southwest = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) { //0, 1, 0
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);
-			AOGreedyDimmer(index, NorthEast);
-		} else {
-			AODimmer(index, NorthWest);
-			AODimmer(index, NorthEast);
-		}
 		Northwest = true;
 		Northeast = true;
 	}
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthEast);
-			AOGreedyDimmer(index, SouthEast);	
-		} else {
-			AODimmer(index, NorthEast);
-			AODimmer(index, SouthEast);		
-		}
 		Northeast = true;
 		Southeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, SouthEast);
-			AOGreedyDimmer(index, SouthWest);		
-		} else {
-			AODimmer(index, SouthEast);
-			AODimmer(index, SouthWest);		
-		}
 		Southeast = true;
 		Southwest = true;
 	}
 	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y) + 1][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);	
-		} else {
-			AODimmer(index, NorthWest);
-		}
 		Northwest = true;
 	}
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)- 1][int(targpos.z) ] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, SouthEast);	
-		} else {
-			AODimmer(index, SouthEast);
-		}
 		Southeast = true;
 	}
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y) + 1][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthEast);	
-		} else {
-			AODimmer(index, NorthEast);
-		}
 		Northeast = true;
 	}
 	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y) - 1][int(targpos.z)] != 0) {
+		Southwest = true;
+	} 
+	
+	if (Southwest) {
 		if (greedy) {
 			AOGreedyDimmer(index, SouthWest);	
 		} else {
 			AODimmer(index, SouthWest);
 		}
-		Southwest = true;
-	} 
+	}
+	if (Southeast) {
+		if (greedy) {
+			AOGreedyDimmer(index, SouthEast);	
+		} else {
+			AODimmer(index, SouthEast);
+		}
+	}
+	if (Northeast) {
+		if (greedy) {
+			AOGreedyDimmer(index, NorthEast);	
+		} else {
+			AODimmer(index, NorthEast);
+		}
+	}
+	if (Northwest) {
+		if (greedy) {
+			AOGreedyDimmer(index, NorthWest);	
+		} else {
+			AODimmer(index, NorthWest);
+		}
+	}
 	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
 		if (greedy) {
 			FlipGreedyFace(index);
-			GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + 16384 * 2;//extra masking
+			GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + 16384 * 2;
 		} else {
 			FlipFace(index);
 		}
@@ -726,85 +687,67 @@ void AOEastFace(int index, vec3 voxelPos, bool greedy) {
 	
 	vec3 targpos = voxelPos + vec3(-1, 0, 0);
 	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) - 1] != 0) { // 0, 0, -1
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);
-			AOGreedyDimmer(index, SouthWest);
-		} else {
-			AODimmer(index, NorthWest);
-			AODimmer(index, SouthWest);
-		}
 		Northwest = true;
 		Southwest = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) { // 0, 1, 0
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);
-			AOGreedyDimmer(index, NorthEast);
-		} else {
-			AODimmer(index, NorthWest);
-			AODimmer(index, NorthEast);
-		}
 		Northwest = true;
 		Northeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthEast);
-			AOGreedyDimmer(index, SouthEast);	
-		} else {
-			AODimmer(index, NorthEast);
-			AODimmer(index, SouthEast);		
-		}
 		Northeast = true;
 		Southeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, SouthEast);
-			AOGreedyDimmer(index, SouthWest);		
-		} else {
-			AODimmer(index, SouthEast);
-			AODimmer(index, SouthWest);		
-		}
 		Southeast = true;
 		Southwest = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z) - 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);	
-		} else {
-			AODimmer(index, NorthWest);
-		}
 		Northwest = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y)- 1][int(targpos.z) + 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, SouthEast);	
-		} else {
-			AODimmer(index, SouthEast);
-		}
 		Southeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z) + 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthEast);	
-		} else {
-			AODimmer(index, NorthEast);
-		}
 		Northeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z) - 1] != 0) {
+		Southwest = true;
+	}
+	
+	if (Southwest) {
 		if (greedy) {
 			AOGreedyDimmer(index, SouthWest);	
 		} else {
 			AODimmer(index, SouthWest);
 		}
-		Southwest = true;
+	}
+	if (Southeast) {
+		if (greedy) {
+			AOGreedyDimmer(index, SouthEast);	
+		} else {
+			AODimmer(index, SouthEast);
+		}
+	}
+	if (Northeast) {
+		if (greedy) {
+			AOGreedyDimmer(index, NorthEast);	
+		} else {
+			AODimmer(index, NorthEast);
+		}
+	}
+	if (Northwest) {
+		if (greedy) {
+			AOGreedyDimmer(index, NorthWest);	
+		} else {
+			AODimmer(index, NorthWest);
+		}
 	}
 	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
 		if (greedy) {
 			FlipGreedyFace(index);
+			GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + 16384 * 2;
 		} else {
 			FlipFace(index);
 		}
@@ -823,89 +766,72 @@ void AOSouthFace(int index, vec3 voxelPos, bool greedy) {
 	
 	vec3 targpos = voxelPos + vec3(0, 0, 1);
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y)][int(targpos.z)] != 0) { //-1, 0, 0
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);
-			AOGreedyDimmer(index, SouthWest);
-		} else {
-			AODimmer(index, NorthWest);
-			AODimmer(index, SouthWest);
-		}
 		Northwest = true;
 		Southwest = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) { //0, 1, 0
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);
-			AOGreedyDimmer(index, NorthEast);
-		} else {
-			AODimmer(index, NorthWest);
-			AODimmer(index, NorthEast);
-		}
 		Northwest = true;
 		Northeast = true;
 	}
 	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthEast);
-			AOGreedyDimmer(index, SouthEast);	
-		} else {
-			AODimmer(index, NorthEast);
-			AODimmer(index, SouthEast);		
-		}
 		Northeast = true;
 		Southeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, SouthEast);
-			AOGreedyDimmer(index, SouthWest);		
-		} else {
-			AODimmer(index, SouthEast);
-			AODimmer(index, SouthWest);		
-		}
 		Southeast = true;
 		Southwest = true;
 	}
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y) + 1][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);	
-		} else {
-			AODimmer(index, NorthWest);
-		}
 		Northwest = true;
 	}
 	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y)- 1][int(targpos.z) ] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, SouthEast);	
-		} else {
-			AODimmer(index, SouthEast);
-		}
 		Southeast = true;
 	}
 	if (ChunkData.data[int(targpos.x) + 1][int(targpos.y) + 1][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthEast);	
-		} else {
-			AODimmer(index, NorthEast);
-		}
 		Northeast = true;
 	}
 	if (ChunkData.data[int(targpos.x) - 1][int(targpos.y) - 1][int(targpos.z)] != 0) {
+		Southwest = true;
+	}
+	
+	if (Southwest) {
 		if (greedy) {
 			AOGreedyDimmer(index, SouthWest);	
 		} else {
 			AODimmer(index, SouthWest);
 		}
-		Southwest = true;
+	}
+	if (Southeast) {
+		if (greedy) {
+			AOGreedyDimmer(index, SouthEast);	
+		} else {
+			AODimmer(index, SouthEast);
+		}
+	}
+	if (Northeast) {
+		if (greedy) {
+			AOGreedyDimmer(index, NorthEast);	
+		} else {
+			AODimmer(index, NorthEast);
+		}
+	}
+	if (Northwest) {
+		if (greedy) {
+			AOGreedyDimmer(index, NorthWest);	
+		} else {
+			AODimmer(index, NorthWest);
+		}
 	}
 	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
 		if (greedy) {
 			FlipGreedyFace(index);
+			GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + 16384 * 2;
 		} else {
 			FlipFace(index);
 		}
 	}
+	
 	
 	if (greedy) {
 		GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + int(Southwest) * 2048 + int(Northeast) * 4096 + int(Southeast) * 8192 + int(Northwest) * 16384;
@@ -920,89 +846,72 @@ void AOWestFace(int index, vec3 voxelPos, bool greedy) {
 	
 	vec3 targpos = voxelPos + vec3(1, 0, 0);
 	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) + 1] != 0) { //0, 0, 1
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);
-			AOGreedyDimmer(index, SouthWest);
-		} else {
-			AODimmer(index, NorthWest);
-			AODimmer(index, SouthWest);
-		}
 		Northwest = true;
 		Southwest = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z)] != 0) { // 0, 1, 0
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);
-			AOGreedyDimmer(index, NorthEast);
-		} else {
-			AODimmer(index, NorthWest);
-			AODimmer(index, NorthEast);
-		}
 		Northwest = true;
 		Northeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y)][int(targpos.z) - 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthEast);
-			AOGreedyDimmer(index, SouthEast);	
-		} else {
-			AODimmer(index, NorthEast);
-			AODimmer(index, SouthEast);		
-		}
 		Northeast = true;
 		Southeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z)] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, SouthEast);
-			AOGreedyDimmer(index, SouthWest);		
-		} else {
-			AODimmer(index, SouthEast);
-			AODimmer(index, SouthWest);		
-		}
 		Southeast = true;
 		Southwest = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z) + 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthWest);	
-		} else {
-			AODimmer(index, NorthWest);
-		}
 		Northwest = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y)- 1][int(targpos.z)  - 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, SouthEast);	
-		} else {
-			AODimmer(index, SouthEast);
-		}
 		Southeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) + 1][int(targpos.z) - 1] != 0) {
-		if (greedy) {
-			AOGreedyDimmer(index, NorthEast);	
-		} else {
-			AODimmer(index, NorthEast);
-		}
 		Northeast = true;
 	}
 	if (ChunkData.data[int(targpos.x)][int(targpos.y) - 1][int(targpos.z) + 1] != 0) {
+		Southwest = true;
+	}
+	
+	if (Southwest) {
 		if (greedy) {
 			AOGreedyDimmer(index, SouthWest);	
 		} else {
 			AODimmer(index, SouthWest);
 		}
-		Southwest = true;
+	}
+	if (Southeast) {
+		if (greedy) {
+			AOGreedyDimmer(index, SouthEast);	
+		} else {
+			AODimmer(index, SouthEast);
+		}
+	}
+	if (Northeast) {
+		if (greedy) {
+			AOGreedyDimmer(index, NorthEast);	
+		} else {
+			AODimmer(index, NorthEast);
+		}
+	}
+	if (Northwest) {
+		if (greedy) {
+			AOGreedyDimmer(index, NorthWest);	
+		} else {
+			AODimmer(index, NorthWest);
+		}
 	}
 	
 	if (int(Southwest) + int(Northeast) < int(Southeast) + int(Northwest)) {
 		if (greedy) {
 			FlipGreedyFace(index);
+			GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + 16384 * 2;
 		} else {
 			FlipFace(index);
 		}
 	}
+	
 	
 	if (greedy) {
 		GreedyBuffer.data1[index] = GreedyBuffer.data1[index] + int(Southwest) * 2048 + int(Northeast) * 4096 + int(Southeast) * 8192 + int(Northwest) * 16384;

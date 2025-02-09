@@ -239,22 +239,24 @@ public partial class ChunkSpawnManager : Node
 
             if (!Chunks.TryAdd(Candidate, chunk))
             {
+                if (Chunks.ContainsKey(Candidate) && Chunks[Candidate] != null)
+                {
+                    if (IsInstanceValid(Chunks[Candidate]) && !Chunks[Candidate].IsQueuedForDeletion() && Chunks[Candidate].Stale)
+                    {
+                        //Chunks[Candidate].CallDeferred("queue_free");
+                        //just refresh the fkin chunkie and return
+                        ChunkMeshManager.Instance().GenerateChunkMesh(Chunks[Candidate].ChunkData, Chunks[Candidate], rdFrame);
+                        GD.Print("updating stale chunk");
+                        Chunks[Candidate].Stale = false;
+                        continue;
+                    }
+                }
                 GD.Print("BAIL, CHUNK ALREADY EXISTS");
                 continue;
             }
 
 
-            if (Chunks.ContainsKey(Candidate) && Chunks[Candidate] != null)
-            {
-                if (IsInstanceValid(Chunks[Candidate]) && !Chunks[Candidate].IsQueuedForDeletion() && Chunks[Candidate].Stale)
-                {
-                    //Chunks[Candidate].CallDeferred("queue_free");
-                    //just refresh the fkin chunkie and return
-                    ChunkMeshManager.Instance().GenerateChunkMesh(Chunks[Candidate].ChunkData, Chunks[Candidate], rdFrame);
-                    GD.Print("updating stale chunk");
-                    continue;
-                }
-            }
+
 
 
             double FindBestPositionStamp = sw.ElapsedMilliseconds;
@@ -298,7 +300,7 @@ public partial class ChunkSpawnManager : Node
             float alignment = (worldPos - PlayerPosition).Normalized().Dot(forwardView);
 
             // Weighted score: prioritize alignment but still consider distance
-            float score = alignment - (distance * 0.001f); // Adjust weighting as needed
+            float score = alignment - (distance * 0.005f); // Adjust weighting as needed
 
             if (score > bestScore)
             {

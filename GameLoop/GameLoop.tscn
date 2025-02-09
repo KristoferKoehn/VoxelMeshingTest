@@ -107,7 +107,6 @@ visible = false
 mesh = SubResource("QuadMesh_hty1b")
 
 [node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
-visible = false
 target_position = Vector3(0, 0, -10)
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]

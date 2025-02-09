@@ -8,7 +8,6 @@ public partial class Chunk : Node3D
 {
     public int[,,] ChunkData = null;
 
-    public bool Regen = false;
     public List<Tuple<Vector3I, int>> ChangePackets = new();
 
     public bool Generated = false;
@@ -95,7 +94,7 @@ public partial class Chunk : Node3D
             tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, -32, 0), 0.3);
             tween.Finished += () => {
 
-                GD.Print($"Despawning chunk at: {GlobalPosition}");
+                //GD.Print($"Despawning chunk at: {GlobalPosition}");
                 ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
                 //QueueFree();
 
@@ -103,11 +102,6 @@ public partial class Chunk : Node3D
 
             };
         } 
-
-        if (Regen)
-        {
-            Remesh();
-        }
 
         if (Meshed)
         {
@@ -145,25 +139,12 @@ public partial class Chunk : Node3D
         }
     }
 
-    // queue data change system 
-    public void Remesh()
-    {
-
-        foreach(Tuple<Vector3I, int> change in ChangePackets)
-        {
-            ChunkData[change.Item1.X,change.Item1.Y,change.Item1.Z] = change.Item2;
-        }
-        ChangePackets.Clear();
-        ChunkMeshManager.Instance().RequestChunkMeshUpdate(this, true);
-        //ChunkMeshManager.Instance().GeneratePChunkMesh4(ChunkData, this);
-        Regen = false;
-    }
-
     public void QueueDataChange(Vector3I BlockPosition, int data)
     {
         GD.Print($"data position : {BlockPosition} at {ChunkCoordinates}");
-        ChangePackets.Add(new Tuple<Vector3I, int>(BlockPosition, data));
-        Regen = true;
+        //ChangePackets.Add(new Tuple<Vector3I, int>(BlockPosition, data));
+        ChunkData[BlockPosition.X, BlockPosition.Y, BlockPosition.Z] = data;
+        Stale = true;
     }
     //end queue data change system. SHould I care about this
 
