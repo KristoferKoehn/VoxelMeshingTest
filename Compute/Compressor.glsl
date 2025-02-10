@@ -5,7 +5,14 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 const int CHUNK_SIZE = 64;
 const int MAX_BUFFER_LENGTH = 786432;
-const float AOVAL = 0.6;
+
+const int VERTEX_SIZE = 12;  // 3 vec4 (xyz + w) per vertex
+const int NORMAL_SIZE = 12;  // 3 vec4 normals
+const int COLOR_SIZE = 16;   // 4 vec4 color values
+const int UV_SIZE = 8;       // 2 vec4 UV coordinates
+const int COLLISION_SIZE = 18; // 6 vec3 collision vertices
+
+
 
 //256 bytes
 struct QuadIn {
@@ -54,43 +61,31 @@ layout(set = 0, binding = 0, std430) buffer vertexbuffer {
 	
 } VertexBuffer;
 
+layout(set = 0, binding = 5, std430) buffer greedybuffer {
+	int data[CHUNK_SIZE * 6][CHUNK_SIZE][CHUNK_SIZE];
+	
+	float vertices[MAX_BUFFER_LENGTH];			//0
+	float normals[MAX_BUFFER_LENGTH];			//1
+	float UV[MAX_BUFFER_LENGTH];				//2
+	float colors[MAX_BUFFER_LENGTH];			//3
+	float custom0[MAX_BUFFER_LENGTH];			//4
+	float CollisionVertices[MAX_BUFFER_LENGTH];	//5
+	float EmissiveColor[MAX_BUFFER_LENGTH];		//6
+	int indices[MAX_BUFFER_LENGTH];				//7
+	//expansion testing
+	float data1[MAX_BUFFER_LENGTH];				//8
+	float data2[MAX_BUFFER_LENGTH];				//9
+	float data3[MAX_BUFFER_LENGTH];				//10
+	float data4[MAX_BUFFER_LENGTH];				//11
+	
+} GreedyBuffer;
+
 layout(set = 0, binding = 1, std430) buffer quadcount {
 	int count;
 	int greedycount;
 	int test;
 	int padding;
 } QuadCount;
-
-layout(set = 0, binding = 6, std430) buffer finalbuffer {
-	float vertices[MAX_BUFFER_LENGTH];			//0 12 floats
-	float normals[MAX_BUFFER_LENGTH];			//1 12 floats
-	float UV[MAX_BUFFER_LENGTH];				//2 8 floats
-	float colors[MAX_BUFFER_LENGTH];			//3 16 floats
-	float custom0[MAX_BUFFER_LENGTH];			//4 16 floats
-	float CollisionVertices[MAX_BUFFER_LENGTH];	//5 18 floats
-	float EmissiveColor[MAX_BUFFER_LENGTH];		//6 16 floats
-	int indices[MAX_BUFFER_LENGTH];				//7 6 ints
-	//expansion testing
-	float data1[MAX_BUFFER_LENGTH];				//8
-	float data2[MAX_BUFFER_LENGTH];				//9
-	float data3[MAX_BUFFER_LENGTH];				//10
-	float data4[MAX_BUFFER_LENGTH];				//11
-} FinalBuffer;
-
-
-/*
-
-vertices = 12
-vertices * count = normals_offset
-normals = 12
-normals * count + normals_offset = uv_offset
-uvs = 8
-uvs * count + normals_offset + uv_offset = custom0_offset
-collision * count + custom0_offset + normals_offset + uv_offset = collision_offset
-emissive = 16
-emissive * count + collision_offset + custom0_offset + normals_offset + uv_offset = index_offset
-
-*/
 
 layout(set = 0, binding = 2, std430) buffer chunkdata{
 	int data[CHUNK_SIZE + 2][CHUNK_SIZE + 2][CHUNK_SIZE + 2];
@@ -101,92 +96,100 @@ layout(set = 0, binding = 3, std430) buffer chunkdimensions{
 	int WorkGroupSide;
 } ChunkDimensions;
 
-/*
-void GreedyTransfer(int greedyTicket) {
-	if (greedyTicket == 0) return;
+layout(set = 0, binding = 4, std430) buffer voxeldata{
+	QuadIn QuadInput[4000];
+	Face FaceData[4000];
+} VoxelData;
 
-	int IndexTicket = atomicAdd(QuadCount.count, 1);
-	
-	VertexBuffer.vertices[IndexTicket * 12 + 0] =  GreedyBuffer.vertices[greedyTicket * 12 + 0]; //0 x
-	VertexBuffer.vertices[IndexTicket * 12 + 1] =  GreedyBuffer.vertices[greedyTicket * 12 + 1]; //0 y
-	VertexBuffer.vertices[IndexTicket * 12 + 2] =  GreedyBuffer.vertices[greedyTicket * 12 + 2]; //0 z
-	VertexBuffer.vertices[IndexTicket * 12 + 3] =  GreedyBuffer.vertices[greedyTicket * 12 + 3]; //0 w
-	VertexBuffer.vertices[IndexTicket * 12 + 4] =  GreedyBuffer.vertices[greedyTicket * 12 + 4]; //1 x
-	VertexBuffer.vertices[IndexTicket * 12 + 5] =  GreedyBuffer.vertices[greedyTicket * 12 + 5]; //1 y
-	VertexBuffer.vertices[IndexTicket * 12 + 6] =  GreedyBuffer.vertices[greedyTicket * 12 + 6]; //1 z
-	VertexBuffer.vertices[IndexTicket * 12 + 7] =  GreedyBuffer.vertices[greedyTicket * 12 + 7]; //1 w
-	VertexBuffer.vertices[IndexTicket * 12 + 8] =  GreedyBuffer.vertices[greedyTicket * 12 + 8]; //2 x
-	VertexBuffer.vertices[IndexTicket * 12 + 9] =  GreedyBuffer.vertices[greedyTicket * 12 + 9]; //2 y
-	VertexBuffer.vertices[IndexTicket * 12 + 10] = GreedyBuffer.vertices[greedyTicket * 12 + 10];//2 z
-	VertexBuffer.vertices[IndexTicket * 12 + 11] = GreedyBuffer.vertices[greedyTicket * 12 + 11];//2 w
-	
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 0]  = GreedyBuffer.vertices[greedyTicket * 12 + 0]; 
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 1]  = GreedyBuffer.vertices[greedyTicket * 12 + 1];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 2]  = GreedyBuffer.vertices[greedyTicket * 12 + 2];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 3]  = GreedyBuffer.vertices[greedyTicket * 12 + 3];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 4]  = GreedyBuffer.vertices[greedyTicket * 12 + 4];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 5]  = GreedyBuffer.vertices[greedyTicket * 12 + 5];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 6]  = GreedyBuffer.vertices[greedyTicket * 12 + 6];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 7]  = GreedyBuffer.vertices[greedyTicket * 12 + 7];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 8]  = GreedyBuffer.vertices[greedyTicket * 12 + 8];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 9]  = GreedyBuffer.vertices[greedyTicket * 12 + 0];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 10] = GreedyBuffer.vertices[greedyTicket * 12 + 1];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 11] = GreedyBuffer.vertices[greedyTicket * 12 + 2];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 12] = GreedyBuffer.vertices[greedyTicket * 12 + 6];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 13] = GreedyBuffer.vertices[greedyTicket * 12 + 7];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 14] = GreedyBuffer.vertices[greedyTicket * 12 + 8];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 15] = GreedyBuffer.vertices[greedyTicket * 12 + 9]; 
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 16] = GreedyBuffer.vertices[greedyTicket * 12 + 10];
-	VertexBuffer.CollisionVertices[IndexTicket * 18 + 17] = GreedyBuffer.vertices[greedyTicket * 12 + 11];
-	
-	VertexBuffer.UV[IndexTicket * 8 + 0] = GreedyBuffer.UV[greedyTicket * 8 + 0];
-	VertexBuffer.UV[IndexTicket * 8 + 1] = GreedyBuffer.UV[greedyTicket * 8 + 1];
-	VertexBuffer.UV[IndexTicket * 8 + 2] = GreedyBuffer.UV[greedyTicket * 8 + 2];
-	VertexBuffer.UV[IndexTicket * 8 + 3] = GreedyBuffer.UV[greedyTicket * 8 + 3];
-	VertexBuffer.UV[IndexTicket * 8 + 4] = GreedyBuffer.UV[greedyTicket * 8 + 4];
-	VertexBuffer.UV[IndexTicket * 8 + 5] = GreedyBuffer.UV[greedyTicket * 8 + 5];
-	VertexBuffer.UV[IndexTicket * 8 + 6] = GreedyBuffer.UV[greedyTicket * 8 + 6];
-	VertexBuffer.UV[IndexTicket * 8 + 7] = GreedyBuffer.UV[greedyTicket * 8 + 7];
-	
-	VertexBuffer.normals[IndexTicket * 12 + 0] = GreedyBuffer.normals[greedyTicket * 12 + 0];
-	VertexBuffer.normals[IndexTicket * 12 + 1] = GreedyBuffer.normals[greedyTicket * 12 + 1];
-	VertexBuffer.normals[IndexTicket * 12 + 2] = GreedyBuffer.normals[greedyTicket * 12 + 2];
-	VertexBuffer.normals[IndexTicket * 12 + 3] = GreedyBuffer.normals[greedyTicket * 12 + 3];
-	VertexBuffer.normals[IndexTicket * 12 + 4] = GreedyBuffer.normals[greedyTicket * 12 + 4];
-	VertexBuffer.normals[IndexTicket * 12 + 5] = GreedyBuffer.normals[greedyTicket * 12 + 5];
-	VertexBuffer.normals[IndexTicket * 12 + 6] = GreedyBuffer.normals[greedyTicket * 12 + 6];
-	VertexBuffer.normals[IndexTicket * 12 + 7] = GreedyBuffer.normals[greedyTicket * 12 + 7];
-	VertexBuffer.normals[IndexTicket * 12 + 8] = GreedyBuffer.normals[greedyTicket * 12 + 8];
-	VertexBuffer.normals[IndexTicket * 12 + 9] = GreedyBuffer.normals[greedyTicket * 12 + 9];
-	VertexBuffer.normals[IndexTicket * 12 + 10]= GreedyBuffer.normals[greedyTicket * 12 + 10];
-	VertexBuffer.normals[IndexTicket * 12 + 11]= GreedyBuffer.normals[greedyTicket * 12 + 11];
-	
-	VertexBuffer.colors[IndexTicket * 16 + 0] =  GreedyBuffer.colors[greedyTicket * 16 + 0];
-	VertexBuffer.colors[IndexTicket * 16 + 1] =  GreedyBuffer.colors[greedyTicket * 16 + 1];
-	VertexBuffer.colors[IndexTicket * 16 + 2] =  GreedyBuffer.colors[greedyTicket * 16 + 2];
-	VertexBuffer.colors[IndexTicket * 16 + 3] =  GreedyBuffer.colors[greedyTicket * 16 + 3];
-	VertexBuffer.colors[IndexTicket * 16 + 4] =  GreedyBuffer.colors[greedyTicket * 16 + 4];
-	VertexBuffer.colors[IndexTicket * 16 + 5] =  GreedyBuffer.colors[greedyTicket * 16 + 5];
-	VertexBuffer.colors[IndexTicket * 16 + 6] =  GreedyBuffer.colors[greedyTicket * 16 + 6];
-	VertexBuffer.colors[IndexTicket * 16 + 7] =  GreedyBuffer.colors[greedyTicket * 16 + 7];
-	VertexBuffer.colors[IndexTicket * 16 + 8] =  GreedyBuffer.colors[greedyTicket * 16 + 8];
-	VertexBuffer.colors[IndexTicket * 16 + 9] =  GreedyBuffer.colors[greedyTicket * 16 + 9];
-	VertexBuffer.colors[IndexTicket * 16 + 10] = GreedyBuffer.colors[greedyTicket * 16 + 10];
-	VertexBuffer.colors[IndexTicket * 16 + 11] = GreedyBuffer.colors[greedyTicket * 16 + 11];
-	VertexBuffer.colors[IndexTicket * 16 + 12] = GreedyBuffer.colors[greedyTicket * 16 + 12];
-	VertexBuffer.colors[IndexTicket * 16 + 13] = GreedyBuffer.colors[greedyTicket * 16 + 13];
-	VertexBuffer.colors[IndexTicket * 16 + 14] = GreedyBuffer.colors[greedyTicket * 16 + 14];
-	VertexBuffer.colors[IndexTicket * 16 + 15] = GreedyBuffer.colors[greedyTicket * 16 + 15];
-	
-	VertexBuffer.indices[IndexTicket * 6 + 0] = IndexTicket * 4 + 0;  
-	VertexBuffer.indices[IndexTicket * 6 + 1] = IndexTicket * 4 + 1;
-	VertexBuffer.indices[IndexTicket * 6 + 2] = IndexTicket * 4 + 2;
-	VertexBuffer.indices[IndexTicket * 6 + 3] = IndexTicket * 4 + 0;
-	VertexBuffer.indices[IndexTicket * 6 + 4] = IndexTicket * 4 + 2;
-	VertexBuffer.indices[IndexTicket * 6 + 5] = IndexTicket * 4 + 3;
-} */
+layout(set = 0, binding = 6, std430) buffer finalbuffer {
+	float data[MAX_BUFFER_LENGTH *4];
+} FinalBuffer;
 
-void main () {
+void Transfer(int index_to, int index_from) {
+	int vertices_offset   = 0;
+	int normals_offset    = vertices_offset + VERTEX_SIZE * QuadCount.count;
+	int colors_offset     = normals_offset + NORMAL_SIZE * QuadCount.count;
+	int uv_offset        = colors_offset + COLOR_SIZE * QuadCount.count;
+	int collision_offset = uv_offset + UV_SIZE * QuadCount.count;
 	
+	FinalBuffer.data[vertices_offset + index_to * 12 + 0] = VertexBuffer.vertices[index_from * 12 + 0]; //0 x
+	FinalBuffer.data[vertices_offset + index_to * 12 + 1] = VertexBuffer.vertices[index_from * 12 + 1]; //0 y
+	FinalBuffer.data[vertices_offset + index_to * 12 + 2] = VertexBuffer.vertices[index_from * 12 + 2]; //0 z
+	FinalBuffer.data[vertices_offset + index_to * 12 + 3] = VertexBuffer.vertices[index_from * 12 + 3]; //0 w
+	FinalBuffer.data[vertices_offset + index_to * 12 + 4] = VertexBuffer.vertices[index_from * 12 + 4]; //1 x
+	FinalBuffer.data[vertices_offset + index_to * 12 + 5] = VertexBuffer.vertices[index_from * 12 + 5]; //1 y
+	FinalBuffer.data[vertices_offset + index_to * 12 + 6] = VertexBuffer.vertices[index_from * 12 + 6]; //1 z
+	FinalBuffer.data[vertices_offset + index_to * 12 + 7] = VertexBuffer.vertices[index_from * 12 + 7]; //1 w
+	FinalBuffer.data[vertices_offset + index_to * 12 + 8] = VertexBuffer.vertices[index_from * 12 + 8]; //2 x
+	FinalBuffer.data[vertices_offset + index_to * 12 + 9] = VertexBuffer.vertices[index_from * 12 + 9]; //2 y
+	FinalBuffer.data[vertices_offset + index_to * 12 + 10] = VertexBuffer.vertices[index_from * 12 + 10];//2 z
+	FinalBuffer.data[vertices_offset + index_to * 12 + 11] = VertexBuffer.vertices[index_from * 12 + 11];//2 w
+	
+	/*
+	FinalBuffer.data[collision_offset + index_to * 18 + 0] = VertexBuffer.CollisionVertices[index_from * 18 + 0]; 
+	FinalBuffer.data[collision_offset + index_to * 18 + 1] = VertexBuffer.CollisionVertices[index_from * 18 + 1];
+	FinalBuffer.data[collision_offset + index_to * 18 + 2] = VertexBuffer.CollisionVertices[index_from * 18 + 2];
+	FinalBuffer.data[collision_offset + index_to * 18 + 3] = VertexBuffer.CollisionVertices[index_from * 18 + 3];
+	FinalBuffer.data[collision_offset + index_to * 18 + 4] = VertexBuffer.CollisionVertices[index_from * 18 + 4];
+	FinalBuffer.data[collision_offset + index_to * 18 + 5] = VertexBuffer.CollisionVertices[index_from * 18 + 5];
+	FinalBuffer.data[collision_offset + index_to * 18 + 6] = VertexBuffer.CollisionVertices[index_from * 18 + 6];
+	FinalBuffer.data[collision_offset + index_to * 18 + 7] = VertexBuffer.CollisionVertices[index_from * 18 + 7];
+	FinalBuffer.data[collision_offset + index_to * 18 + 8] = VertexBuffer.CollisionVertices[index_from * 18 + 8];
+	FinalBuffer.data[collision_offset + index_to * 18 + 9] = VertexBuffer.CollisionVertices[index_from * 18 + 9];
+	FinalBuffer.data[collision_offset + index_to * 18 + 10] = VertexBuffer.CollisionVertices[index_from * 18 + 10];
+	FinalBuffer.data[collision_offset + index_to * 18 + 11] = VertexBuffer.CollisionVertices[index_from * 18 + 11];
+	FinalBuffer.data[collision_offset + index_to * 18 + 12] = VertexBuffer.CollisionVertices[index_from * 18 + 12];
+	FinalBuffer.data[collision_offset + index_to * 18 + 13] = VertexBuffer.CollisionVertices[index_from * 18 + 13];
+	FinalBuffer.data[collision_offset + index_to * 18 + 14] = VertexBuffer.CollisionVertices[index_from * 18 + 14];
+	FinalBuffer.data[collision_offset + index_to * 18 + 15] = VertexBuffer.CollisionVertices[index_from * 18 + 15]; 
+	FinalBuffer.data[collision_offset + index_to * 18 + 16] = VertexBuffer.CollisionVertices[index_from * 18 + 16];
+	FinalBuffer.data[collision_offset + index_to * 18 + 17] = VertexBuffer.CollisionVertices[index_from * 18 + 17];
+
+	FinalBuffer.data[uv_offset + index_to * 8 + 0] = VertexBuffer.UV[index_from * 8 + 0];
+	FinalBuffer.data[uv_offset + index_to * 8 + 1] = VertexBuffer.UV[index_from * 8 + 1];
+	FinalBuffer.data[uv_offset + index_to * 8 + 2] = VertexBuffer.UV[index_from * 8 + 2];
+	FinalBuffer.data[uv_offset + index_to * 8 + 3] = VertexBuffer.UV[index_from * 8 + 3];
+	FinalBuffer.data[uv_offset + index_to * 8 + 4] = VertexBuffer.UV[index_from * 8 + 4];
+	FinalBuffer.data[uv_offset + index_to * 8 + 5] = VertexBuffer.UV[index_from * 8 + 5];
+	FinalBuffer.data[uv_offset + index_to * 8 + 6] = VertexBuffer.UV[index_from * 8 + 6];
+	FinalBuffer.data[uv_offset + index_to * 8 + 7] = VertexBuffer.UV[index_from * 8 + 7];
+	
+	FinalBuffer.data[normals_offset + index_to * 12 + 0] = VertexBuffer.normals[index_from * 12 + 0];
+	FinalBuffer.data[normals_offset + index_to * 12 + 1] = VertexBuffer.normals[index_from * 12 + 1];
+	FinalBuffer.data[normals_offset + index_to * 12 + 2] = VertexBuffer.normals[index_from * 12 + 2];
+	FinalBuffer.data[normals_offset + index_to * 12 + 3] = VertexBuffer.normals[index_from * 12 + 3];
+	FinalBuffer.data[normals_offset + index_to * 12 + 4] = VertexBuffer.normals[index_from * 12 + 4];
+	FinalBuffer.data[normals_offset + index_to * 12 + 5] = VertexBuffer.normals[index_from * 12 + 5];
+	FinalBuffer.data[normals_offset + index_to * 12 + 6] = VertexBuffer.normals[index_from * 12 + 6];
+	FinalBuffer.data[normals_offset + index_to * 12 + 7] = VertexBuffer.normals[index_from * 12 + 7];
+	FinalBuffer.data[normals_offset + index_to * 12 + 8] = VertexBuffer.normals[index_from * 12 + 8];
+	FinalBuffer.data[normals_offset + index_to * 12 + 9] = VertexBuffer.normals[index_from * 12 + 9];
+	FinalBuffer.data[normals_offset + index_to * 12 + 10] = VertexBuffer.normals[index_from * 12 + 10];
+	FinalBuffer.data[normals_offset + index_to * 12 + 11] = VertexBuffer.normals[index_from * 12 + 11];
+	
+	FinalBuffer.data[colors_offset + index_to * 16 + 0] = VertexBuffer.colors[index_from * 16 + 0];
+	FinalBuffer.data[colors_offset + index_to * 16 + 1] = VertexBuffer.colors[index_from * 16 + 1];
+	FinalBuffer.data[colors_offset + index_to * 16 + 2] = VertexBuffer.colors[index_from * 16 + 2];
+	FinalBuffer.data[colors_offset + index_to * 16 + 3] = VertexBuffer.colors[index_from * 16 + 3];
+	FinalBuffer.data[colors_offset + index_to * 16 + 4] = VertexBuffer.colors[index_from * 16 + 4];
+	FinalBuffer.data[colors_offset + index_to * 16 + 5] = VertexBuffer.colors[index_from * 16 + 5];
+	FinalBuffer.data[colors_offset + index_to * 16 + 6] = VertexBuffer.colors[index_from * 16 + 6];
+	FinalBuffer.data[colors_offset + index_to * 16 + 7] = VertexBuffer.colors[index_from * 16 + 7];
+	FinalBuffer.data[colors_offset + index_to * 16 + 8] = VertexBuffer.colors[index_from * 16 + 8];
+	FinalBuffer.data[colors_offset + index_to * 16 + 9] = VertexBuffer.colors[index_from * 16 + 9];
+	FinalBuffer.data[colors_offset + index_to * 16 + 10] = VertexBuffer.colors[index_from * 16 + 10];
+	FinalBuffer.data[colors_offset + index_to * 16 + 11] = VertexBuffer.colors[index_from * 16 + 11];
+	FinalBuffer.data[colors_offset + index_to * 16 + 12] = VertexBuffer.colors[index_from * 16 + 12];
+	FinalBuffer.data[colors_offset + index_to * 16 + 13] = VertexBuffer.colors[index_from * 16 + 13];
+	FinalBuffer.data[colors_offset + index_to * 16 + 14] = VertexBuffer.colors[index_from * 16 + 14];
+	FinalBuffer.data[colors_offset + index_to * 16 + 15] = VertexBuffer.colors[index_from * 16 + 15];
+	*/
 }
 
+void main () {
+	int index = int(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * 32 + gl_GlobalInvocationID.z * 32 * 32);
+	while (index < QuadCount.count) {
+		Transfer(index, index);
+		index += 32768;
+	}
+}

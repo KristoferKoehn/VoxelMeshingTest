@@ -102,9 +102,13 @@ public partial class ChunkSpawnManager : Node
     public struct RenderDeviceFrame {
         public RenderingDevice MesherRenderDevice;
         public RenderingDevice GeneratorRenderDevice;
+
+        public int[] ints;
+
         public Rid MesherShaderRID;
         public Rid GreedyShaderRID;
         public Rid TerrainShaderRID;
+        public Rid CompressorShaderRID;
 
         public Rid VoxelDataBuffer;
         public RDUniform VoxelDataUniform;
@@ -114,6 +118,9 @@ public partial class ChunkSpawnManager : Node
 
         public Rid GreedyBuffer;
         public RDUniform GreedyUniform;
+
+        public Rid CompressorBuffer;
+        public RDUniform CompressorUniform;
     }
 
     void ChunkerThread(int threadID)
@@ -136,6 +143,10 @@ public partial class ChunkSpawnManager : Node
         RDShaderSpirV TerrainShaderBytecode = TerrainShaderFile.GetSpirV();
         rdFrame.TerrainShaderRID = rdFrame.GeneratorRenderDevice.ShaderCreateFromSpirV(TerrainShaderBytecode);
 
+        RDShaderFile CompressorShaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkGen.glsl");
+        RDShaderSpirV CompressorShaderBytecode = CompressorShaderFile.GetSpirV();
+        rdFrame.CompressorShaderRID = rdFrame.MesherRenderDevice.ShaderCreateFromSpirV(CompressorShaderBytecode);
+
         rdFrame.QuadBuffer = rdFrame.MesherRenderDevice.StorageBufferCreate(GameConstants.BUFFER_SIZE);
         //output quad uniform
         rdFrame.QuadUniform = new RDUniform();
@@ -155,6 +166,25 @@ public partial class ChunkSpawnManager : Node
         rdFrame.VoxelDataUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
         rdFrame.VoxelDataUniform.Binding = 4;
         rdFrame.VoxelDataUniform.AddId(rdFrame.VoxelDataBuffer);
+
+        rdFrame.CompressorBuffer = rdFrame.MesherRenderDevice.StorageBufferCreate(264 * (64*64*64) / 2);
+        rdFrame.CompressorUniform = new RDUniform();
+        rdFrame.CompressorUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        rdFrame.CompressorUniform.Binding = 2;
+        rdFrame.CompressorUniform.AddId(rdFrame.CompressorBuffer);
+        rdFrame.ints = new int[66000 * 4];
+
+        for (int i = 0; i < 11000 * 4; i++)
+        {
+            rdFrame.ints[i * 6 + 0] = i * 4 + 0;
+            rdFrame.ints[i * 6 + 1] = i * 4 + 1;
+            rdFrame.ints[i * 6 + 2] = i * 4 + 2;
+            rdFrame.ints[i * 6 + 3] = i * 4 + 0;
+            rdFrame.ints[i * 6 + 4] = i * 4 + 2;
+            rdFrame.ints[i * 6 + 5] = i * 4 + 3;
+        }
+
+
         Vector3I PlayerCoordinateLast = new Vector3I(-20, 20, -4000);
         GD.Print($"{threadID} starting loop");
         while (IsInsideTree() && !IsQueuedForDeletion())
