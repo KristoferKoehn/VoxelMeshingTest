@@ -322,7 +322,7 @@ public partial class ChunkMeshManager : Node
             RDFrame.MesherRenderDevice.FreeRid(ChunkDimensionalBuffer);
             return null;
         }
-/*
+
         //0, 0, 0) v 111168, n 111168, c 148224 , Col 166752, I 55584, 2316
         //(0, 0, 0) v 111168, n 111168, c 148224 , Col 166752, I 55584, 2316
         byte[] VBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 0, (uint)Count[0] * 48);
@@ -330,8 +330,7 @@ public partial class ChunkMeshManager : Node
         byte[] CBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 3, (uint)Count[0] * 64);
         byte[] ColBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 5, (uint)Count[0] * 72);
         byte[] IBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 7, (uint)Count[0] * (4 * 6));
-*/
-        
+/*
         byte[] DataBytes = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.CompressorBuffer, 0, (uint)Count[0] * (12 + 12 + 16 + 8 + 6 + 18) * 4);
         
         int vertices_offset = 0; 
@@ -353,10 +352,11 @@ public partial class ChunkMeshManager : Node
         Buffer.BlockCopy(DataBytes, colors_offset, CBuffer, 0, CBuffer.Length);
         Buffer.BlockCopy(DataBytes, collision_offset, ColBuffer, 0, ColBuffer.Length);
         //Buffer.BlockCopy(DataBytes, index_offset, IBuffer, 0, IBuffer.Length);
+        /*
         for (int i = 0; i < 48; i++)
         {
-            GD.Print($"{ch.ChunkCoordinates} {VBuffer[i]}");
-        }
+            GD.Print($"{ch.ChunkCoordinates} {DataBytes[i]}");
+        }*/
         GD.Print($"{ch.ChunkCoordinates} v {VBuffer.Length}, n {NBuffer.Length}, c {CBuffer.Length} , Col {ColBuffer.Length}, {(uint)Count[0]}");
         //byte[] UVBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 2, (uint)Count[0] * 32);
         float datapullingsw = sw.ElapsedMilliseconds;
@@ -417,6 +417,8 @@ public partial class ChunkMeshManager : Node
         //ch.MeshInstance.Mesh = am;
 
         RDFrame.MesherRenderDevice.FreeRid(UniformSet);
+        RDFrame.MesherRenderDevice.FreeRid(CompressorUniformSet);
+        RDFrame.MesherRenderDevice.FreeRid(CompressorPipelineRID);
         RDFrame.MesherRenderDevice.FreeRid(pipelineRID);
         RDFrame.MesherRenderDevice.FreeRid(QuadCountBuffer);
         RDFrame.MesherRenderDevice.FreeRid(ChunkDataBuffer);

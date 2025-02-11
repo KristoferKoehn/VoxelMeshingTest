@@ -155,7 +155,6 @@ public partial class ChunkSpawnManager : Node
         rdFrame.QuadUniform.AddId(rdFrame.QuadBuffer);
 
         rdFrame.GreedyBuffer = rdFrame.MesherRenderDevice.StorageBufferCreate(6291456 + GameConstants.BUFFER_SIZE); //6291456
-        //greedy uniform
         rdFrame.GreedyUniform = new RDUniform();
         rdFrame.GreedyUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
         rdFrame.GreedyUniform.Binding = 5;
@@ -170,7 +169,7 @@ public partial class ChunkSpawnManager : Node
         rdFrame.CompressorBuffer = rdFrame.MesherRenderDevice.StorageBufferCreate(264 * (64*64*64) / 2);
         rdFrame.CompressorUniform = new RDUniform();
         rdFrame.CompressorUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        rdFrame.CompressorUniform.Binding = 2;
+        rdFrame.CompressorUniform.Binding = 6;
         rdFrame.CompressorUniform.AddId(rdFrame.CompressorBuffer);
         rdFrame.ints = new int[66000 * 4];
 
@@ -320,7 +319,7 @@ public partial class ChunkSpawnManager : Node
         Vector3I bestPosition = positions[0];
         float bestScore = float.MinValue;
 
-        float speedFactor = Mathf.Clamp(PlayerTrackingManager.Instance().GetPlayerVelocity().Length() / 10f, 0f, 1f);
+        float speedFactor = Mathf.Clamp(PlayerTrackingManager.Instance().GetPlayerVelocity().Length() / 10f, 0f, 30f);
         float dynamicWeight = Mathf.Lerp(0.001f, 0.05f, speedFactor);
 
         foreach (var pos in positions)
@@ -330,7 +329,7 @@ public partial class ChunkSpawnManager : Node
             float alignment = (worldPos - PlayerPosition).Normalized().Dot(forwardView);
 
             // Weighted score: prioritize alignment but still consider distance
-            float score = alignment - (distance * 0.005f); // Adjust weighting as needed
+            float score = alignment - (distance * 0.0001f); // Adjust weighting as needed
 
             if (score > bestScore)
             {

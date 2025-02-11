@@ -93,7 +93,7 @@ void main () {
 		for (int y = Gy * WorkGroupDataLength; y < (Gy + 1) * WorkGroupDataLength; y++) {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
 				
-				if (perlinNoise2D(ChunkPosition.xz + vec2(float(x - 1) / 64.0, float(z - 1) / 64.0), seed) * 0.0 + 33 > float(y)) {
+				if (perlinNoise2D(ChunkPosition.xz + vec2(float(x - 1) / 64.0, float(z - 1) / 64.0), seed) * 0.0 + 13 > float(y)) {
 					
 					if (perlinNoise3D(ChunkPosition.xyz + vec3(float(x - 1) / 64.0, float(y - 1) / 64.0, float(z - 1) / 64.0), seed) > 0) {
 						ChunkBuffer.chunk[x][y][z] = 2;
