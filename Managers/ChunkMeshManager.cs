@@ -253,15 +253,16 @@ public partial class ChunkMeshManager : Node
             ChunkDimensionalUniform,
             ChunkDataUniform,
             QuadCountUniform,
+            RDFrame.CompressorUniform,
         };
-
-        Rid pipelineRID = RDFrame.MesherRenderDevice.ComputePipelineCreate(RDFrame.MesherShaderRID);
-
-        Rid UniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(Uniforms, RDFrame.MesherShaderRID, 0);
-
 
         float Setupsw = sw.ElapsedMilliseconds;
 
+
+
+
+        Rid pipelineRID = RDFrame.MesherRenderDevice.ComputePipelineCreate(RDFrame.MesherShaderRID);
+        Rid UniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(Uniforms, RDFrame.MesherShaderRID, 0);
         RDFrame.MesherRenderDevice.ComputeListBindUniformSet(ComputeList, UniformSet, 0);
         RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(ComputeList, pipelineRID);
         RDFrame.MesherRenderDevice.ComputeListDispatch(ComputeList, (uint)WorkGroupSide, (uint)WorkGroupSide, (uint)WorkGroupSide);
@@ -287,28 +288,15 @@ public partial class ChunkMeshManager : Node
 
         //GD.Print($"end greedy pipeline: {sw.ElapsedMilliseconds}");
 
-        Array<RDUniform> CompressorUniforms = new()
-        {
-            RDFrame.VoxelDataUniform,
-            RDFrame.QuadUniform,
-            RDFrame.GreedyUniform,
-            ChunkDimensionalUniform,
-            ChunkDataUniform,
-            QuadCountUniform,
-            RDFrame.CompressorUniform,
-        };
-
         long CompressorComputeList = RDFrame.MesherRenderDevice.ComputeListBegin();
         Rid CompressorPipelineRID = RDFrame.MesherRenderDevice.ComputePipelineCreate(RDFrame.CompressorShaderRID);
-        Rid CompressorUniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(CompressorUniforms, RDFrame.CompressorShaderRID, 0);
+        Rid CompressorUniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(Uniforms, RDFrame.CompressorShaderRID, 0);
         RDFrame.MesherRenderDevice.ComputeListBindUniformSet(CompressorComputeList, CompressorUniformSet, 0);
         RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(CompressorComputeList, CompressorPipelineRID);
         RDFrame.MesherRenderDevice.ComputeListDispatch(CompressorComputeList, 32, 32, 32);
         RDFrame.MesherRenderDevice.ComputeListEnd();
         RDFrame.MesherRenderDevice.Submit();
         RDFrame.MesherRenderDevice.Sync();
-
-
 
         float greedysw = sw.ElapsedMilliseconds;
         byte[] countBytes = RDFrame.MesherRenderDevice.BufferGetData(QuadCountBuffer);
@@ -323,14 +311,6 @@ public partial class ChunkMeshManager : Node
             return null;
         }
 
-        //0, 0, 0) v 111168, n 111168, c 148224 , Col 166752, I 55584, 2316
-        //(0, 0, 0) v 111168, n 111168, c 148224 , Col 166752, I 55584, 2316
-        byte[] VBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 0, (uint)Count[0] * 48);
-        byte[] NBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 1, (uint)Count[0] * 48);
-        byte[] CBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 3, (uint)Count[0] * 64);
-        byte[] ColBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 5, (uint)Count[0] * 72);
-        byte[] IBuffer = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.QuadBuffer, BufferSection * 7, (uint)Count[0] * (4 * 6));
-/*
         byte[] DataBytes = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.CompressorBuffer, 0, (uint)Count[0] * (12 + 12 + 16 + 8 + 6 + 18) * 4);
         
         int vertices_offset = 0; 
@@ -338,27 +318,18 @@ public partial class ChunkMeshManager : Node
         int colors_offset = normals_offset + Count[0] * 12 * 4;
         int uv_offset = colors_offset + Count[0] * 16 * 4;
         int collision_offset = uv_offset + Count[0] * 8 * 4;
-        int index_offset = collision_offset + Count[0] * 18 * 4;
 
         byte[] VBuffer = new byte[Count[0] * 12 * 4];
         byte[] NBuffer = new byte[Count[0] * 12 * 4];
         byte[] CBuffer = new byte[Count[0] * 16 * 4];
         byte[] ColBuffer = new byte[Count[0] * 18 * 4]; 
-        //byte[] IBuffer = new byte[Count[0] * 6 * 4];
-        
 
         Buffer.BlockCopy(DataBytes, 0, VBuffer, 0, VBuffer.Length);
         Buffer.BlockCopy(DataBytes, normals_offset, NBuffer, 0, NBuffer.Length);
         Buffer.BlockCopy(DataBytes, colors_offset, CBuffer, 0, CBuffer.Length);
         Buffer.BlockCopy(DataBytes, collision_offset, ColBuffer, 0, ColBuffer.Length);
-        //Buffer.BlockCopy(DataBytes, index_offset, IBuffer, 0, IBuffer.Length);
-        /*
-        for (int i = 0; i < 48; i++)
-        {
-            GD.Print($"{ch.ChunkCoordinates} {DataBytes[i]}");
-        }*/
-        GD.Print($"{ch.ChunkCoordinates} v {VBuffer.Length}, n {NBuffer.Length}, c {CBuffer.Length} , Col {ColBuffer.Length}, {(uint)Count[0]}");
-        //byte[] UVBuffer = rd.BufferGetData(QuadBuffer, BufferSection * 2, (uint)Count[0] * 32);
+
+        //GD.Print($"{ch.ChunkCoordinates} v {VBuffer.Length}, n {NBuffer.Length}, c {CBuffer.Length} , Col {ColBuffer.Length}, {(uint)Count[0]}");
         float datapullingsw = sw.ElapsedMilliseconds;
 
         Godot.Collections.Array ar = new Godot.Collections.Array();

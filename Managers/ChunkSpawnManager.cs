@@ -3,14 +3,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using VoxelMeshingTest.Classes;
 
 public partial class ChunkSpawnManager : Node
 {
+
+    [Signal]
+    public delegate void DeleteAllChunksEventHandler();
 
     ConcurrentDictionary<Vector3I, Chunk> Chunks = new ConcurrentDictionary<Vector3I, Chunk>();
 
@@ -42,20 +42,30 @@ public partial class ChunkSpawnManager : Node
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
-        ChangeThreading(GameConstants.CHUNK_THREADS);
+        //ChangeThreading(GameConstants.CHUNK_THREADS);
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta)
 	{
-  
+        if (Input.IsActionJustPressed("regenerate"))
+        {
+            GameConstants.CHUNK_THREADS = 0;
+            EmitSignal(SignalName.DeleteAllChunks);
+            GetTree().CreateTimer(0.4).Timeout += () =>
+            {
+                EmitSignal(SignalName.DeleteAllChunks);
+                GameConstants.CHUNK_THREADS = 1;
+            };
+        }
+
+        ChangeThreading(GameConstants.CHUNK_THREADS);
     }
 
     public void ChangeThreading(int threads)
     {
         lock (lockObj)
         {
-            GD.Print($"Setting Thread count: {threads}");
             ThreadCountTarget = threads;
 
             if (threads > ThreadList.Count)
@@ -67,6 +77,7 @@ public partial class ChunkSpawnManager : Node
                     Thread thread = new Thread(() => ChunkerThread(threadID));
                     thread.IsBackground = true;
                     ThreadList.Add(thread);
+                    GD.Print($"starting new thread {threadID}");
                     thread.Start();
                 }
             }
@@ -131,19 +142,19 @@ public partial class ChunkSpawnManager : Node
         rdFrame.MesherRenderDevice = RenderingServer.CreateLocalRenderingDevice();
         rdFrame.GeneratorRenderDevice = RenderingServer.CreateLocalRenderingDevice();
 
-        RDShaderFile shaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkMesherFast5.glsl");
+        RDShaderFile shaderFile = ResourceLoader.Load<RDShaderFile>("res://Compute/ChunkMesherFast5.glsl", cacheMode: ResourceLoader.CacheMode.Ignore);
         RDShaderSpirV shaderBytecode = shaderFile.GetSpirV();
         rdFrame.MesherShaderRID = rdFrame.MesherRenderDevice.ShaderCreateFromSpirV(shaderBytecode);
 
-        RDShaderFile GreedyShaderFile = GD.Load<RDShaderFile>("res://Compute/GreedyMesher.glsl");
+        RDShaderFile GreedyShaderFile = ResourceLoader.Load<RDShaderFile>("res://Compute/GreedyMesher.glsl", cacheMode: ResourceLoader.CacheMode.Ignore);
         RDShaderSpirV GreedyShaderBytecode = GreedyShaderFile.GetSpirV();
         rdFrame.GreedyShaderRID = rdFrame.MesherRenderDevice.ShaderCreateFromSpirV(GreedyShaderBytecode);
 
-        RDShaderFile TerrainShaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkGen.glsl");
+        RDShaderFile TerrainShaderFile = ResourceLoader.Load<RDShaderFile>("res://Compute/ChunkGen.glsl", cacheMode: ResourceLoader.CacheMode.Ignore);
         RDShaderSpirV TerrainShaderBytecode = TerrainShaderFile.GetSpirV();
         rdFrame.TerrainShaderRID = rdFrame.GeneratorRenderDevice.ShaderCreateFromSpirV(TerrainShaderBytecode);
 
-        RDShaderFile CompressorShaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkGen.glsl");
+        RDShaderFile CompressorShaderFile = ResourceLoader.Load<RDShaderFile>("res://Compute/Compressor.glsl", cacheMode: ResourceLoader.CacheMode.Ignore);
         RDShaderSpirV CompressorShaderBytecode = CompressorShaderFile.GetSpirV();
         rdFrame.CompressorShaderRID = rdFrame.MesherRenderDevice.ShaderCreateFromSpirV(CompressorShaderBytecode);
 
@@ -224,7 +235,6 @@ public partial class ChunkSpawnManager : Node
                         continue;
                     }
 
-
                     if (Chunks.ContainsKey(Pos))
                     {
                         if (Chunks.ContainsKey(Pos) && Chunks[Pos] != null) //it keeps breaking on these so I have to check containskey a bunch
@@ -275,38 +285,33 @@ public partial class ChunkSpawnManager : Node
                         //Chunks[Candidate].CallDeferred("queue_free");
                         //just refresh the fkin chunkie and return
                         ChunkMeshManager.Instance().GenerateChunkMesh(Chunks[Candidate].ChunkData, Chunks[Candidate], rdFrame);
-                        GD.Print("updating stale chunk");
+                        //GD.Print("updating stale chunk");
                         Chunks[Candidate].Stale = false;
                         continue;
                     }
                 }
-                GD.Print("BAIL, CHUNK ALREADY EXISTS");
+                //GD.Print("BAIL, CHUNK ALREADY EXISTS");
                 continue;
             }
-
-
-
-
 
             double FindBestPositionStamp = sw.ElapsedMilliseconds;
 
             int[,,] ChData;
+            double GenerateStamp;
             //do the stuff
-
-            ChData = ChunkGeneratorManager.Instance().ComputeGenerateChunk(Candidate, rdFrame);
-
-
-            double GenerateStamp = sw.ElapsedMilliseconds;
-            
-            chunk.ChunkData = ChData;
-            chunk.ChunkPosition = new Vector3(Candidate.X * GameConstants.CHUNK_SIZE, Candidate.Y * GameConstants.CHUNK_SIZE, Candidate.Z * GameConstants.CHUNK_SIZE);
-            chunk.ChunkCoordinates = Candidate;
             lock (GenerateLock)
             {
+                ChData = ChunkGeneratorManager.Instance().ComputeGenerateChunk(Candidate, rdFrame);
+                GenerateStamp = sw.ElapsedMilliseconds;
+            
+                chunk.ChunkData = ChData;
+                chunk.ChunkPosition = new Vector3(Candidate.X * GameConstants.CHUNK_SIZE, Candidate.Y * GameConstants.CHUNK_SIZE, Candidate.Z * GameConstants.CHUNK_SIZE);
+                chunk.ChunkCoordinates = Candidate;
+            
                 ChunkMeshManager.Instance().GenerateChunkMesh(ChData, chunk, rdFrame);
             }
             double MeshStamp = sw.ElapsedMilliseconds;
-
+            DeleteAllChunks += chunk.SpecialDispose;
             CallDeferred("add_child", chunk);
 
             GD.Print($"adding chunk from thread {threadID} at {Candidate}, Candidate List: {CandidateList}, FindBestPosition: {FindBestPositionStamp}, Generate Stamp: {GenerateStamp}, Mesh Stamp: {MeshStamp}");
@@ -329,7 +334,7 @@ public partial class ChunkSpawnManager : Node
             float alignment = (worldPos - PlayerPosition).Normalized().Dot(forwardView);
 
             // Weighted score: prioritize alignment but still consider distance
-            float score = alignment - (distance * 0.0001f); // Adjust weighting as needed
+            float score = alignment - (distance * 0.002f); // Adjust weighting as needed
 
             if (score > bestScore)
             {
@@ -340,6 +345,8 @@ public partial class ChunkSpawnManager : Node
 
         return bestPosition;
     }
+
+
 
     public Chunk GetChunk(Vector3I pos)
     {

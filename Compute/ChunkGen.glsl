@@ -79,6 +79,105 @@ float perlinNoise2D(vec2 p, float seed) {
     return mix(mix(d00, d10, u.x), mix(d01, d11, u.x), u.y);
 }
 
+float fbm2D(vec2 p, float seed) {
+    float value = 0.0;
+    float amplitude = 0.5;
+    float frequency = 1.0;
+    const int octaves = 5;
+
+    for (int i = 0; i < octaves; i++) {
+        value += perlinNoise2D(p * frequency, seed) * amplitude;
+        frequency *= 2.0;
+        amplitude *= 0.5;
+    }
+    return value;
+}
+
+float fbm3D(vec3 p, float seed) {
+    float value = 0.0;
+    float amplitude = 0.5;
+    float frequency = 1.0;
+    const int octaves = 5;
+
+    for (int i = 0; i < octaves; i++) {
+        value += perlinNoise3D(p * frequency, seed) * amplitude;
+        frequency *= 2.0;
+        amplitude *= 0.5;
+    }
+    return value;
+}
+
+vec2 hashGradient2D(vec2 p, float seed) {
+    p = fract(p * vec2(127.1, 311.7) + seed);
+    return normalize(sin(p * 3.14159) * 2.0 - 1.0);
+}
+
+float worleyNoise2D(vec2 p, float seed) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    
+    float minDist = 1.0;
+    
+    for (int y = -1; y <= 1; y++) {
+        for (int x = -1; x <= 1; x++) {
+            vec2 neighbor = vec2(x, y);
+            vec2 point = hashGradient2D(i + neighbor, seed) + neighbor;
+            float dist = length(f - point);
+            minDist = min(minDist, dist);
+        }
+    }
+    return minDist;
+}
+
+vec3 hashGradient3D(vec3 p, float seed) {
+    p = fract(p * vec3(127.1, 311.7, 74.7) + seed);
+    return normalize(sin(p * 3.14159) * 2.0 - 1.0);
+}
+
+
+float worleyNoise3D(vec3 p, float seed) {
+    vec3 i = floor(p);
+    vec3 f = fract(p);
+
+    float minDist = 1.0;
+
+    for (int z = -1; z <= 1; z++) {
+        for (int y = -1; y <= 1; y++) {
+            for (int x = -1; x <= 1; x++) {
+                vec3 neighbor = vec3(x, y, z);
+                vec3 point = hashGradient3D(i + neighbor, seed) + neighbor;
+                float dist = length(f - point);
+                minDist = min(minDist, dist);
+            }
+        }
+    }
+    return minDist;
+}
+
+vec2 domainWarp2D(vec2 p, float seed, float strength) {
+    float offsetX = perlinNoise2D(p, seed) * strength;
+    float offsetY = perlinNoise2D(p + vec2(5.2, 1.3), seed) * strength;
+    return p + vec2(offsetX, offsetY);
+}
+
+float domainWarpedNoise2D(vec2 p, float seed, float strength) {
+    vec2 warpedP = domainWarp2D(p, seed, strength);
+    return perlinNoise2D(warpedP, seed);
+}
+
+float hybridNoise2D(vec2 p, float seed, float blend) {
+    float perlin = perlinNoise2D(p, seed);
+    float worley = worleyNoise2D(p, seed);
+    return mix(perlin, worley, blend);
+}
+
+float hybridNoise3D(vec3 p, float seed, float blend) {
+    float perlin = perlinNoise3D(p, seed);
+    float worley = worleyNoise3D(p, seed);
+    return mix(perlin, worley, blend);
+}
+
+
 void main () {
 	int WorkGroupDataLength = 2;
 
@@ -88,17 +187,27 @@ void main () {
 	
 	vec3 ChunkPosition = ChunkDimensions.ChunkCoordinate.xyz;
 	float seed = 5.0;
+	float scale = 0.5;
 	
 	for (int x = Gx * WorkGroupDataLength; x < (Gx + 1) * WorkGroupDataLength; x++) {
 		for (int y = Gy * WorkGroupDataLength; y < (Gy + 1) * WorkGroupDataLength; y++) {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
+				if (y == 0) {
+					ChunkBuffer.chunk[x][y][z] = 0;
+					return;
+				}
 				
-				if (perlinNoise2D(ChunkPosition.xz + vec2(float(x - 1) / 64.0, float(z - 1) / 64.0), seed) * 0.0 + 13 > float(y)) {
+				vec3 warped_pos = vec3((float(ChunkPosition.x + x/64.0 - 1)) * scale, (float(ChunkPosition.y + y/64.0 - 1)) * scale, (float(ChunkPosition.z + z/64.0 - 1)) * scale);
+				float cutoff = domainWarpedNoise2D(warped_pos.zx, seed, 10.0) * 30 + 40;
+				cutoff *= domainWarpedNoise2D(warped_pos.zx, seed, 1.0) + 1;
+				cutoff = cutoff;
+				
+				if (cutoff > float(y)) {
 					
-					if (perlinNoise3D(ChunkPosition.xyz + vec3(float(x - 1) / 64.0, float(y - 1) / 64.0, float(z - 1) / 64.0), seed) > 0) {
-						ChunkBuffer.chunk[x][y][z] = 2;
+					if (perlinNoise3D(ChunkPosition.xyz + vec3(float(x - 1) / 64.0, float(y - 1) / 64.0, float(z - 1) / 64.0), seed) > 0.0) {
+						ChunkBuffer.chunk[x][y][z] = 3;
 					} else {
-						ChunkBuffer.chunk[x][y][z] = 0;
+						ChunkBuffer.chunk[x][y][z] = 2;
 					}
 					//ChunkBuffer.chunk[x][y][z] = 2;
 				} else {

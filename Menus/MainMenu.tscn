@@ -1,28 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://dfdn0rcv2oo6k"]
+[gd_scene load_steps=3 format=3 uid="uid://dfdn0rcv2oo6k"]
 
 [ext_resource type="Script" path="res://Menus/MainMenu.cs" id="1_gmfx3"]
-
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_irumt"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-
-[sub_resource type="Sky" id="Sky_pqe8i"]
-sky_material = SubResource("ProceduralSkyMaterial_irumt")
-
-[sub_resource type="Environment" id="Environment_bfeig"]
-background_mode = 2
-sky = SubResource("Sky_pqe8i")
-tonemap_mode = 2
-glow_enabled = true
+[ext_resource type="Environment" uid="uid://dgbvwfvwe75vl" path="res://Resources/EnvironmentResource.tres" id="2_sbpae"]
 
 [node name="MainMenu" type="Node3D"]
 script = ExtResource("1_gmfx3")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_bfeig")
-
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.80263, -0.128908, 0.582381, 0, 0.976368, 0.216116, -0.596477, -0.173461, 0.783662, 6.73479, 1.51175, 8.05561)
+environment = ExtResource("2_sbpae")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -51,9 +37,19 @@ layout_mode = 2
 text = "Generate"
 
 [node name="VoxelMaker" type="Button" parent="Control/VBoxContainer"]
+visible = false
 layout_mode = 2
 text = "Make Blocks
 "
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.0332743, -0.999262, -0.0191979, 0.845322, -0.0383859, 0.532877, -0.53322, 0.00150269, 0.845976, 0, 0, 0)
+light_energy = 0.85
+shadow_enabled = true
+shadow_blur = 0.697
+directional_shadow_mode = 1
+directional_shadow_fade_start = 1.0
+directional_shadow_max_distance = 350.0
 
 [connection signal="pressed" from="Control/VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="Control/VBoxContainer/VoxelMaker" to="." method="OnVoxelMakerButtonPressed"]

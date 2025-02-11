@@ -98,6 +98,10 @@ layout(set = 0, binding = 4, std430) buffer voxeldata{
 	Face FaceData[4000];
 } VoxelData;
 
+layout(set = 0, binding = 6, std430) buffer finalbuffer {
+	float data[MAX_BUFFER_LENGTH * 4];
+} FinalBuffer;
+
 vec4[3] AddPosition(vec4[3] vert, vec3 pos) {
 	vert[0] = vert[0] + pos.xyzx;
 	vert[1] = vert[1] + pos.yzxy;

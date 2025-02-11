@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=22 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_874if"]
@@ -76,6 +76,34 @@ shader_parameter/noise = SubResource("NoiseTexture2D_3m8io")
 [sub_resource type="QuadMesh" id="QuadMesh_1avtn"]
 material = SubResource("ShaderMaterial_vse3g")
 
+[sub_resource type="Shader" id="Shader_cedl4"]
+code = "shader_type canvas_item;
+
+void vertex() {
+	// Called for every vertex the material is visible on.
+}
+
+void fragment() {
+	float radius = length((UV - vec2(0.5)));
+	if (radius < 0.05) {
+		COLOR = vec4(0.7, 0.7, 0.7, 10.0 - radius * 10.0);
+	} else {
+		COLOR = vec4(0);
+	}
+	// Called for every pixel the material is visible on.
+}
+
+//void light() {
+	// Called for every pixel for every light affecting the CanvasItem.
+	// Uncomment to replace the default light processing function with this one.
+//}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_u0uxn"]
+shader = SubResource("Shader_cedl4")
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_0noxq"]
+
 [node name="GameLoop" type="Node3D" node_paths=PackedStringArray("RayCast")]
 script = ExtResource("1_aic3m")
 RayCast = NodePath("Camera3D/RayCast3D")
@@ -118,3 +146,31 @@ mesh = ExtResource("9_i1jmx")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.51805, 0)
 visible = false
 mesh = SubResource("QuadMesh_1avtn")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control"]
+material = SubResource("ShaderMaterial_u0uxn")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("CanvasTexture_0noxq")

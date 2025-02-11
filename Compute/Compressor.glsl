@@ -125,7 +125,7 @@ void Transfer(int index_to, int index_from) {
 	FinalBuffer.data[index_to * 12 + 10] = VertexBuffer.vertices[index_from * 12 + 10];//2 z
 	FinalBuffer.data[index_to * 12 + 11] = VertexBuffer.vertices[index_from * 12 + 11];//2 w
 	
-	/*
+	
 	FinalBuffer.data[collision_offset + index_to * 18 + 0] = VertexBuffer.CollisionVertices[index_from * 18 + 0]; 
 	FinalBuffer.data[collision_offset + index_to * 18 + 1] = VertexBuffer.CollisionVertices[index_from * 18 + 1];
 	FinalBuffer.data[collision_offset + index_to * 18 + 2] = VertexBuffer.CollisionVertices[index_from * 18 + 2];
@@ -183,13 +183,12 @@ void Transfer(int index_to, int index_from) {
 	FinalBuffer.data[colors_offset + index_to * 16 + 13] = VertexBuffer.colors[index_from * 16 + 13];
 	FinalBuffer.data[colors_offset + index_to * 16 + 14] = VertexBuffer.colors[index_from * 16 + 14];
 	FinalBuffer.data[colors_offset + index_to * 16 + 15] = VertexBuffer.colors[index_from * 16 + 15];
-	*/
 }
 
 void main () {
 	int index = int(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * 32 + gl_GlobalInvocationID.z * 32 * 32);
 	while (index < QuadCount.count) {
 		Transfer(index, index);
-		index += 32*32*32;
+		index += 32 * 32 * 32;
 	}
 }

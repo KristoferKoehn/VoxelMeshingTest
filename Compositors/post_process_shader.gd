@@ -43,6 +43,11 @@ void main() {
 
 	float brightness = (color.r + color.g + color.b) / 3.0;
 	
+	if ((uv_normalized - vec2(0,0)).length() < 0.1 ) {
+		color = vec4(1,1,1,1) - color;
+	} 
+	
+	
 	#COMPUTE_CODE
 
 	imageStore(color_image, uv, color);

@@ -85,8 +85,7 @@ public partial class Chunk : Node3D
     {
         Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
         
-        
-        if ((pos - GlobalPosition).Length() > GameConstants.DESPAWN_RADIUS * 128 && !Animating)
+        if ((pos - GlobalPosition).Length() > GameConstants.DESPAWN_RADIUS * 72 && !Animating)
         {
             Animating = true;
             Tween tween = GetTree().CreateTween();
@@ -155,6 +154,15 @@ public partial class Chunk : Node3D
         {
             Animating = true;
             GlobalPosition += new Vector3(0, -32, 0);
+        }
+    }
+
+    public void SpecialDispose()
+    {
+        if (IsInstanceValid(this) && !IsQueuedForDeletion())
+        {
+            ChunkSpawnManager.Instance().DeregisterChunk(this, ChunkCoordinates);
+            CallDeferred("queue_free");
         }
     }
 }
