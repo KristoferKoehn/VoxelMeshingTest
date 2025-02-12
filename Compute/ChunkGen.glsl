@@ -192,20 +192,16 @@ void main () {
 	for (int x = Gx * WorkGroupDataLength; x < (Gx + 1) * WorkGroupDataLength; x++) {
 		for (int y = Gy * WorkGroupDataLength; y < (Gy + 1) * WorkGroupDataLength; y++) {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
-				if (y == 0) {
-					ChunkBuffer.chunk[x][y][z] = 0;
-					return;
-				}
 				
 				vec3 warped_pos = vec3((float(ChunkPosition.x + x/64.0 - 1)) * scale, (float(ChunkPosition.y + y/64.0 - 1)) * scale, (float(ChunkPosition.z + z/64.0 - 1)) * scale);
 				float cutoff = domainWarpedNoise2D(warped_pos.zx, seed, 10.0) * 30 + 40;
 				cutoff *= domainWarpedNoise2D(warped_pos.zx, seed, 1.0) + 1;
 				cutoff = cutoff;
 				
-				if (cutoff > float(y)) {
+				if (cutoff > float(y) + ChunkPosition.y*64.0) {
 					
 					if (perlinNoise3D(ChunkPosition.xyz + vec3(float(x - 1) / 64.0, float(y - 1) / 64.0, float(z - 1) / 64.0), seed) > 0.0) {
-						ChunkBuffer.chunk[x][y][z] = 3;
+						ChunkBuffer.chunk[x][y][z] = 0;
 					} else {
 						ChunkBuffer.chunk[x][y][z] = 2;
 					}

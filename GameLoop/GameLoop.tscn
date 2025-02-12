@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=26 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_874if"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
 [ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
 [ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
+[ext_resource type="Script" path="res://GameLoop/DebugPanel.cs" id="8_jybo6"]
 [ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="9_i1jmx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6ropx"]
@@ -104,11 +105,32 @@ shader = SubResource("Shader_cedl4")
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_0noxq"]
 
+[sub_resource type="Shader" id="Shader_sd02a"]
+code = "shader_type canvas_item;
+
+void vertex() {
+	// Called for every vertex the material is visible on.
+}
+
+void fragment() {
+	COLOR = vec4(0, 0, 0, 0.3);
+	// Called for every pixel the material is visible on.
+}
+
+//void light() {
+	// Called for every pixel for every light affecting the CanvasItem.
+	// Uncomment to replace the default light processing function with this one.
+//}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_582b2"]
+shader = SubResource("Shader_sd02a")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6rhan"]
+
 [node name="GameLoop" type="Node3D" node_paths=PackedStringArray("RayCast")]
 script = ExtResource("1_aic3m")
 RayCast = NodePath("Camera3D/RayCast3D")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.0332743, -0.999262, -0.0191979, 0.845322, -0.0383859, 0.532877, -0.53322, 0.00150269, 0.845976, 0, 0, 0)
@@ -174,3 +196,101 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = SubResource("CanvasTexture_0noxq")
+
+[node name="Panel" type="Panel" parent="CanvasLayer" node_paths=PackedStringArray("Spawn", "Threads", "Depth", "Height", "Align")]
+material = SubResource("ShaderMaterial_582b2")
+offset_left = 24.0
+offset_top = 26.0
+offset_right = 307.0
+offset_bottom = 342.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_6rhan")
+script = ExtResource("8_jybo6")
+Spawn = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/SpawnSpinBox")
+Threads = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/ThreadsSpinBox")
+Depth = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/DepthSpinBox")
+Height = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/HeightSpinBox")
+Align = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/AlignmentSpinBox")
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Panel/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="Label" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "SPAWN_RADIUS"
+
+[node name="Label6" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+text = "DESPAWN_MARGIN"
+
+[node name="Label2" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "CHUNK_THREADS"
+
+[node name="Label3" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "WORLD_DEPTH"
+
+[node name="Label4" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+text = "WORLD_HEIGHT"
+
+[node name="Label5" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+text = "ALIGN_SCORE"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="SpawnSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="DespawnMarginSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="ThreadsSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="DepthSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+min_value = -10.0
+max_value = 0.0
+
+[node name="HeightSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="AlignmentSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+max_value = 0.5
+step = 0.001
+
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/SpawnSpinBox" to="CanvasLayer/Panel" method="SpawnRadiusChange"]
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/DespawnMarginSpinBox" to="CanvasLayer/Panel" method="DespawnMarginChange"]
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/ThreadsSpinBox" to="CanvasLayer/Panel" method="ChunkThreadsChange"]
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/DepthSpinBox" to="CanvasLayer/Panel" method="WorldDepthChange"]
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/HeightSpinBox" to="CanvasLayer/Panel" method="WorldHeightChange"]
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/AlignmentSpinBox" to="CanvasLayer/Panel" method="AlignmentChange"]

@@ -1,54 +1,36 @@
 shader_type spatial;
 
-uniform sampler2D AlbedoTexture : filter_nearest;
-uniform sampler2D MetallicTexture : filter_nearest;
-uniform sampler2D TransparencyTexture : filter_nearest;
-uniform sampler2D EmissivenessTexture : filter_nearest;
+uniform float xrot;
+uniform float yrot;
+uniform float zrot;
 
-const vec2 TextureCellSize = vec2(1.0/32.0, 1.0/32.0);
-uniform float TextureAtlasSize;
+//rot == (phi, theta, psi)
+mat3 ProcessRotation(vec3 rot) {
+	float phi = rot.x;
+	float theta = rot.y;
+	float psi = rot.z;
+	mat3 PositionalMatrix;
 
-varying vec2 MetallicPos;
-varying vec2 EmissivenessPos;
-varying vec2 TransparencyPos;
-
-varying float Metallicity;
-varying float Emissiveness;
-varying float Transparency;
+	PositionalMatrix[0][0] = cos(theta)*cos(psi);
+	PositionalMatrix[1][0] = cos(phi)*sin(psi) + sin(phi) * sin(theta) * cos(psi);
+	PositionalMatrix[2][0] = sin(phi) * sin(psi) - cos(phi)*sin(theta)*cos(psi);
+	PositionalMatrix[0][1] = -cos(theta)*sin(psi);
+	PositionalMatrix[1][1] = cos(phi)*cos(psi) - sin(phi) * sin(theta) * sin(psi);
+	PositionalMatrix[2][1] = sin(phi) * cos(psi) + cos(phi)*sin(theta)*sin(psi);
+	PositionalMatrix[0][2] = sin(theta);
+	PositionalMatrix[1][2] = -sin(phi)*cos(theta);
+	PositionalMatrix[2][2] = cos(phi)*cos(theta);
+	return PositionalMatrix;
+}
 
 void vertex() {
-	MetallicPos = vec2(CUSTOM0.y / TextureAtlasSize, mod(CUSTOM0.y, TextureAtlasSize));
-	EmissivenessPos = vec2(CUSTOM0.z / TextureAtlasSize, mod(CUSTOM0.z, TextureAtlasSize));
-	TransparencyPos = vec2(CUSTOM0.w / TextureAtlasSize, mod(CUSTOM0.w, TextureAtlasSize));
-
-	Metallicity = CUSTOM0.y;
-	Emissiveness = CUSTOM0.z;
-	Transparency = CUSTOM0.w;
+	//VERTEX = VERTEX * ProcessRotation(vec3(2.3 * TIME * xrot, 3.1 * TIME * yrot, 1.3 * TIME * zrot)) + vec3(0.4,0.3,0.12) * ProcessRotation(vec3(2.0 * -TIME * xrot, 2.0 * -TIME * yrot,  2.0 * -TIME * zrot));
+	//NORMAL = NORMAL * ProcessRotation(vec3(2.3 * TIME * xrot, 3.1 * TIME * yrot, 1.3 * TIME * zrot));
+	//VERTEX = VERTEX * ProcessRotation(vec3(xrot, yrot, zrot));
+	//NORMAL = NORMAL * ProcessRotation(vec3(xrot, yrot, zrot));s
+	// Called for every vertex the material is visible on.
 }
 
 void fragment() {
 	ALBEDO = COLOR.rgb;
-	if (!(UV.x <= 1.0/32.0) || !(UV.y <= 1.0/32.0)) {
-		ALBEDO = ALBEDO * texture(AlbedoTexture, UV).rgb;
-	}
-
-	/*
-	if (MetallicPos != vec2(0,0)) {
-		if (Metallicity < 1023.0) {
-			ROUGHNESS = METALLIC = texture(MetallicTexture, MetallicPos + UV * TextureCellSize).r;
-			ROUGHNESS = 1.0 - ROUGHNESS;
-		} else {
-			ROUGHNESS = 1.0 - (Metallicity - 1023.0);
-			METALLIC = Metallicity - 1023.0;
-		}
-	}
-
-	if (EmissivenessPos != vec2(0,0)) {
-		if (Emissiveness < 1023.0) {
-			EMISSION = ALBEDO * texture(EmissivenessTexture, EmissivenessPos * TextureCellSize).r;
-		} else {
-			EMISSION = ALBEDO * (Emissiveness - 1023.0);
-		}
-	}
-	*/
 }

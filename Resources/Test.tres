@@ -1,13 +1,10 @@
-[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://pjlbdrjc0a5l"]
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://pjlbdrjc0a5l"]
 
 [ext_resource type="Shader" path="res://Resources/Test.gdshader" id="1_u4ve8"]
-[ext_resource type="Texture2D" uid="uid://dwjhtygbkab7q" path="res://assets/soyjack texture pack.png" id="2_20h0y"]
 
 [resource]
 render_priority = 0
 shader = ExtResource("1_u4ve8")
-shader_parameter/TextureAtlasSize = 32.0
-shader_parameter/AlbedoTexture = ExtResource("2_20h0y")
-shader_parameter/MetallicTexture = ExtResource("2_20h0y")
-shader_parameter/TransparencyTexture = ExtResource("2_20h0y")
-shader_parameter/EmissivenessTexture = ExtResource("2_20h0y")
+shader_parameter/xrot = 0.0
+shader_parameter/yrot = 0.0
+shader_parameter/zrot = null

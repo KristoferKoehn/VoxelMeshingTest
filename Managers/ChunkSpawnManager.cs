@@ -224,36 +224,40 @@ public partial class ChunkSpawnManager : Node
             Vector3I PlayerCoordinate = (Vector3I)(playerPos / GameConstants.CHUNK_SIZE);
             PlayerCoordinate = new Vector3I(PlayerCoordinate.X, 0, PlayerCoordinate.Z);
 
-            for (int i = -GameConstants.SPAWN_RADIUS - threadID; i < GameConstants.SPAWN_RADIUS + threadID; i++)
+            for (int i = -GameConstants.SPAWN_RADIUS; i < GameConstants.SPAWN_RADIUS; i++)
             {
-                for (int j = -GameConstants.SPAWN_RADIUS - threadID; j < GameConstants.SPAWN_RADIUS + threadID; j++)
+                for (int j = -GameConstants.SPAWN_RADIUS; j < GameConstants.SPAWN_RADIUS; j++)
                 {
-                    Vector3I Pos = PlayerCoordinate + new Vector3I(i, 0, j);
-
-                    if ((Pos - PlayerCoordinate).Length() > GameConstants.SPAWN_RADIUS)
+                    for (int k = GameConstants.WORLD_DEPTH; k < GameConstants.WORLD_HEIGHT; k++)
                     {
-                        continue;
-                    }
 
-                    if (Chunks.ContainsKey(Pos))
-                    {
-                        if (Chunks.ContainsKey(Pos) && Chunks[Pos] != null) //it keeps breaking on these so I have to check containskey a bunch
+                        Vector3I Pos = PlayerCoordinate + new Vector3I(i, k, j);
+
+                        if ((Pos - PlayerCoordinate).Length() > GameConstants.SPAWN_RADIUS)
                         {
-                            if (Chunks.ContainsKey(Pos) && Chunks[Pos].Stale == true)
+                            continue;
+                        }
+
+                        if (Chunks.ContainsKey(Pos))
+                        {
+                            if (Chunks.ContainsKey(Pos) && Chunks[Pos] != null) //it keeps breaking on these so I have to check containskey a bunch
                             {
+                                if (Chunks.ContainsKey(Pos) && Chunks[Pos].Stale == true)
+                                {
 
-                                PosList.Add(Pos);
+                                    PosList.Add(Pos);
 
+                                } //else do nothing
                             } //else do nothing
+                        }
+                        else
+                        {
+
+                            PosList.Add(Pos);
+
                         } //else do nothing
+
                     }
-                    else
-                    {
-
-                        PosList.Add(Pos);
-
-                    } //else do nothing
-
                 }
             }
             
@@ -334,7 +338,7 @@ public partial class ChunkSpawnManager : Node
             float alignment = (worldPos - PlayerPosition).Normalized().Dot(forwardView);
 
             // Weighted score: prioritize alignment but still consider distance
-            float score = alignment - (distance * 0.002f); // Adjust weighting as needed
+            float score = alignment - (distance * GameConstants.ALIGNMENT_SCORE_WEIGHT); // Adjust weighting as needed
 
             if (score > bestScore)
             {
@@ -345,8 +349,6 @@ public partial class ChunkSpawnManager : Node
 
         return bestPosition;
     }
-
-
 
     public Chunk GetChunk(Vector3I pos)
     {
