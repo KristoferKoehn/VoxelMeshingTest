@@ -187,6 +187,8 @@ void main () {
 	
 	vec3 ChunkPosition = ChunkDimensions.ChunkCoordinate.xyz;
 	float seed = 5.0;
+	float mountainseed = seed - 1;
+	float plainseed = seed - 2;
 	float scale = 0.5;
 	
 	for (int x = Gx * WorkGroupDataLength; x < (Gx + 1) * WorkGroupDataLength; x++) {
@@ -194,24 +196,31 @@ void main () {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
 				
 				vec3 warped_pos = vec3((float(ChunkPosition.x + x/64.0 - 1)) * scale, (float(ChunkPosition.y + y/64.0 - 1)) * scale, (float(ChunkPosition.z + z/64.0 - 1)) * scale);
-				float cutoff = domainWarpedNoise2D(warped_pos.zx, seed, 10.0) * 12 + 10;
+				
+				//float cutoff = perlinNoise2D(warped_pos.zx, seed);
+				float cutoff = domainWarpedNoise2D(warped_pos.zx, seed, 10.0);
 				cutoff *= domainWarpedNoise2D(warped_pos.zx, seed, 1.0) + 1;
-				cutoff = cutoff;
+				
+				float mountain_height = perlinNoise2D(warped_pos.zx * 0.5, mountainseed);
+				float plains_height = perlinNoise2D(warped_pos.zx * 0.5, plainseed);
+				if (mountain_height > plains_height) {
+					if ((cutoff + (mountain_height - plains_height) * 15) * 10 + 17 > float(y) + ChunkPosition.y*64.0) {
+						ChunkBuffer.chunk[x][y][z] = 4;
+					} else {
+						ChunkBuffer.chunk[x][y][z] = 0;
+					}
+				} else {
+					if (cutoff * 10 + 17 > float(y) + ChunkPosition.y*64.0) {
+						ChunkBuffer.chunk[x][y][z] = 2;
+					} else {
+						ChunkBuffer.chunk[x][y][z] = 0;
+					}
+				}
 				
 				//use base cutoff and biome vars
 				//if biome var > cutoff, if y < biome * cutoff, xyz = 2
 				
-				if (cutoff > float(y) + ChunkPosition.y*64.0) {
-					/*
-					if (perlinNoise3D(ChunkPosition.xyz + vec3(float(x - 1) / 64.0, float(y - 1) / 64.0, float(z - 1) / 64.0), seed) > 0.0) {
-						ChunkBuffer.chunk[x][y][z] = 0;
-					} else {
-						ChunkBuffer.chunk[x][y][z] = 2;
-					}*/
-					ChunkBuffer.chunk[x][y][z] = 2;
-				} else {
-					ChunkBuffer.chunk[x][y][z] = 0;
-				}
+
 			}
 		}
 	}
