@@ -210,8 +210,10 @@ public partial class ChunkSpawnManager : Node
                     rdFrame.MesherRenderDevice.FreeRid(rdFrame.GreedyBuffer);
                     rdFrame.MesherRenderDevice.FreeRid(rdFrame.MesherShaderRID);
                     rdFrame.MesherRenderDevice.FreeRid(rdFrame.GreedyShaderRID);
+                    rdFrame.MesherRenderDevice.FreeRid(rdFrame.CompressorBuffer);
+                    rdFrame.MesherRenderDevice.FreeRid(rdFrame.VoxelDataBuffer);
+                    rdFrame.MesherRenderDevice.FreeRid(rdFrame.CompressorShaderRID);
                     rdFrame.MesherRenderDevice.Free();
-
                     rdFrame.GeneratorRenderDevice.FreeRid(rdFrame.TerrainShaderRID);
                     rdFrame.GeneratorRenderDevice.Free();
                     GD.Print($"Thread {threadID} disposing...");
@@ -318,7 +320,7 @@ public partial class ChunkSpawnManager : Node
             DeleteAllChunks += chunk.SpecialDispose;
             CallDeferred("add_child", chunk);
 
-            GD.Print($"adding chunk from thread {threadID} at {Candidate}, Candidate List: {CandidateList}, FindBestPosition: {FindBestPositionStamp}, Generate Stamp: {GenerateStamp}, Mesh Stamp: {MeshStamp}");
+            //GD.Print($"adding chunk from thread {threadID} at {Candidate}, Candidate List: {CandidateList}, FindBestPosition: {FindBestPositionStamp}, Generate Stamp: {GenerateStamp}, Mesh Stamp: {MeshStamp}");
         }
     }
 

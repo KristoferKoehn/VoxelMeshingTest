@@ -134,12 +134,10 @@ RayCast = NodePath("Camera3D/RayCast3D")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.0332743, -0.999262, -0.0191979, 0.845322, -0.0383859, 0.532877, -0.53322, 0.00150269, 0.845976, 0, 0, 0)
-light_energy = 0.85
+light_energy = 0.319
 shadow_enabled = true
 shadow_blur = 0.697
-directional_shadow_mode = 1
-directional_shadow_fade_start = 1.0
-directional_shadow_max_distance = 350.0
+directional_shadow_mode = 0
 
 [node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
 script = ExtResource("4_cg07s")

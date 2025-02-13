@@ -194,22 +194,25 @@ void main () {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
 				
 				vec3 warped_pos = vec3((float(ChunkPosition.x + x/64.0 - 1)) * scale, (float(ChunkPosition.y + y/64.0 - 1)) * scale, (float(ChunkPosition.z + z/64.0 - 1)) * scale);
-				float cutoff = domainWarpedNoise2D(warped_pos.zx, seed, 10.0) * 30 + 40;
+				float cutoff = domainWarpedNoise2D(warped_pos.zx, seed, 10.0) * 12 + 10;
 				cutoff *= domainWarpedNoise2D(warped_pos.zx, seed, 1.0) + 1;
 				cutoff = cutoff;
 				
+				//use base cutoff and biome vars
+				//if biome var > cutoff, if y < biome * cutoff, xyz = 2
+				
 				if (cutoff > float(y) + ChunkPosition.y*64.0) {
-					
+					/*
 					if (perlinNoise3D(ChunkPosition.xyz + vec3(float(x - 1) / 64.0, float(y - 1) / 64.0, float(z - 1) / 64.0), seed) > 0.0) {
 						ChunkBuffer.chunk[x][y][z] = 0;
 					} else {
 						ChunkBuffer.chunk[x][y][z] = 2;
-					}
-					//ChunkBuffer.chunk[x][y][z] = 2;
+					}*/
+					ChunkBuffer.chunk[x][y][z] = 2;
 				} else {
 					ChunkBuffer.chunk[x][y][z] = 0;
 				}
 			}
 		}
-	} 
+	}
 }
