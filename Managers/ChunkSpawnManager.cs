@@ -290,7 +290,7 @@ public partial class ChunkSpawnManager : Node
                     {
                         //Chunks[Candidate].CallDeferred("queue_free");
                         //just refresh the fkin chunkie and return
-                        ChunkMeshManager.Instance().GenerateChunkMesh(Chunks[Candidate].ChunkData, Chunks[Candidate], rdFrame);
+                        ChunkMeshManager.Instance().GenerateChunkMesh(Chunks[Candidate], rdFrame);
                         //GD.Print("updating stale chunk");
                         Chunks[Candidate].Stale = false;
                         continue;
@@ -302,25 +302,25 @@ public partial class ChunkSpawnManager : Node
 
             double FindBestPositionStamp = sw.ElapsedMilliseconds;
 
-            int[,,] ChData;
             double GenerateStamp;
             //do the stuff
             lock (GenerateLock)
             {
-                ChData = ChunkGeneratorManager.Instance().ComputeGenerateChunk(Candidate, rdFrame);
-                GenerateStamp = sw.ElapsedMilliseconds;
-            
-                chunk.ChunkData = ChData;
+
                 chunk.ChunkPosition = new Vector3(Candidate.X * GameConstants.CHUNK_SIZE, Candidate.Y * GameConstants.CHUNK_SIZE, Candidate.Z * GameConstants.CHUNK_SIZE);
                 chunk.ChunkCoordinates = Candidate;
-            
-                ChunkMeshManager.Instance().GenerateChunkMesh(ChData, chunk, rdFrame);
+                if (ChunkGeneratorManager.Instance().ComputeGenerateChunk(Candidate, chunk, rdFrame))
+                {
+                    ChunkMeshManager.Instance().GenerateChunkMesh(chunk, rdFrame);
+                }
+                GenerateStamp = sw.ElapsedMilliseconds;
+
             }
             double MeshStamp = sw.ElapsedMilliseconds;
             DeleteAllChunks += chunk.SpecialDispose;
             CallDeferred("add_child", chunk);
 
-            //GD.Print($"adding chunk from thread {threadID} at {Candidate}, Candidate List: {CandidateList}, FindBestPosition: {FindBestPositionStamp}, Generate Stamp: {GenerateStamp}, Mesh Stamp: {MeshStamp}");
+            GD.Print($"adding chunk from thread {threadID} at {Candidate}, Candidate List: {CandidateList}, FindBestPosition: {FindBestPositionStamp}, Generate Stamp: {GenerateStamp}, Mesh Stamp: {MeshStamp}");
         }
     }
 

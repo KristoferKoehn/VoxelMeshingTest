@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 using System;
 using System.Collections.Concurrent;
+using System.Xml.Linq;
 using VoxelMeshingTest.Classes;
 
 public partial class ChunkGeneratorManager : Node
@@ -10,11 +11,6 @@ public partial class ChunkGeneratorManager : Node
 	private static ChunkGeneratorManager instance = null;
 
 	private ChunkGeneratorManager() { }
-
-    public System.Collections.Generic.Dictionary<Vector3I, int[,,]> GeneratedChunks { get; set; } = new System.Collections.Generic.Dictionary<Vector3I, int[,,]>();
-	bool Generating = false;
-
-    ConcurrentQueue<RenderingDevice> ConcurrentRenderDevices { get; set; } = new();
 
     public static ChunkGeneratorManager Instance()
 	{
@@ -31,8 +27,7 @@ public partial class ChunkGeneratorManager : Node
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-        //instance.rd = RenderingServer.CreateLocalRenderingDevice();
-        ConcurrentRenderDevices.Enqueue(RenderingServer.CreateLocalRenderingDevice());
+
     }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -41,13 +36,13 @@ public partial class ChunkGeneratorManager : Node
 
 	}
 
-    public int[,,] ComputeGenerateChunk(Vector3I pos, ChunkSpawnManager.RenderDeviceFrame rdFrame)
+    public bool ComputeGenerateChunk(Vector3I pos, Chunk ch, ChunkSpawnManager.RenderDeviceFrame rdFrame)
     {
         int[,,] chunk;
       
         long ComputeList = rdFrame.GeneratorRenderDevice.ComputeListBegin();
 
-        Rid ChunkBuffer = rdFrame.GeneratorRenderDevice.StorageBufferCreate((uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4);
+        Rid ChunkBuffer = rdFrame.GeneratorRenderDevice.StorageBufferCreate((uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4 + 8);
 
         byte[] DimensionBytes = new byte[32];
         Buffer.BlockCopy(new float[] { GameConstants.CHUNK_DATA_SIZE, 33, 0, 0, pos.X, pos.Y, pos.Z, 0 }, 0, DimensionBytes, 0, 32);
@@ -84,11 +79,14 @@ public partial class ChunkGeneratorManager : Node
 
         byte[] chunkData = rdFrame.GeneratorRenderDevice.BufferGetData(ChunkBuffer); 
 
-        rdFrame.GeneratorRenderDevice.BufferClear(ChunkBuffer, 0, (uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4);
+        rdFrame.GeneratorRenderDevice.BufferClear(ChunkBuffer, 0, (uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4 + 8);
 
         chunk = new int[66, 66, 66];
 
-        Buffer.BlockCopy(chunkData, 0, chunk, 0, chunkData.Length);
+        int[] count = { 0, 0 };
+        Buffer.BlockCopy(chunkData, chunkData.Length - 8, count, 0 , 8);
+
+        Buffer.BlockCopy(chunkData, 0, chunk, 0, chunkData.Length - 8);
 
         int blockCount = 0;
         foreach (int block in chunk)
@@ -102,6 +100,13 @@ public partial class ChunkGeneratorManager : Node
         rdFrame.GeneratorRenderDevice.FreeRid(pipelineRID);
         rdFrame.GeneratorRenderDevice.FreeRid(ChunkBuffer);
         rdFrame.GeneratorRenderDevice.FreeRid(ChunkDimensionalBuffer);
-        return chunk;
+
+        ch.ChunkData = chunk;
+        if (count[0] == 0 || count[1] == 66 * 66 * 66)
+        {
+            return false;
+        }
+
+        return true;
     }
 }

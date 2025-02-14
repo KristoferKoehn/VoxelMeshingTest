@@ -8,6 +8,8 @@ layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(set = 0, binding = 2, std430) buffer chunkbuffer {
 	int chunk[CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH][CHUNK_DATA_LENGTH];
+	int ZeroCount;
+	int BlockCount;
 } ChunkBuffer; 
 
 layout(set = 0, binding = 3, std430) buffer chunkdimensions{
@@ -219,8 +221,10 @@ void main () {
 				
 				//use base cutoff and biome vars
 				//if biome var > cutoff, if y < biome * cutoff, xyz = 2
-				
-
+				atomicAdd(ChunkBuffer.ZeroCount, ChunkBuffer.chunk[x][y][z]);
+				if (ChunkBuffer.chunk[x][y][z] != 0) {
+					atomicAdd(ChunkBuffer.BlockCount, 1);	
+				}
 			}
 		}
 	}

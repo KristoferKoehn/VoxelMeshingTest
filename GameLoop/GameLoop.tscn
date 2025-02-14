@@ -137,7 +137,8 @@ transform = Transform3D(-0.0332743, -0.999262, -0.0191979, 0.845322, -0.0383859,
 light_energy = 0.319
 shadow_enabled = true
 shadow_blur = 0.697
-directional_shadow_mode = 0
+directional_shadow_blend_splits = true
+directional_shadow_max_distance = 200.0
 
 [node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
 script = ExtResource("4_cg07s")
@@ -146,6 +147,7 @@ TrackingItem = NodePath("../Camera3D")
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 17, 0)
 environment = ExtResource("3_874if")
+far = 10000.0
 script = ExtResource("3_o0vww")
 sensitivity = 0.2
 
@@ -266,9 +268,11 @@ size_flags_horizontal = 8
 
 [node name="SpawnSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
+max_value = 156.0
 
 [node name="DespawnMarginSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2
+max_value = 10000.0
 
 [node name="ThreadsSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
 layout_mode = 2

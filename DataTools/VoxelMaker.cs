@@ -54,7 +54,6 @@ public partial class VoxelMaker : Node3D
 
 	public void RefreshBlock()
 	{
-		ChunkMeshManager.Instance().InitializeVoxelData();
         ch.Stale = true;
 	}
 
@@ -278,7 +277,6 @@ public partial class VoxelMaker : Node3D
             //copy quads, hook up quads to voxel
             ValueChange();
             RefreshList();
-            ChunkMeshManager.Instance().InitializeVoxelData();
         }
     }
 }

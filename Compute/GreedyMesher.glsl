@@ -248,6 +248,10 @@ void GreedyTransfer(int greedyTicket) {
 }
 
 void main () {
+	if (QuadCount.greedycount == 0) {
+		return;
+	}
+	
 	int GreedyIndex = int(gl_GlobalInvocationID.x);
 	
 	int face = (GreedyIndex) / 64;
