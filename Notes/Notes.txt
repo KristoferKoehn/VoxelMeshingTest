@@ -1,8 +1,0 @@
-TODOs:
-	
-	Clean up meshing:
-		make multiple render devices such that multithreaded rendering process can be done
-		delete old unused code
-	
-	
-	

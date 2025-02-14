@@ -1,6 +1,13 @@
-extends Node3D
+extends CharacterBody3D
+class_name Actor
 
-var State : Dictionary
+@export var State : Dictionary = {
+	"components" : [],
+	"move_speed" : 16,
+	"gravity" : -30.0,
+	"acceleration" : 20.0,
+	"jump_impulse" : 12.0
+}
 
 signal moving
 signal attacking
@@ -14,9 +21,12 @@ signal mana_changed(delta:float)
 func _ready():
 	if State.has("components"):
 		for c in State["components"]:
-			add_child(c)
+			add_child(c.new())
 	pass # Replace with function body.
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
+	pass
+
+func _physics_process(_delta):
 	pass

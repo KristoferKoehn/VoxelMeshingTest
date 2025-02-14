@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=27 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_874if"]
@@ -7,6 +7,7 @@
 [ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
 [ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
 [ext_resource type="Script" path="res://GameLoop/DebugPanel.cs" id="8_jybo6"]
+[ext_resource type="PackedScene" uid="uid://cps8gx3j2imec" path="res://Controllers/PlayerActor.tscn" id="9_dfps3"]
 [ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="9_i1jmx"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6ropx"]
@@ -145,6 +146,7 @@ script = ExtResource("4_cg07s")
 TrackingItem = NodePath("../Camera3D")
 
 [node name="Camera3D" type="Camera3D" parent="."]
+process_mode = 4
 transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 17, 0)
 environment = ExtResource("3_874if")
 far = 10000.0
@@ -289,6 +291,8 @@ layout_mode = 2
 layout_mode = 2
 max_value = 0.5
 step = 0.001
+
+[node name="PlayerActor" parent="." instance=ExtResource("9_dfps3")]
 
 [connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/SpawnSpinBox" to="CanvasLayer/Panel" method="SpawnRadiusChange"]
 [connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/DespawnMarginSpinBox" to="CanvasLayer/Panel" method="DespawnMarginChange"]

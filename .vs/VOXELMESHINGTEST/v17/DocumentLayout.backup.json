@@ -66,8 +66,7 @@
               "RelativeToolTip": "Managers\\ChunkSpawnManager.cs",
               "ViewState": "AgIAAIMAAAAAAAAAAAAuwN0AAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-02T19:54:04.145Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-02T19:54:04.145Z"
             },
             {
               "$type": "Document",
@@ -91,8 +90,7 @@
               "RelativeToolTip": "Managers\\PlayerTrackingManager.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-10T04:24:11.714Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-10T04:24:11.714Z"
             },
             {
               "$type": "Document",
@@ -104,8 +102,7 @@
               "RelativeToolTip": "Managers\\ChunkGeneratorManager.cs",
               "ViewState": "AgIAAEMAAAAAAAAAAAAcwGwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-10T03:59:54.752Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-12-10T03:59:54.752Z"
             },
             {
               "$type": "Document",
@@ -117,8 +114,7 @@
               "RelativeToolTip": "Managers\\ChunkMeshManager.cs",
               "ViewState": "AgIAAOgAAAAAAAAAAAAjwPEAAABWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-11-12T03:27:26.416Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-11-12T03:27:26.416Z"
             },
             {
               "$type": "Document",
@@ -128,7 +124,7 @@
               "RelativeDocumentMoniker": "Classes\\Chunk.cs",
               "ToolTip": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Classes\\Chunk.cs",
               "RelativeToolTip": "Classes\\Chunk.cs",
-              "ViewState": "AgIAAGMAAAAAAAAAAAAuwGgAAAAIAAAAAAAAAA==",
+              "ViewState": "AgIAAGMAAAAAAAAAAAAuwHYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-01T05:02:02.032Z",
               "EditorCaption": ""

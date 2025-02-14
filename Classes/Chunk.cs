@@ -115,11 +115,10 @@ public partial class Chunk : Node3D
                 //QueueFree();
                 CallDeferred("queue_free");
             };
-        } 
+        }
 
         if (Meshed)
         {
-            
             if (!FirstGenerated) {
                 Tween tween = GetTree().CreateTween();
                 tween.SetTrans(Tween.TransitionType.Spring);

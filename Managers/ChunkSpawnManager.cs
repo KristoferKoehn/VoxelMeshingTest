@@ -320,7 +320,7 @@ public partial class ChunkSpawnManager : Node
             DeleteAllChunks += chunk.SpecialDispose;
             CallDeferred("add_child", chunk);
 
-            GD.Print($"adding chunk from thread {threadID} at {Candidate}, Candidate List: {CandidateList}, FindBestPosition: {FindBestPositionStamp}, Generate Stamp: {GenerateStamp}, Mesh Stamp: {MeshStamp}");
+            //GD.Print($"adding chunk from thread {threadID} at {Candidate}, Candidate List: {CandidateList}, FindBestPosition: {FindBestPositionStamp}, Generate Stamp: {GenerateStamp}, Mesh Stamp: {MeshStamp}");
         }
     }
 
