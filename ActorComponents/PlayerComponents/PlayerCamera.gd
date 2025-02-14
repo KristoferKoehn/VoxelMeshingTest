@@ -6,7 +6,7 @@ var _actor : Actor
 
 # Mouse state
 var _mouse_position = Vector2(0.0, 0.0)
-var _total_pitch = 0.0
+var _total_pitch = 10.0
 
 var _camera : Camera3D
 var _gimbal : Node3D
@@ -27,7 +27,7 @@ func _process(_delta):
 	_update_mouselook()
 
 func _physics_process(_delta):
-	global_position = lerp(global_position, _actor.global_position, 0.2)
+	global_position = lerp(global_position, _actor.global_position + Vector3(0, 3, 0), 0.1)
 
 func _input(event):
 
@@ -49,7 +49,7 @@ func _update_mouselook():
 	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		_mouse_position *= sensitivity
 		var yaw = _mouse_position.x
-		var pitch = _mouse_position.y
+		var pitch = -_mouse_position.y
 		_mouse_position = Vector2(0, 0)
 		
 		# Prevents looking up/down too far
@@ -57,4 +57,4 @@ func _update_mouselook():
 		_total_pitch += pitch
 	
 		_gimbal.rotate_y(deg_to_rad(-yaw))
-		_camera.rotate_object_local(Vector3(1,0,0), deg_to_rad(-pitch))
+		_gimbal.rotate_object_local(Vector3(1,0,0), deg_to_rad(-pitch))

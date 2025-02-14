@@ -1,13 +1,7 @@
 extends CharacterBody3D
 class_name Actor
 
-@export var State : Dictionary = {
-	"components" : [],
-	"move_speed" : 16,
-	"gravity" : -30.0,
-	"acceleration" : 20.0,
-	"jump_impulse" : 12.0
-}
+@export var State : Dictionary
 
 signal moving
 signal attacking
