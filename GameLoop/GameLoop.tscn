@@ -7,7 +7,7 @@
 [ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
 [ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
 [ext_resource type="Script" path="res://GameLoop/DebugPanel.cs" id="8_jybo6"]
-[ext_resource type="PackedScene" uid="uid://dwnuhnuelahoi" path="res://Controllers/PlayerActor.tscn" id="9_dfps3"]
+[ext_resource type="PackedScene" uid="uid://cps8gx3j2imec" path="res://Controllers/PlayerActor.tscn" id="9_dfps3"]
 [ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="9_i1jmx"]
 [ext_resource type="Script" path="res://ActorComponents/PlayerComponents/PlayerCamera.gd" id="10_0ai2u"]
 [ext_resource type="Script" path="res://ActorComponents/PlayerComponents/PlayerMovement.gd" id="11_ayo10"]
@@ -300,7 +300,7 @@ State = {
 "components": [ExtResource("10_0ai2u"), ExtResource("11_ayo10")],
 "gravity": -30.0,
 "jump_impulse": 12.0,
-"move_speed": 20
+"move_speed": 30
 }
 
 [connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/SpawnSpinBox" to="CanvasLayer/Panel" method="SpawnRadiusChange"]

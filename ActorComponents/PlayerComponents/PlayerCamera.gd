@@ -27,7 +27,7 @@ func _process(_delta):
 	_update_mouselook()
 
 func _physics_process(_delta):
-	global_position = lerp(global_position, _actor.global_position + Vector3(0, 3, 0), 0.1)
+	global_position = lerp(global_position, _actor.global_position + Vector3(0, 3, 0), 0.3)
 
 func _input(event):
 
