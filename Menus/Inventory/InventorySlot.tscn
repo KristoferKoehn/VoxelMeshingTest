@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://cnmn5et8arm8b"]
+
+[ext_resource type="Script" path="res://Menus/Inventory/InventorySlot.cs" id="1_aofbh"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_kkw82"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_qlid7"]
+font_size = 12
+
+[node name="InventorySlot" type="Panel" node_paths=PackedStringArray("Sprite2D")]
+custom_minimum_size = Vector2(30, 30)
+script = ExtResource("1_aofbh")
+Sprite2D = NodePath("ItemDisplay")
+
+[node name="ItemDisplay" type="Sprite2D" parent="."]
+texture = SubResource("ImageTexture_kkw82")
+offset = Vector2(15, 15)
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 16.0
+offset_right = 30.0
+offset_bottom = 33.0
+label_settings = SubResource("LabelSettings_qlid7")
+horizontal_alignment = 2

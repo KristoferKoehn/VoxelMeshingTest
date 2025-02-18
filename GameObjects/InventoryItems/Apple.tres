@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="InventoryItem" load_steps=4 format=3 uid="uid://ennaly4666ao"]
+
+[ext_resource type="Script" path="res://Menus/Inventory/InventoryItem.cs" id="1_0upq2"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_1httr"]
+frequency = 0.0674
+offset = Vector3(0, 47.06, 0)
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_gxnlv"]
+width = 30
+height = 30
+noise = SubResource("FastNoiseLite_1httr")
+
+[resource]
+script = ExtResource("1_0upq2")
+Name = "Apple"
+Sprite = SubResource("NoiseTexture2D_gxnlv")

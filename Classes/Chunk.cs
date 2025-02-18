@@ -14,7 +14,6 @@ public partial class Chunk : Node3D
     public bool Deleting = false;
     public bool Stale = false;
 
-
     public MeshInstance3D MeshInstance;
     public StaticBody3D SB;
     public CollisionShape3D CollisionShape;
@@ -69,7 +68,11 @@ public partial class Chunk : Node3D
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
     {
-
+        /* debug visualizations
+        MeshInstance3D meshInstance3D = new MeshInstance3D();
+        meshInstance3D.Mesh = new SphereMesh();
+        AddChild(meshInstance3D);
+        */
     }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.

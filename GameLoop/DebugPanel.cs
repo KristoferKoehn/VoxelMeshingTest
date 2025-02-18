@@ -36,7 +36,6 @@ public partial class DebugPanel : Panel2
 		else
 		{
             Visible = true;
-
         }
     }
 

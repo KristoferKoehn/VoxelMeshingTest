@@ -136,7 +136,7 @@ func _physics_process(delta: float) -> void:
 	var is_starting_jump := Input.is_action_just_pressed("jump") and is_on_floor()
 	if is_starting_jump:
 		velocity.y += jump_impulse
-	
+
 	move_and_slide()
 	_snap_down_to_stairs_check()
 	var curr_blend = AnimTree["parameters/AnimationNodeStateMachine/groundlocomotion/blend_position"]
@@ -149,7 +149,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		var target_angle := Vector3.BACK.signed_angle_to(-forward, Vector3.UP)
 		Model.global_rotation.y = lerp_angle(Model.rotation.y, target_angle, rotation_speed * delta)
-		
+
 	if Vector3(velocity.x, 0, velocity.z).length() > 0.4:
 		ForwardStepCollision.position = Vector3(0,1.1,0) + Vector3(velocity.x, 0, velocity.z).normalized() * step_up_radius
 		LeftStepCollision.position = Vector3(0,1.1,0) + Vector3(velocity.x, 0, velocity.z).normalized().rotated(Vector3.UP, PI/4) * step_up_radius

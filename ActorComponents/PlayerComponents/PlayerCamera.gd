@@ -19,6 +19,8 @@ func _ready():
 	_actor = get_parent() as Actor
 	_gimbal = load("res://ActorUtilityScenes/CameraGimbal.tscn").instantiate()
 	_camera = _gimbal.get_node("SpringArm3D/Camera3D")
+	var _springarm : SpringArm3D = _gimbal.get_node("SpringArm3D")
+	_springarm.add_excluded_object(_actor)
 	_actor.State["camera"] = _camera
 	add_child(_gimbal)
 	pass # Replace with function body.
@@ -27,7 +29,11 @@ func _process(_delta):
 	_update_mouselook()
 
 func _physics_process(_delta):
-	global_position = lerp(global_position, _actor.global_position + Vector3(0, 3, 0), 0.3)
+
+	var y = lerp(global_position.y, _actor.global_position.y + 2, 0.1)
+
+	global_position = lerp(global_position, _actor.global_position, 0.3)
+	global_position.y = y
 
 func _input(event):
 

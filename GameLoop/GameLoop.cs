@@ -1,6 +1,7 @@
 using Godot;
 using System.Collections.Generic;
 using VoxelMeshingTest.Classes;
+using VoxelMeshingTest.Managers;
 
 public partial class GameLoop : Node3D
 {
@@ -17,6 +18,7 @@ public partial class GameLoop : Node3D
         ChunkGeneratorManager.Instance();
         ChunkMeshManager.Instance();
         ChunkSpawnManager.Instance();
+        PlayerManager.Instance();
     }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
