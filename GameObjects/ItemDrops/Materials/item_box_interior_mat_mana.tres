@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://y8ydrydu27aj"]
+
+[ext_resource type="Shader" path="res://GameObjects/ItemDrops/Materials/Shaders/item_box_interior_mana.gdshader" id="1_k532e"]
+[ext_resource type="Texture2D" uid="uid://enlkh8xeav72" path="res://GameObjects/ItemDrops/Textures/item_box_color_tex.png" id="2_eadel"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_k532e")
+shader_parameter/x_stretch = 5.0
+shader_parameter/y_stretch = 5.0
+shader_parameter/_Matcap = ExtResource("2_eadel")

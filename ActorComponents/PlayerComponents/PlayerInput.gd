@@ -25,11 +25,11 @@ func _input(_event):
 	else:
 		_actor.State["aiming"] = false
 
-	if Input.is_action_just_pressed("sprint"):
+	if Input.is_action_just_released("sprint"):
 		_actor.State["sprinting"] = true
 		_sprinting = true
 
-	if Input.is_action_just_released(("sprint")):
+	if Input.is_action_just_pressed(("sprint")):
 		_actor.State["sprinting"] = false
 		_sprinting = false
 

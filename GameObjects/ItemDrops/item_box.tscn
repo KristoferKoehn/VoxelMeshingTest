@@ -1,0 +1,102 @@
+[gd_scene load_steps=14 format=3 uid="uid://v1glitjyc6pf"]
+
+[ext_resource type="ArrayMesh" uid="uid://hhh2ajyxmq8n" path="res://GameObjects/ItemDrops/Meshes/item_box_mesh.tres" id="1_l0uaq"]
+[ext_resource type="Script" path="res://GameObjects/ItemDrops/Scripts/item_box.gd" id="1_lsal6"]
+[ext_resource type="Material" uid="uid://dq4jqtveydc5" path="res://GameObjects/ItemDrops/Materials/item_box_interior_mat.tres" id="2_igoco"]
+[ext_resource type="Material" uid="uid://dlf8283tgb3bb" path="res://GameObjects/ItemDrops/Materials/item_box_exterior_mat.tres" id="3_k3xjc"]
+[ext_resource type="Material" uid="uid://bxrfwdfx5bf8n" path="res://GameObjects/ItemDrops/Materials/item_box_symbol_mat.tres" id="4_6cy5j"]
+[ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="6_0t7ce"]
+[ext_resource type="Material" uid="uid://cs0geppkh3xdc" path="res://GameObjects/ItemDrops/Materials/item_box_interior_shatter.tres" id="7_1rb66"]
+[ext_resource type="Material" uid="uid://6covnisnatln" path="res://GameObjects/ItemDrops/Materials/item_box_exterior_shatter.tres" id="8_r10p8"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_yhw1q"]
+lightmap_size_hint = Vector2i(7, 7)
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_mii7t"]
+emission_shape = 3
+emission_box_extents = Vector3(0.5, 0.5, 0.5)
+angle_min = -149.5
+angle_max = 99.7
+spread = 180.0
+initial_velocity_min = 20.0
+initial_velocity_max = 20.0
+angular_velocity_min = 300.0
+angular_velocity_max = 300.0
+gravity = Vector3(0, -6.34, 0)
+linear_accel_min = -20.0
+linear_accel_max = -20.0
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_5rhto"]
+material = ExtResource("7_1rb66")
+size = Vector2(0.5, 0.5)
+orientation = 2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ci0n3"]
+material = ExtResource("8_r10p8")
+size = Vector2(0.5, 0.5)
+orientation = 2
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_l81nj"]
+size = Vector3(1.5, 1.5, 1.5)
+
+[node name="item_box" type="Node3D" node_paths=PackedStringArray("interior_shatter", "exterior_shatter")]
+transform = Transform3D(-0.00158386, -0.0734645, 1.24012, -1.22228, -0.0463107, -0.00851783, 0.0485854, -1.18532, -0.0771334, 0, 0, 0)
+script = ExtResource("1_lsal6")
+interior_shatter = NodePath("InteriorShatterParticles")
+exterior_shatter = NodePath("ExteriorShatterParticles")
+
+[node name="Interior" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+mesh = ExtResource("1_l0uaq")
+surface_material_override/0 = ExtResource("2_igoco")
+
+[node name="Exterior" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+mesh = ExtResource("1_l0uaq")
+surface_material_override/0 = ExtResource("3_k3xjc")
+
+[node name="Symbol" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)
+visible = false
+mesh = SubResource("QuadMesh_yhw1q")
+surface_material_override/0 = ExtResource("4_6cy5j")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+visible = false
+mesh = ExtResource("6_0t7ce")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.06, 0, 0)
+light_color = Color(1, 0.243137, 1, 1)
+light_energy = 0.7
+omni_shadow_mode = 0
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+light_color = Color(0, 1, 0.501961, 1)
+light_energy = 0.7
+
+[node name="InteriorShatterParticles" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 20
+one_shot = true
+explosiveness = 0.92
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_mii7t")
+draw_pass_1 = SubResource("PlaneMesh_5rhto")
+
+[node name="ExteriorShatterParticles" type="GPUParticles3D" parent="."]
+emitting = false
+amount = 20
+one_shot = true
+explosiveness = 0.92
+fixed_fps = 60
+process_material = SubResource("ParticleProcessMaterial_mii7t")
+draw_pass_1 = SubResource("PlaneMesh_ci0n3")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_l81nj")
+
+[connection signal="body_entered" from="Area3D" to="." method="_on_area_3d_body_entered"]

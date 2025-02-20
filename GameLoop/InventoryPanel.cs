@@ -35,8 +35,8 @@ public partial class InventoryPanel : Panel2
 
     public void UpdateSlots()
     {
-        for (int i = 0; i < Mathf.Min(Slots.Count, Inventory.Items.Count); i++) {
-            ((InventorySlot)Slots[i]).Update(Inventory.Items[i]);
+        for (int i = 0; i < Mathf.Min(Slots.Count, Inventory.Slots.Count); i++) {
+            ((InventorySlot)Slots[i]).Update(Inventory.Slots[i]);
         }
     }
 }

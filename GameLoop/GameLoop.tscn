@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=32 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_874if"]
@@ -12,18 +12,7 @@
 [ext_resource type="Resource" uid="uid://cbgmg3q2e71tc" path="res://GameObjects/Inventories/PlayerInventory.tres" id="10_fxhoj"]
 [ext_resource type="Texture2D" uid="uid://bexf40ypu6lbi" path="res://assets/UI/panel-border-012.png" id="11_pnalr"]
 [ext_resource type="PackedScene" uid="uid://cnmn5et8arm8b" path="res://Menus/Inventory/InventorySlot.tscn" id="12_c7dll"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_6ropx"]
-render_priority = 0
-shader = ExtResource("5_8dgh4")
-shader_parameter/_char_size = 8.0
-shader_parameter/_char_count = 10.0
-shader_parameter/_ascii_tex = ExtResource("6_b6r5k")
-
-[sub_resource type="QuadMesh" id="QuadMesh_hty1b"]
-material = SubResource("ShaderMaterial_6ropx")
-flip_faces = true
-size = Vector2(2, 2)
+[ext_resource type="PackedScene" uid="uid://v1glitjyc6pf" path="res://GameObjects/ItemDrops/item_box.tscn" id="13_16w70"]
 
 [sub_resource type="Shader" id="Shader_xmxvo"]
 code = "shader_type spatial;
@@ -135,6 +124,18 @@ shader = SubResource("Shader_sd02a")
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_11oc4"]
 bg_color = Color(0.0383972, 0.0383972, 0.0383971, 0.203922)
 
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6ropx"]
+render_priority = 0
+shader = ExtResource("5_8dgh4")
+shader_parameter/_char_size = 8.0
+shader_parameter/_char_count = 10.0
+shader_parameter/_ascii_tex = ExtResource("6_b6r5k")
+
+[sub_resource type="QuadMesh" id="QuadMesh_hty1b"]
+material = SubResource("ShaderMaterial_6ropx")
+flip_faces = true
+size = Vector2(2, 2)
+
 [node name="GameLoop" type="Node3D" node_paths=PackedStringArray("RayCast")]
 script = ExtResource("1_aic3m")
 RayCast = NodePath("Camera3D/RayCast3D")
@@ -150,22 +151,6 @@ directional_shadow_max_distance = 200.0
 [node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
 script = ExtResource("4_cg07s")
 TrackingItem = NodePath("../Camera3D")
-
-[node name="Camera3D" type="Camera3D" parent="."]
-process_mode = 4
-transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 17, 0)
-environment = ExtResource("3_874if")
-far = 10000.0
-script = ExtResource("3_o0vww")
-sensitivity = 0.2
-
-[node name="ascii" type="MeshInstance3D" parent="Camera3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
-visible = false
-mesh = SubResource("QuadMesh_hty1b")
-
-[node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
-target_position = Vector3(0, 0, -10)
 
 [node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 21.9706, 0)
@@ -612,6 +597,25 @@ layout_mode = 2
 
 [node name="InventorySlot22" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
 layout_mode = 2
+
+[node name="item_box" parent="." instance=ExtResource("13_16w70")]
+transform = Transform3D(0.913437, 0.109777, 0.535351, 0.133916, 0.944081, -0.467505, -0.531234, 0.472605, 0.805924, 0, -46.388, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+process_mode = 4
+transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 17, 0)
+environment = ExtResource("3_874if")
+far = 10000.0
+script = ExtResource("3_o0vww")
+sensitivity = 0.2
+
+[node name="ascii" type="MeshInstance3D" parent="Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
+visible = false
+mesh = SubResource("QuadMesh_hty1b")
+
+[node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
+target_position = Vector3(0, 0, -10)
 
 [connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/SpawnSpinBox" to="CanvasLayer/Panel" method="SpawnRadiusChange"]
 [connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/DespawnMarginSpinBox" to="CanvasLayer/Panel" method="DespawnMarginChange"]

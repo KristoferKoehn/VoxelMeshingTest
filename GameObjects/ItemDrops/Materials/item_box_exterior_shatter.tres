@@ -1,0 +1,13 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://6covnisnatln"]
+
+[ext_resource type="Shader" path="res://GameObjects/ItemDrops/Materials/Shaders/item_box_shatter_2.gdshader" id="1_leare"]
+
+[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_ph2cm"]
+load_path = "res://.godot/imported/item_box_color_tex.png-2aa9a7dc81df1704677c2edea0fafcb5.s3tc.ctex"
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_leare")
+shader_parameter/color_a = Color(0, 1, 0.584314, 1)
+shader_parameter/color_b = Color(0.615686, 0, 1, 1)
+shader_parameter/_Matcap = SubResource("CompressedTexture2D_ph2cm")

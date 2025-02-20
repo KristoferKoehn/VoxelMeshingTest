@@ -8,6 +8,9 @@ public partial class Inventory : Resource
 {
 
 	[Export]
-	public Array<InventoryItem> Items { get; set; }
+	public Array<InventorySlotRes> Slots { get; set; }
 
+	public void insert(InventoryItem test) {
+
+	}
 }

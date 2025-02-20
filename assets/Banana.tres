@@ -38,11 +38,11 @@ void fragment() {
 "
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_pfurf"]
-render_priority = 0
+render_priority = 1
 shader = SubResource("Shader_hdgmp")
 shader_parameter/time = 1.87
 shader_parameter/animation2 = ExtResource("1_7diun")
 
 [resource]
 material = SubResource("ShaderMaterial_pfurf")
-size = Vector2(4, 6)
+size = Vector2(0.75, 1.125)

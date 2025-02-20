@@ -1,10 +1,13 @@
 using Godot;
-using System;
 
 public partial class InventorySlot : Panel
 {
 	[Export]
 	Sprite2D Sprite2D { get; set; }
+	[Export]
+	InventorySlot item { get; set; }
+	[Export]
+	int amount { get; set; } = 0;
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -16,14 +19,15 @@ public partial class InventorySlot : Panel
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+
 	}
 
-	public void Update(InventoryItem inventoryItem)
+	public void Update(InventorySlotRes InventorySlot)
 	{
-		if (inventoryItem != null)
+		if (InventorySlot.Item != null)
 		{
             Sprite2D.Visible = true;
-			Sprite2D.Texture = inventoryItem.Sprite;
+			Sprite2D.Texture = InventorySlot.Item.Sprite;
         }
 		else
 		{

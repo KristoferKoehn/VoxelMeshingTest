@@ -4,7 +4,6 @@ extends Camera3D
 const SHIFT_MULTIPLIER = 2.5
 const ALT_MULTIPLIER = 1.0 / SHIFT_MULTIPLIER
 
-
 @export_range(0.0, 1.0) var sensitivity: float = 0.25
 @export var raycast : RayCast3D
 
@@ -29,11 +28,13 @@ var _e = false
 var _shift = false
 var _alt = false
 
-func _init():
-	RenderingServer.set_debug_generate_wireframes(true)
+func _enter_tree():
+	#get_parent().set_embedding_subwindows(false)
+	pass
 
 func _ready():
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	#Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	pass
 
 func _input(event):
 	# Receives mouse motion
@@ -72,6 +73,12 @@ func _input(event):
 		var vp = get_viewport()
 		vp.debug_draw = (vp.debug_draw + 1 ) % 6
 		#vp.debug_draw = Viewport.DEBUG_DRAW_INTERNAL_BUFFER
+
+	if event.is_action_pressed("view_toggle"):
+		if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		else:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 
 

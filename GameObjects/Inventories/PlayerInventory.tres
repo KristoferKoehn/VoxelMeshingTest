@@ -1,13 +1,108 @@
-[gd_resource type="Resource" script_class="Inventory" load_steps=5 format=3 uid="uid://cbgmg3q2e71tc"]
+[gd_resource type="Resource" script_class="Inventory" load_steps=23 format=3 uid="uid://cbgmg3q2e71tc"]
 
 [ext_resource type="Script" path="res://Menus/Inventory/Inventory.cs" id="1_385hn"]
-[ext_resource type="Resource" uid="uid://ennaly4666ao" path="res://GameObjects/InventoryItems/Apple.tres" id="1_n6yfk"]
-[ext_resource type="Script" path="res://Menus/Inventory/InventoryItem.cs" id="2_ex6fw"]
+[ext_resource type="Script" path="res://Menus/Inventory/InventorySlotRes.cs" id="1_o6gi5"]
 
-[sub_resource type="Resource" id="Resource_wnpw1"]
-script = ExtResource("2_ex6fw")
-Name = ""
+[sub_resource type="Resource" id="Resource_qa28s"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_vbrkm"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_0el4w"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_l0bmj"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_njbuj"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_3px41"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_jekih"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_s10ph"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_sblci"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_1s3vw"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_bl0yn"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_u6bsr"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_1vjch"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_j2gkk"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_3ax5f"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_e24f0"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_pg45m"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_nc73p"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_klkbx"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
+
+[sub_resource type="Resource" id="Resource_ck4oa"]
+script = ExtResource("1_o6gi5")
+Amount = 0
+Stackable = false
 
 [resource]
 script = ExtResource("1_385hn")
-Items = Array[Object]([ExtResource("1_n6yfk"), null, null, null, null, null, ExtResource("1_n6yfk"), null, null, null, SubResource("Resource_wnpw1"), null])
+Slots = Array[Resource]([SubResource("Resource_qa28s"), SubResource("Resource_vbrkm"), SubResource("Resource_0el4w"), SubResource("Resource_l0bmj"), SubResource("Resource_njbuj"), SubResource("Resource_3px41"), SubResource("Resource_jekih"), SubResource("Resource_s10ph"), SubResource("Resource_sblci"), SubResource("Resource_1s3vw"), SubResource("Resource_bl0yn"), SubResource("Resource_u6bsr"), SubResource("Resource_1vjch"), SubResource("Resource_j2gkk"), SubResource("Resource_3ax5f"), SubResource("Resource_e24f0"), SubResource("Resource_pg45m"), SubResource("Resource_nc73p"), SubResource("Resource_klkbx"), SubResource("Resource_ck4oa")])

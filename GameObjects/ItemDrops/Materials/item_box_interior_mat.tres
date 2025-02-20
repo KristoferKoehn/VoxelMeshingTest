@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://dq4jqtveydc5"]
+
+[ext_resource type="Shader" path="res://GameObjects/ItemDrops/Materials/Shaders/item_box_interior.gdshader" id="1_gt61d"]
+[ext_resource type="Texture2D" uid="uid://enlkh8xeav72" path="res://GameObjects/ItemDrops/Textures/item_box_color_tex.png" id="2_g0b81"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_gt61d")
+shader_parameter/x_stretch = 5.0
+shader_parameter/y_stretch = 5.0
+shader_parameter/_Matcap = ExtResource("2_g0b81")

@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cnmn5et8arm8b"]
 
-[ext_resource type="Script" path="res://Menus/Inventory/InventorySlot.cs" id="1_aofbh"]
+[ext_resource type="Script" path="res://Menus/Inventory/InventorySlot.cs" id="1_vtwu6"]
 
 [sub_resource type="ImageTexture" id="ImageTexture_kkw82"]
 
@@ -9,7 +9,7 @@ font_size = 12
 
 [node name="InventorySlot" type="Panel" node_paths=PackedStringArray("Sprite2D")]
 custom_minimum_size = Vector2(30, 30)
-script = ExtResource("1_aofbh")
+script = ExtResource("1_vtwu6")
 Sprite2D = NodePath("ItemDisplay")
 
 [node name="ItemDisplay" type="Sprite2D" parent="."]
