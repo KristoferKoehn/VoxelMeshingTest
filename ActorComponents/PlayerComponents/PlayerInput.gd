@@ -3,7 +3,6 @@ extends Node
 var _actor : Actor
 
 var _last_movement_direction = Vector3.ZERO
-var _sprinting = false
 
 func _enter_tree():
 	_actor = get_parent()
@@ -11,14 +10,13 @@ func _enter_tree():
 	_actor.State["raw_input"] = Vector2()
 	_actor.State["target_angle"] = 0
 	_actor.State["aiming"] = false
-	_actor.State["sprinting"] = false
+	_actor.State["sprinting"] = true
 	_actor.State[Dict.INPUT_BLOCK] = false
 
 func _process(_delta):
 	pass
 
 func _input(_event):
-
 
 	if Input.is_action_pressed("aim") and Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
 		_actor.State["aiming"] = true
@@ -27,11 +25,10 @@ func _input(_event):
 
 	if Input.is_action_just_released("sprint"):
 		_actor.State["sprinting"] = true
-		_sprinting = true
 
 	if Input.is_action_just_pressed(("sprint")):
 		_actor.State["sprinting"] = false
-		_sprinting = false
+
 
 	if Input.is_action_just_pressed("attack1"):
 		var _attack_node = _actor.State[Dict.ATTACK_LIST][0]
@@ -49,7 +46,7 @@ func _physics_process(_delta):
 	move_direction.y = 0
 	move_direction = move_direction.normalized()
 	
-	if _sprinting:
+	if _actor.State["sprinting"] :
 		_actor.State["raw_input"] = raw_input
 		_actor.State["input_direction"] = move_direction
 	else:

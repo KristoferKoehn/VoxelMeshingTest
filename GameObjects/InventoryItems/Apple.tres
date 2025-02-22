@@ -15,3 +15,6 @@ noise = SubResource("FastNoiseLite_1httr")
 script = ExtResource("1_0upq2")
 Name = "Apple"
 Sprite = SubResource("NoiseTexture2D_gxnlv")
+Stackable = true
+StackAmount = 1
+StackMax = 99

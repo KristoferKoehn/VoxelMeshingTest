@@ -284,15 +284,17 @@ layout_mode = 2
 max_value = 0.5
 step = 0.001
 
-[node name="Inventory" type="Panel" parent="CanvasLayer" node_paths=PackedStringArray("Container")]
-offset_left = 655.0
+[node name="Inventory" type="Panel" parent="CanvasLayer" node_paths=PackedStringArray("Container", "DraggerSprite")]
+offset_left = 544.0
 offset_top = 28.0
 offset_right = 1087.0
-offset_bottom = 328.0
+offset_bottom = 223.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_11oc4")
 script = ExtResource("9_lj4mj")
 Inventory = ExtResource("10_fxhoj")
 Container = NodePath("MarginContainer/NinePatchRect/MarginContainer/GridContainer")
+SlotScene = ExtResource("12_c7dll")
+DraggerSprite = NodePath("DraggerSprite")
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Inventory"]
 layout_mode = 1
@@ -332,274 +334,13 @@ theme_override_constants/margin_bottom = 25
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-columns = 11
+columns = 14
 
-[node name="InventorySlot29" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot30" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot31" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot32" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot33" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot34" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot35" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot36" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot37" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot38" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot39" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot40" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot41" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot42" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot43" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot44" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot45" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot46" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot47" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot48" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot49" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot50" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot51" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot52" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot53" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot54" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot55" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot56" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot57" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot58" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot59" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot60" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot61" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot62" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot63" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot64" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot65" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot66" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot67" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot68" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot69" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot70" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot71" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot72" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot73" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot74" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot75" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot76" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot77" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot78" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot79" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot80" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot81" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot82" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot83" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot84" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot85" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot86" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot87" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot88" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot89" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot90" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot91" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot92" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot93" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot94" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot95" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot96" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot3" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot4" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot5" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot6" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot7" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot8" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot9" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot10" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot11" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot12" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot13" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot14" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot15" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot16" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot17" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot18" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot19" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot20" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot21" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
-
-[node name="InventorySlot22" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/GridContainer" instance=ExtResource("12_c7dll")]
-layout_mode = 2
+[node name="DraggerSprite" type="Sprite2D" parent="CanvasLayer/Inventory"]
+self_modulate = Color(1, 1, 1, 0.415686)
 
 [node name="item_box" parent="." instance=ExtResource("13_16w70")]
-transform = Transform3D(0.913437, 0.109777, 0.535351, 0.133916, 0.944081, -0.467505, -0.531234, 0.472605, 0.805924, 0, -46.388, 0)
+transform = Transform3D(0.0500129, 1.26854, 0.896775, 1.5465, -0.0790675, -0.361464, -0.349798, 0.879307, -1.37189, -9.79642, -40.388, 0)
 
 [node name="Camera3D" type="Camera3D" parent="."]
 process_mode = 4
@@ -623,3 +364,5 @@ target_position = Vector3(0, 0, -10)
 [connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/DepthSpinBox" to="CanvasLayer/Panel" method="WorldDepthChange"]
 [connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/HeightSpinBox" to="CanvasLayer/Panel" method="WorldHeightChange"]
 [connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/AlignmentSpinBox" to="CanvasLayer/Panel" method="AlignmentChange"]
+[connection signal="mouse_entered" from="CanvasLayer/Inventory" to="CanvasLayer/Inventory" method="MouseEnteredFunction"]
+[connection signal="mouse_exited" from="CanvasLayer/Inventory" to="CanvasLayer/Inventory" method="MouseExitedFunction"]

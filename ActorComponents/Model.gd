@@ -5,7 +5,6 @@ var _actor : Actor
 var _model
 var _anim : AnimationPlayer
 var _anim_tree : AnimationTree
-var _last_movement_direction : Vector3 = Vector3.ZERO
 var _anim_coyote_time = 0
 
 func _enter_tree():

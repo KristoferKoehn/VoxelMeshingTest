@@ -2,12 +2,22 @@ using Godot;
 
 public partial class InventorySlot : Panel
 {
+
+	[Signal]
+	public delegate void DragItemStartEventHandler(InventorySlot inventorySlot);
+
+    [Signal]
+    public delegate void DragItemEndEventHandler(InventorySlot inventorySlot);
+
+
+    [Export]
+	public Sprite2D Sprite2D { get; set; }
 	[Export]
-	Sprite2D Sprite2D { get; set; }
+    public InventoryItem item { get; set; }
 	[Export]
-	InventorySlot item { get; set; }
-	[Export]
-	int amount { get; set; } = 0;
+	public Label amount { get; set; }
+
+	bool MouseInside = false;
 
 
 	// Called when the node enters the scene tree for the first time.
@@ -22,16 +32,56 @@ public partial class InventorySlot : Panel
 
 	}
 
-	public void Update(InventorySlotRes InventorySlot)
+	public override void _Input(InputEvent @event)
 	{
-		if (InventorySlot.Item != null)
+		if (MouseInside)
 		{
+            if (@event.IsActionPressed("click"))
+            {
+                EmitSignal("DragItemStart", this);
+            }
+
+            if (@event.IsActionReleased("click"))
+            {
+                EmitSignal("DragItemEnd", this);
+            }
+        }
+    }
+
+    public void Update(InventoryItem inventoryItem)
+	{
+		if (inventoryItem != null)
+		{
+            amount.Visible = true;
             Sprite2D.Visible = true;
-			Sprite2D.Texture = InventorySlot.Item.Sprite;
+			Sprite2D.Texture = inventoryItem.Sprite;
+            if (item.StackAmount > 1)
+			{
+				amount.Text = item.StackAmount.ToString();
+			}
+			else
+			{
+				amount.Text = "";
+            }
         }
 		else
 		{
-			Sprite2D.Visible = false;
+			amount.Visible = false;
+            Sprite2D.Texture = null;
+            Sprite2D.Visible = false;
 		}
 	}
+
+	public void MouseEnteredFunction()
+	{
+        MouseInside = true;
+		SelfModulate = SelfModulate - new Color(0.5f, 0.5f, 0.5f, 0f);
+    }
+
+    public void MouseExitedFunction()
+    {
+        MouseInside = false;
+		
+        SelfModulate = SelfModulate + new Color(0.5f, 0.5f, 0.5f, 0f);
+    }
 }

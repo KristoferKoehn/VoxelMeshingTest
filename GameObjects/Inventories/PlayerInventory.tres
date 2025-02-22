@@ -1,108 +1,91 @@
-[gd_resource type="Resource" script_class="Inventory" load_steps=23 format=3 uid="uid://cbgmg3q2e71tc"]
+[gd_resource type="Resource" script_class="Inventory" load_steps=18 format=3 uid="uid://cbgmg3q2e71tc"]
 
 [ext_resource type="Script" path="res://Menus/Inventory/Inventory.cs" id="1_385hn"]
-[ext_resource type="Script" path="res://Menus/Inventory/InventorySlotRes.cs" id="1_o6gi5"]
+[ext_resource type="Script" path="res://Menus/Inventory/InventoryItem.cs" id="2_ex6fw"]
 
-[sub_resource type="Resource" id="Resource_qa28s"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_byfp6"]
+frequency = 0.0674
+offset = Vector3(0, 47.06, 0)
 
-[sub_resource type="Resource" id="Resource_vbrkm"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_pne1g"]
+width = 30
+height = 30
+noise = SubResource("FastNoiseLite_byfp6")
 
-[sub_resource type="Resource" id="Resource_0el4w"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="Resource" id="Resource_1ujty"]
+script = ExtResource("2_ex6fw")
+Name = "Apple"
+Sprite = SubResource("NoiseTexture2D_pne1g")
+Stackable = true
+StackAmount = 1
+StackMax = 99
 
-[sub_resource type="Resource" id="Resource_l0bmj"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_5dppt"]
+frequency = 0.0674
+offset = Vector3(0, 47.06, 0)
 
-[sub_resource type="Resource" id="Resource_njbuj"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_d65ii"]
+width = 30
+height = 30
+noise = SubResource("FastNoiseLite_5dppt")
 
-[sub_resource type="Resource" id="Resource_3px41"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="Resource" id="Resource_lfkf6"]
+script = ExtResource("2_ex6fw")
+Name = "Apple"
+Sprite = SubResource("NoiseTexture2D_d65ii")
+Stackable = true
+StackAmount = 1
+StackMax = 99
 
-[sub_resource type="Resource" id="Resource_jekih"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_lybdx"]
+offset = Vector3(0, 658.54, 0)
 
-[sub_resource type="Resource" id="Resource_s10ph"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_468oo"]
+width = 25
+height = 25
+noise = SubResource("FastNoiseLite_lybdx")
 
-[sub_resource type="Resource" id="Resource_sblci"]
-script = ExtResource("1_o6gi5")
-Amount = 0
+[sub_resource type="Resource" id="Resource_x5ghq"]
+script = ExtResource("2_ex6fw")
+Name = "Stick"
+Sprite = SubResource("NoiseTexture2D_468oo")
 Stackable = false
+StackAmount = 1
+StackMax = 99
 
-[sub_resource type="Resource" id="Resource_1s3vw"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_sl3cs"]
+offset = Vector3(0, 658.54, 0)
 
-[sub_resource type="Resource" id="Resource_bl0yn"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_xsibv"]
+width = 25
+height = 25
+noise = SubResource("FastNoiseLite_sl3cs")
 
-[sub_resource type="Resource" id="Resource_u6bsr"]
-script = ExtResource("1_o6gi5")
-Amount = 0
+[sub_resource type="Resource" id="Resource_mwd7d"]
+script = ExtResource("2_ex6fw")
+Name = "Stick"
+Sprite = SubResource("NoiseTexture2D_xsibv")
 Stackable = false
+StackAmount = 1
+StackMax = 99
 
-[sub_resource type="Resource" id="Resource_1vjch"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_n3qim"]
+frequency = 0.0674
+offset = Vector3(0, 47.06, 0)
 
-[sub_resource type="Resource" id="Resource_j2gkk"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_jypk5"]
+width = 30
+height = 30
+noise = SubResource("FastNoiseLite_n3qim")
 
-[sub_resource type="Resource" id="Resource_3ax5f"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
-
-[sub_resource type="Resource" id="Resource_e24f0"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
-
-[sub_resource type="Resource" id="Resource_pg45m"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
-
-[sub_resource type="Resource" id="Resource_nc73p"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
-
-[sub_resource type="Resource" id="Resource_klkbx"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
-
-[sub_resource type="Resource" id="Resource_ck4oa"]
-script = ExtResource("1_o6gi5")
-Amount = 0
-Stackable = false
+[sub_resource type="Resource" id="Resource_7rjwe"]
+script = ExtResource("2_ex6fw")
+Name = "Apple"
+Sprite = SubResource("NoiseTexture2D_jypk5")
+Stackable = true
+StackAmount = 1
+StackMax = 99
 
 [resource]
 script = ExtResource("1_385hn")
-Slots = Array[Resource]([SubResource("Resource_qa28s"), SubResource("Resource_vbrkm"), SubResource("Resource_0el4w"), SubResource("Resource_l0bmj"), SubResource("Resource_njbuj"), SubResource("Resource_3px41"), SubResource("Resource_jekih"), SubResource("Resource_s10ph"), SubResource("Resource_sblci"), SubResource("Resource_1s3vw"), SubResource("Resource_bl0yn"), SubResource("Resource_u6bsr"), SubResource("Resource_1vjch"), SubResource("Resource_j2gkk"), SubResource("Resource_3ax5f"), SubResource("Resource_e24f0"), SubResource("Resource_pg45m"), SubResource("Resource_nc73p"), SubResource("Resource_klkbx"), SubResource("Resource_ck4oa")])
+Slots = Array[Resource]([null, null, SubResource("Resource_1ujty"), null, null, SubResource("Resource_lfkf6"), null, null, null, null, null, SubResource("Resource_x5ghq"), null, null, null, null, SubResource("Resource_mwd7d"), null, null, null, SubResource("Resource_7rjwe"), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null])

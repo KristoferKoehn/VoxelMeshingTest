@@ -6,11 +6,16 @@
 
 [sub_resource type="LabelSettings" id="LabelSettings_qlid7"]
 font_size = 12
+outline_size = 1
+outline_color = Color(0, 0, 0, 1)
+shadow_size = 2
+shadow_color = Color(0, 0, 0, 1)
 
-[node name="InventorySlot" type="Panel" node_paths=PackedStringArray("Sprite2D")]
+[node name="InventorySlot" type="Panel" node_paths=PackedStringArray("Sprite2D", "amount")]
 custom_minimum_size = Vector2(30, 30)
 script = ExtResource("1_vtwu6")
 Sprite2D = NodePath("ItemDisplay")
+amount = NodePath("Label")
 
 [node name="ItemDisplay" type="Sprite2D" parent="."]
 texture = SubResource("ImageTexture_kkw82")
@@ -22,5 +27,9 @@ offset_left = 1.0
 offset_top = 16.0
 offset_right = 30.0
 offset_bottom = 33.0
+text = "99"
 label_settings = SubResource("LabelSettings_qlid7")
 horizontal_alignment = 2
+
+[connection signal="mouse_entered" from="." to="." method="MouseEnteredFunction"]
+[connection signal="mouse_exited" from="." to="." method="MouseExitedFunction"]
