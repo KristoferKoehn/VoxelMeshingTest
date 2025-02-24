@@ -284,25 +284,28 @@ layout_mode = 2
 max_value = 0.5
 step = 0.001
 
-[node name="Inventory" type="Panel" parent="CanvasLayer" node_paths=PackedStringArray("Container", "DraggerSprite")]
+[node name="Inventory" type="Panel" parent="CanvasLayer" node_paths=PackedStringArray("InventoryContainer", "EquipContainer", "DraggerSprite")]
 offset_left = 544.0
 offset_top = 28.0
-offset_right = 1087.0
-offset_bottom = 223.0
+offset_right = 1108.0
+offset_bottom = 238.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_11oc4")
 script = ExtResource("9_lj4mj")
 Inventory = ExtResource("10_fxhoj")
-Container = NodePath("MarginContainer/NinePatchRect/MarginContainer/GridContainer")
+InventoryContainer = NodePath("MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/ScrollContainer/GridContainer")
+EquipContainer = NodePath("MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer/GridContainer")
 SlotScene = ExtResource("12_c7dll")
 DraggerSprite = NodePath("DraggerSprite")
 
+[node name="DraggerSprite" type="Sprite2D" parent="CanvasLayer/Inventory"]
+self_modulate = Color(1, 1, 1, 0.415686)
+
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Inventory"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 2
+offset_right = 564.0
+offset_bottom = 210.0
+size_flags_horizontal = 3
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
@@ -330,17 +333,35 @@ theme_override_constants/margin_top = 25
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 25
 
-[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 25
+
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
-columns = 14
+columns = 3
 
-[node name="DraggerSprite" type="Sprite2D" parent="CanvasLayer/Inventory"]
-self_modulate = Color(1, 1, 1, 0.415686)
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+columns = 11
 
 [node name="item_box" parent="." instance=ExtResource("13_16w70")]
-transform = Transform3D(0.0500129, 1.26854, 0.896775, 1.5465, -0.0790675, -0.361464, -0.349798, 0.879307, -1.37189, -9.79642, -40.388, 0)
+transform = Transform3D(1.85903, -0.173818, -0.437597, -0.041153, 1.65441, 0.844275, 0.39288, -0.866015, 1.83551, -9.79642, -40.388, 0)
 
 [node name="Camera3D" type="Camera3D" parent="."]
 process_mode = 4

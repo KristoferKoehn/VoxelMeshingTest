@@ -35,6 +35,10 @@ func _ready():
 	br.name = "right_hand"
 	bl.name = "left_hand"
 
+	var attachment_dictionary : Dictionary
+	attachment_dictionary[br.name] = br
+	attachment_dictionary[bl.name] = bl
+	_actor.State["attachment_slots"] = attachment_dictionary
 
 func _process(_delta):
 	pass

@@ -15,4 +15,6 @@ public partial class InventoryItem : Resource
     public int StackAmount = 1;
     [Export]
     public int StackMax = 99;
+    [Export]
+    public Inventory.SlotType SlotType = Inventory.SlotType.None;
 }

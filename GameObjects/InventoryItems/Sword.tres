@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="InventoryItem" load_steps=4 format=3 uid="uid://c22mghr2ybk2k"]
+
+[ext_resource type="Texture2D" uid="uid://bo7p1ljay4gde" path="res://assets/UI/monochrome-transparent.png" id="1_5yksj"]
+[ext_resource type="Script" path="res://Menus/Inventory/InventoryItem.cs" id="1_ge2t4"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_joxv0"]
+atlas = ExtResource("1_5yksj")
+region = Rect2(612, 136, 16, 16)
+
+[resource]
+script = ExtResource("1_ge2t4")
+Name = "Sword"
+Sprite = SubResource("AtlasTexture_joxv0")
+Stackable = false
+StackAmount = 1
+StackMax = 99
+SlotType = 1

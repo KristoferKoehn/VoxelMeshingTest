@@ -14,6 +14,8 @@ namespace VoxelMeshingTest.Managers
 
         private static PlayerManager instance;
 
+        public Node3D Player;
+
         public static PlayerManager Instance()
         {
             if (instance == null)
@@ -54,6 +56,7 @@ namespace VoxelMeshingTest.Managers
             actor.Set("State", dict);
             SceneSwitcher.Instance().SceneStack.Peek().AddChild(actor);
             actor.Set("global_position", new Vector3(0, 0, 0));
+            Player = (Node3D)actor;
         }
 
         public override void _Ready()

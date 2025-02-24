@@ -6,7 +6,9 @@ public partial class InventoryPanel : Panel2
     [Export]
     Inventory Inventory { get; set; }
     [Export]
-    GridContainer Container { get; set; }
+    GridContainer InventoryContainer { get; set; }
+    [Export]
+    GridContainer EquipContainer { get; set; }
     [Export]
     PackedScene SlotScene { get; set; }
     [Export]
@@ -34,8 +36,32 @@ public partial class InventoryPanel : Panel2
             }
             
             Slots.Add(IS);
-            Container.AddChild(IS);
+            InventoryContainer.AddChild(IS);
         }
+
+        for (int i = 0; i < Inventory.Equips.Count; i++)
+        {
+            InventorySlot IS = SlotScene.Instantiate() as InventorySlot;
+            IS.DragItemStart += DraggingItemStartedFunction;
+            IS.DragItemEnd += DraggingItemEndedFunction;
+            if (Inventory.Equips[i] != null)
+            {
+                IS.item = Inventory.Equips[i];
+            }
+            IS.SlotType = new Array<Inventory.SlotType>() { Inventory.InventorySlots[i] };
+            Slots.Add(IS);
+            EquipContainer.AddChild(IS);
+        }
+
+
+
+        foreach (var item in Inventory.Equips)
+        {
+           
+            
+        }
+
+
         UpdateSlots();
 	}
 
@@ -99,7 +125,7 @@ public partial class InventoryPanel : Panel2
     public void DraggingItemStartedFunction(InventorySlot inventorySlot)
     {
         DraggingSubject = inventorySlot;
-        if (DraggingSubject != null)
+        if (DraggingSubject != null && DraggingSubject.item != null)
         {
             DraggingSubject.Modulate = DraggingSubject.Modulate - new Color(0.5f, 0.5f, 0.5f, 0f);
         }
@@ -107,34 +133,37 @@ public partial class InventoryPanel : Panel2
 
     public void DraggingItemEndedFunction(InventorySlot inventorySlot)
     {
-        
 
-        if (DraggingSubject != null)
+        if (DraggingSubject != null && DraggingSubject.item != null)
         {
-
-            DraggingSubject.Modulate = DraggingSubject.Modulate + new Color(0.5f, 0.5f, 0.5f, 0f);
-
-
-            if (inventorySlot.item != null && 
-                inventorySlot.item.StackMax > inventorySlot.item.StackAmount + DraggingSubject.item.StackAmount && 
-                DraggingSubject.item.Name.Equals(inventorySlot.item.Name) && 
-                inventorySlot.item.Stackable)
+            if (inventorySlot.SlotType.Count == 0 || inventorySlot.SlotType.Contains(DraggingSubject.item.SlotType))
             {
-                GD.Print("Stackably");
-                inventorySlot.item.StackAmount += DraggingSubject.item.StackAmount;
-                DraggingSubject.item = null;
-                DraggingSubject = null;
+                DraggingSubject.Modulate = DraggingSubject.Modulate + new Color(0.5f, 0.5f, 0.5f, 0f);
 
+                if (inventorySlot.item != null &&
+                    inventorySlot.item.StackMax > inventorySlot.item.StackAmount + DraggingSubject.item.StackAmount &&
+                    DraggingSubject.item.Name.Equals(inventorySlot.item.Name) &&
+                    inventorySlot.item.Stackable &&
+                    inventorySlot != DraggingSubject)
+                {
+                    inventorySlot.item.StackAmount += DraggingSubject.item.StackAmount;
+                    DraggingSubject.item = null;
+                    DraggingSubject = null;
+
+                }
+                else
+                {
+                    InventoryItem temp = inventorySlot.item;
+                    inventorySlot.item = DraggingSubject.item;
+                    DraggingSubject.item = temp;
+                    DraggingSubject = null;
+                }
             }
             else
             {
-                InventoryItem temp = inventorySlot.item;
-                inventorySlot.item = DraggingSubject.item;
-                DraggingSubject.item = temp;
-                DraggingSubject = null;
+                DraggingSubject.Modulate = DraggingSubject.Modulate + new Color(0.5f, 0.5f, 0.5f, 0f);
             }
         }
-
 
         UpdateSlots();
     }
