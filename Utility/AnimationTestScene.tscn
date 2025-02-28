@@ -176,7 +176,9 @@ blend_shape_mode = 0
 [node name="Skeleton3D" parent="Santa/Rig" index="0"]
 bones/1/position = Vector3(0, 0.392064, 0)
 bones/1/rotation = Quaternion(-1.11123e-10, 0.0431578, 2.57241e-09, 0.999068)
+bones/1/scale = Vector3(1, 1, 1)
 bones/2/rotation = Quaternion(-6.93889e-18, 7.10543e-15, 4.93038e-32, 1)
+bones/2/scale = Vector3(1, 1, 1)
 bones/3/rotation = Quaternion(8.27181e-25, 3.72529e-09, 0, 1)
 bones/3/scale = Vector3(1, 1, 1)
 bones/4/position = Vector3(0.212007, 0.134132, 7.92996e-08)
@@ -204,15 +206,16 @@ bones/13/position = Vector3(-1.5736e-08, 0.0961251, -0.0575)
 bones/13/rotation = Quaternion(-1.02444e-09, -4.24391e-09, 0.707107, 0.707107)
 bones/13/scale = Vector3(1, 1, 1)
 bones/14/rotation = Quaternion(-5.80608e-11, -0.0313417, -1.88012e-09, 0.999509)
+bones/14/scale = Vector3(1, 1, 1)
 bones/15/position = Vector3(0.170945, 0.113587, 1.59941e-08)
-bones/15/rotation = Quaternion(0.993715, 0.0837146, 0.0735038, 0.0109185)
+bones/15/rotation = Quaternion(0.996185, 0.0479136, 0.0566427, -0.045939)
 bones/15/scale = Vector3(1, 1, 1)
-bones/16/rotation = Quaternion(0.195602, 6.26228e-08, -1.32239e-07, 0.980683)
+bones/16/rotation = Quaternion(0.165014, 6.49414e-08, -1.11407e-07, 0.986291)
 bones/16/scale = Vector3(1, 1, 1)
-bones/17/rotation = Quaternion(-0.517564, -0.209497, 0.0436549, 0.828452)
+bones/17/rotation = Quaternion(-0.533729, -0.260895, -1.72985e-05, 0.804405)
 bones/17/scale = Vector3(1, 1, 0.999999)
-bones/18/rotation = Quaternion(0.000111784, 0.920258, -0.391313, -2.52417e-05)
-bones/18/scale = Vector3(1, 0.999998, 1)
+bones/18/rotation = Quaternion(0.000263472, 0.920216, -0.391412, -5.96391e-05)
+bones/18/scale = Vector3(1, 0.999997, 1)
 bones/19/position = Vector3(-0.170945, 0.113587, 1.55755e-08)
 bones/19/rotation = Quaternion(0.997322, -0.0294574, 0.0315293, 0.0590483)
 bones/19/scale = Vector3(1, 1, 1)
@@ -223,17 +226,17 @@ bones/21/scale = Vector3(1, 1, 0.999999)
 bones/22/rotation = Quaternion(-8.93489e-05, 0.920222, -0.391398, 2.0291e-05)
 bones/22/scale = Vector3(1, 0.999998, 1)
 bones/23/rotation = Quaternion(0.707107, -2.29302e-07, -4.60552e-08, 0.707107)
-bones/24/position = Vector3(0.202182, 0.0259903, 0.205181)
-bones/24/rotation = Quaternion(-0.707107, -7.05285e-08, -7.05285e-08, 0.707107)
+bones/24/position = Vector3(0.213918, 0.0259903, 0.173866)
+bones/24/rotation = Quaternion(-0.705092, 0.0533355, 0.0533355, 0.705092)
 bones/25/rotation = Quaternion(9.65792e-09, 1.77955e-09, 0.985719, -0.168398)
-bones/26/position = Vector3(-2.60494e-08, 0.213436, -5.1715e-09)
-bones/26/rotation = Quaternion(-1.01273e-07, 0.391084, 0.920355, -3.35091e-08)
+bones/26/position = Vector3(-1.11482e-08, 0.213436, -5.36347e-09)
+bones/26/rotation = Quaternion(-1.10961e-07, 0.391084, 0.920355, -2.67919e-08)
 bones/26/scale = Vector3(1, 1, 1)
-bones/27/position = Vector3(8.58988e-09, 0.16565, -2.40963e-09)
+bones/27/position = Vector3(-6.31128e-09, 0.16565, -7.10267e-09)
 bones/27/scale = Vector3(1, 1, 1)
-bones/28/rotation = Quaternion(1, -2.33136e-09, 1.99777e-07, -1.34211e-15)
+bones/28/rotation = Quaternion(1, -8.27364e-11, 1.94627e-07, -7.45058e-09)
 bones/28/scale = Vector3(1, 1, 1)
-bones/29/rotation = Quaternion(4.16335e-17, -6.74098e-17, -1.94669e-08, 1)
+bones/29/rotation = Quaternion(5.55113e-17, -6.74098e-17, -1.94669e-08, 1)
 bones/30/rotation = Quaternion(0.707107, -3.82385e-08, 1.45009e-07, 0.707107)
 bones/31/rotation = Quaternion(-0.707107, -7.05285e-08, -7.05285e-08, 0.707107)
 bones/32/rotation = Quaternion(-5.83589e-09, 6.43837e-10, 0.994809, 0.101756)
@@ -253,36 +256,15 @@ bones/38/rotation = Quaternion(0.794627, -1.11759e-07, 0.607098, -5.96046e-08)
 bones/39/rotation = Quaternion(-0.707107, -7.27951e-08, -7.27951e-08, 0.707107)
 bones/40/position = Vector3(-0.510844, 0.788312, 0.0597369)
 bones/40/rotation = Quaternion(0.758253, 1.52737e-07, -0.651961, 1.11759e-08)
-
-[node name="Santa_ArmLeft" parent="Santa/Rig/Skeleton3D" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.184727, 0, 0.221184)
-
-[node name="Santa_ArmRight" parent="Santa/Rig/Skeleton3D" index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.184727, 0, 0.221184)
-
-[node name="Santa_Body" parent="Santa/Rig/Skeleton3D" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.184727, 0, 0.221184)
-
-[node name="Santa_Hat" parent="Santa/Rig/Skeleton3D" index="3"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.184727, 0, 0.221184)
-
-[node name="Santa_Head" parent="Santa/Rig/Skeleton3D" index="4"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.17642, -4.76837e-07, 0.232081)
-
-[node name="Santa_LegLeft" parent="Santa/Rig/Skeleton3D" index="5"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.184727, 0, 0.221184)
-
-[node name="Santa_LegRight" parent="Santa/Rig/Skeleton3D" index="6"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.184727, 0, 0.221184)
+bones/40/scale = Vector3(1, 1, 1)
 
 [node name="BoneAttachment3D" type="BoneAttachment3D" parent="Santa/Rig/Skeleton3D" index="7"]
-transform = Transform3D(-3.43039e-08, -0.149894, -0.988701, -0.999999, -6.85453e-07, 1.16684e-06, -1.17787e-06, 0.988701, -0.149894, -0.49106, 0.64103, 0.106595)
+transform = Transform3D(7.22688e-07, -0.149894, -0.988702, -0.999999, 1.78814e-07, -1.14656e-07, -3.00053e-07, 0.988701, -0.149895, -0.491061, 0.64103, 0.106596)
 bone_name = "handslot.r"
 bone_idx = 13
 
 [node name="Gun" type="MeshInstance3D" parent="Santa/Rig/Skeleton3D/BoneAttachment3D"]
 transform = Transform3D(0.0082289, 0.0153788, -0.0468591, 0.0312557, 0.035122, 0.0170156, 0.0381494, -0.0320927, -0.0038332, 0.215689, -0.569548, 0.685078)
-visible = false
 mesh = SubResource("ArrayMesh_hw6iq")
 skeleton = NodePath("../../../../..")
 

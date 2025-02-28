@@ -38,8 +38,6 @@ namespace VoxelMeshingTest.Managers
                 ResourceLoader.Load("res://ActorComponents/Melee.gd"),
             };
 
-
-
             Dictionary dict = new()
             {
                 { "gravity", -25},

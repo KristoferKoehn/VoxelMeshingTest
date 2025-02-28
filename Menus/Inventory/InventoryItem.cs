@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 
 [GlobalClass]
 public partial class InventoryItem : Resource
@@ -17,4 +18,12 @@ public partial class InventoryItem : Resource
     public int StackMax = 99;
     [Export]
     public Inventory.SlotType SlotType = Inventory.SlotType.None;
+    [Export]
+    public Array<Script> Components = new Array<Script>();
+    [Export]
+    public Dictionary StatChanges = new Dictionary();
+
+
+    //make a component that attaches the thing to the correct slot. It can take in the packed scene?
+    //and later it can RPC call attach the bullshit
 }
