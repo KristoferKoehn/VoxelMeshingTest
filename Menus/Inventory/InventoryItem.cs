@@ -23,7 +23,6 @@ public partial class InventoryItem : Resource
     [Export]
     public Dictionary StatChanges = new Dictionary();
 
-
     //make a component that attaches the thing to the correct slot. It can take in the packed scene?
     //and later it can RPC call attach the bullshit
 }

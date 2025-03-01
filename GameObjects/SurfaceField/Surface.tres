@@ -1,0 +1,7 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://qsb8t4nl053f"]
+
+[ext_resource type="Shader" path="res://GameObjects/SurfaceField/Surface.gdshader" id="1_kkye0"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_kkye0")

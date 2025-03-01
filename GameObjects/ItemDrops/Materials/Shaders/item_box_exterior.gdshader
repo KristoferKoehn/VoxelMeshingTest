@@ -14,12 +14,12 @@ void fragment() {
 	vec3 normal_vs = -NORMAL;
 	normal_vs *= 0.5;
 	normal_vs += 0.5;
-	
+
 	vec3 matcap = texture(_Matcap, normal_vs.xy).rgb;
-	
+
 	vec3 color = mix(color_a, color_b, sin(TIME * 2.0) * 0.5 + 0.5);
 	matcap += color;
-	
+
 	ALBEDO = matcap;
 	ALPHA = matcap.r;
 }
