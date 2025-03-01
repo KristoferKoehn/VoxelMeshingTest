@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using System;
+using System.Diagnostics;
 
 [Tool]
 public partial class Surface : MeshInstance3D
@@ -24,6 +25,7 @@ public partial class Surface : MeshInstance3D
     ArrayMesh ArrMesh = new ArrayMesh();
 
     Dictionary<Vector2, float> Heights = new Dictionary<Vector2, float>();
+    Dictionary<Vector2, Array<int>> NormalIndices = new Dictionary<Vector2, Array<int>>();
 
     Vector2[] QuadPos = {
         new Vector2 (0, 0),
@@ -32,6 +34,14 @@ public partial class Surface : MeshInstance3D
         new Vector2 (0, 1),
         new Vector2 (1, 0),
         new Vector2 (1, 1),
+    };
+
+    Vector2[] Cardinals =
+    {
+        new Vector2 (1, 0),
+        new Vector2 (0, 1),
+        new Vector2 (-1, 0),
+        new Vector2 (0, -1),
     };
 
     private static Vector3 RandomGradient(float x, float y, float z)
@@ -88,6 +98,27 @@ public partial class Surface : MeshInstance3D
         return (v1.Cross(v2)).Normalized(); // Returns a unit normal vector
     }
 
+    public static Vector3 GetNormalFromSurrounding(Vector3[] points)
+    {
+
+        Vector3 center = points[0];
+        Vector3 north = points[1];
+        Vector3 south = points[2];
+        Vector3 east = points[3];
+        Vector3 west = points[4];
+
+        // Compute normals for four triangles around the center
+        Vector3 normal1 = (north - center).Cross( east - center).Normalized();
+        Vector3 normal2 = (east - center).Cross(south - center).Normalized();
+        Vector3 normal3 = (south - center).Cross( west - center).Normalized();
+        Vector3 normal4 = (west - center).Cross(north - center).Normalized();
+
+        // Average the normals to smooth out variations
+        Vector3 averagedNormal = (normal1 + normal2 + normal3 + normal4).Normalized();
+
+        return averagedNormal;
+    }
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
@@ -98,7 +129,7 @@ public partial class Surface : MeshInstance3D
 	
 	public override void _Process(double delta)
 	{
-        if (pos != prev_pos && frameCount % 1 == 0) {
+        if (pos != prev_pos) {
 
             ArrMesh.ClearSurfaces();
             Heights.Clear();
@@ -134,7 +165,13 @@ public partial class Surface : MeshInstance3D
                         count++;
                     }
 
+                    for (int k = 0; k < 6; k++)
+                    {
+                        if (NormalIndices.ContainsKey(new Vector2(vertices[count- 6 + k].X, vertices[count - 6 + k].Y)))
+                        {
 
+                        }
+                    }
                     normals[count - 6] = -GetPlaneNormal(vertices[count - 6], vertices[count - 5], vertices[count - 4]);
                     normals[count - 5] = -GetPlaneNormal(vertices[count - 6], vertices[count - 5], vertices[count - 4]);
                     normals[count - 4] = -GetPlaneNormal(vertices[count - 6], vertices[count - 5], vertices[count - 4]);
@@ -142,7 +179,7 @@ public partial class Surface : MeshInstance3D
                     normals[count - 3] = -GetPlaneNormal(vertices[count - 3], vertices[count - 2],  vertices[count - 1]);
                     normals[count - 2] = -GetPlaneNormal(vertices[count - 3], vertices[count - 2],  vertices[count - 1]);
                     normals[count - 1] = -GetPlaneNormal(vertices[count - 3], vertices[count - 2],  vertices[count - 1]);
-
+                    
                 }
             }
 
@@ -154,8 +191,5 @@ public partial class Surface : MeshInstance3D
         }
         prev_pos = pos;
         pos += new Vector3(0.03f, 0.01f, 0);
-
-        flag = !flag;
-        frameCount++;
     }
 }
