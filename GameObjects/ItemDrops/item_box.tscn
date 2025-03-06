@@ -40,7 +40,7 @@ orientation = 2
 size = Vector3(1.5, 1.5, 1.5)
 
 [node name="item_box" type="Node3D" node_paths=PackedStringArray("interior_shatter", "exterior_shatter")]
-transform = Transform3D(-1.59523, 0.389503, -0.473063, -0.380596, -0.418423, 1.55163, 0.271202, 1.61005, 0.532503, 0, 0, 0)
+transform = Transform3D(-1.58736, -0.313924, -0.5642, -0.412539, 0.172403, 1.591, -0.270939, 1.67063, -0.255921, 0, 0, 0)
 script = ExtResource("1_lsal6")
 interior_shatter = NodePath("InteriorShatterParticles")
 exterior_shatter = NodePath("ExteriorShatterParticles")

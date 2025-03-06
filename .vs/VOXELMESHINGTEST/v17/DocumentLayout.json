@@ -15,10 +15,6 @@
       "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:menus\\inventory\\inventoryitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\ferna\\documents\\voxelmeshingtest\\managers\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:managers\\playermanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\ferna\\documents\\voxelmeshingtest\\menus\\inventory\\inventoryslot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:menus\\inventory\\inventoryslot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -31,24 +27,8 @@
       "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:gameloop\\inventorypanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\ferna\\documents\\voxelmeshingtest\\menus\\sceneswitcher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:menus\\sceneswitcher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\ferna\\documents\\voxelmeshingtest\\gameloop\\debugpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:gameloop\\debugpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\ferna\\documents\\voxelmeshingtest\\gameloop\\gameloop.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:gameloop\\gameloop.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\ferna\\documents\\voxelmeshingtest\\managers\\chunkspawnmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:managers\\chunkspawnmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\ferna\\documents\\voxelmeshingtest\\classes\\gameconstants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:classes\\gameconstants.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -84,7 +64,7 @@
               "RelativeDocumentMoniker": "GameObjects\\SurfaceField\\Surface.cs",
               "ToolTip": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\GameObjects\\SurfaceField\\Surface.cs",
               "RelativeToolTip": "GameObjects\\SurfaceField\\Surface.cs",
-              "ViewState": "AQIAAJcAAAAAAAAAAAAAAKcAAAAUAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAJUAAAAjAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-01T01:57:46.909Z",
               "EditorCaption": ""
@@ -103,7 +83,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "InventorySlot.cs",
               "DocumentMoniker": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\Menus\\Inventory\\InventorySlot.cs",
               "RelativeDocumentMoniker": "Menus\\Inventory\\InventorySlot.cs",
@@ -115,7 +95,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 5,
               "Title": "InventoryPanel.cs",
               "DocumentMoniker": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\GameLoop\\InventoryPanel.cs",
               "RelativeDocumentMoniker": "GameLoop\\InventoryPanel.cs",
@@ -127,7 +107,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 6,
               "Title": "DebugPanel.cs",
               "DocumentMoniker": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\GameLoop\\DebugPanel.cs",
               "RelativeDocumentMoniker": "GameLoop\\DebugPanel.cs",
@@ -139,7 +119,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 4,
               "Title": "Inventory.cs",
               "DocumentMoniker": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\Menus\\Inventory\\Inventory.cs",
               "RelativeDocumentMoniker": "Menus\\Inventory\\Inventory.cs",
@@ -148,66 +128,6 @@
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-18T01:28:07.734Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "SceneSwitcher.cs",
-              "DocumentMoniker": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\Menus\\SceneSwitcher.cs",
-              "RelativeDocumentMoniker": "Menus\\SceneSwitcher.cs",
-              "ToolTip": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\Menus\\SceneSwitcher.cs",
-              "RelativeToolTip": "Menus\\SceneSwitcher.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAwwAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-16T01:05:18.626Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "PlayerManager.cs",
-              "DocumentMoniker": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\Managers\\PlayerManager.cs",
-              "RelativeDocumentMoniker": "Managers\\PlayerManager.cs",
-              "ToolTip": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\Managers\\PlayerManager.cs",
-              "RelativeToolTip": "Managers\\PlayerManager.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAAAwwCcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-16T01:01:25.168Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "GameLoop.cs",
-              "DocumentMoniker": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\GameLoop\\GameLoop.cs",
-              "RelativeDocumentMoniker": "GameLoop\\GameLoop.cs",
-              "ToolTip": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\GameLoop\\GameLoop.cs",
-              "RelativeToolTip": "GameLoop\\GameLoop.cs",
-              "ViewState": "AgIAAEAAAAAAAAAAAAAcwFIAAAA4AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-11T06:55:41.181Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "ChunkSpawnManager.cs",
-              "DocumentMoniker": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\Managers\\ChunkSpawnManager.cs",
-              "RelativeDocumentMoniker": "Managers\\ChunkSpawnManager.cs",
-              "ToolTip": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\Managers\\ChunkSpawnManager.cs",
-              "RelativeToolTip": "Managers\\ChunkSpawnManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAN0AAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-02T19:54:04.145Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "GameConstants.cs",
-              "DocumentMoniker": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\Classes\\GameConstants.cs",
-              "RelativeDocumentMoniker": "Classes\\GameConstants.cs",
-              "ToolTip": "C:\\Users\\ferna\\Documents\\VoxelMeshingTest\\Classes\\GameConstants.cs",
-              "RelativeToolTip": "Classes\\GameConstants.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-17T21:26:49.157Z"
             }
           ]
         }

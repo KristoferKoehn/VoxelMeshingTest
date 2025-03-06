@@ -7,7 +7,7 @@ using System.Diagnostics;
 public partial class Surface : MeshInstance3D
 {
 
-    int SURFACE_LENGTH = 40;
+    int SURFACE_LENGTH = 80;
 
     float NOISE_SCALE = 0.25f;
 
@@ -125,7 +125,6 @@ public partial class Surface : MeshInstance3D
         Mesh = ArrMesh;
 
 	}
-
 	
 	public override void _Process(double delta)
 	{
@@ -148,7 +147,7 @@ public partial class Surface : MeshInstance3D
                     for (int k = 0; k < 6; k++)
                     {
                         Vector2 vec2 = new Vector2(i, j) + QuadPos[k];
-                        //vec2 *= 0.6f;
+                        vec2 *= 0.2f;
 
                         if (Heights.ContainsKey(vec2))
                         {
@@ -158,20 +157,13 @@ public partial class Surface : MeshInstance3D
                         else
                         {
                             Vector3 v = new Vector3(vec2.X, 0, vec2.Y);
-                            float f = Noise((vec2.X + pos.X) * NOISE_SCALE, pos.Y * NOISE_SCALE, (vec2.Y + pos.Z) * NOISE_SCALE) * 2;
+                            float f = Noise((vec2.X + pos.X) * NOISE_SCALE, pos.Y * NOISE_SCALE, (vec2.Y + pos.Z) * NOISE_SCALE) * 5;
                             Heights[vec2] = f;
                             vertices[count] = v + new Vector3(0, f, 0);
                         }
                         count++;
                     }
 
-                    for (int k = 0; k < 6; k++)
-                    {
-                        if (NormalIndices.ContainsKey(new Vector2(vertices[count- 6 + k].X, vertices[count - 6 + k].Y)))
-                        {
-
-                        }
-                    }
                     normals[count - 6] = -GetPlaneNormal(vertices[count - 6], vertices[count - 5], vertices[count - 4]);
                     normals[count - 5] = -GetPlaneNormal(vertices[count - 6], vertices[count - 5], vertices[count - 4]);
                     normals[count - 4] = -GetPlaneNormal(vertices[count - 6], vertices[count - 5], vertices[count - 4]);
@@ -187,9 +179,9 @@ public partial class Surface : MeshInstance3D
             ((ConcavePolygonShape3D)collisionShape.Shape).SetFaces(vertices);
             mesh[(int)Mesh.ArrayType.Normal] = normals;
             ArrMesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, mesh);
-
         }
+
         prev_pos = pos;
-        pos += new Vector3(0.03f, 0.01f, 0);
+        pos += new Vector3(0.05f, 0.0f, 0);
     }
 }
