@@ -245,12 +245,19 @@ void main () {
 		for (int y = Gy * WorkGroupDataLength; y < (Gy + 1) * WorkGroupDataLength; y++) {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
 				
-				int biome = biomeIDFromVoronoi((ChunkPosition * 64.0 + vec3(x,y,z)) * 1.0 / 128.0, seed);
+				int biome = biomeIDFromVoronoi((ChunkPosition * 64.0 + vec3(x,y,z)) * 1.0 / 1024.0, seed);
 				
 				if (y < 16 + biome * 4) {
 					ChunkBuffer.chunk[x][y][z] = biome;
 				} else {
 					ChunkBuffer.chunk[x][y][z] = 0;
+				}
+				
+				switch (biome) {
+					case 0:
+						break;
+					case 1:
+						break;
 				}
 				
 				if (ChunkBuffer.chunk[x][y][z] != 0) {
