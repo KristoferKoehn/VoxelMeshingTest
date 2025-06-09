@@ -1,6 +1,6 @@
 [gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://bxrfwdfx5bf8n"]
 
-[ext_resource type="Shader" path="res://GameObjects/ItemDrops/Materials/Shaders/item_box_symbol.gdshader" id="1_hysxy"]
+[ext_resource type="Shader" uid="uid://dmhlnxiicydwi" path="res://GameObjects/ItemDrops/Materials/Shaders/item_box_symbol.gdshader" id="1_hysxy"]
 [ext_resource type="Texture2D" uid="uid://c5c5f2wkps8j7" path="res://GameObjects/ItemDrops/Textures/item_box_symbol_tex.png" id="2_585yo"]
 
 [resource]

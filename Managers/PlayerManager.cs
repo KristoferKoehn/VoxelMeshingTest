@@ -59,7 +59,7 @@ namespace VoxelMeshingTest.Managers
 
         public override void _Ready()
         {
-            SpawnBasicPlayer();
+            //SpawnBasicPlayer();
         }
 
     }

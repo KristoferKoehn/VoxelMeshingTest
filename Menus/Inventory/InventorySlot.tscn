@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://cnmn5et8arm8b"]
 
-[ext_resource type="Script" path="res://Menus/Inventory/InventorySlot.cs" id="1_vtwu6"]
+[ext_resource type="Script" uid="uid://cyoqvaye7j46o" path="res://Menus/Inventory/InventorySlot.cs" id="1_vtwu6"]
 [ext_resource type="Texture2D" uid="uid://bo7p1ljay4gde" path="res://assets/UI/monochrome-transparent.png" id="2_c7sax"]
 
 [sub_resource type="ImageTexture" id="ImageTexture_kkw82"]

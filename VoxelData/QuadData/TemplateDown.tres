@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="QuadData" load_steps=2 format=3 uid="uid://bc116ghic4qfm"]
 
-[ext_resource type="Script" path="res://Classes/QuadData.cs" id="1_fngyd"]
+[ext_resource type="Script" uid="uid://cfvx7jy784ktc" path="res://Classes/QuadData.cs" id="1_fngyd"]
 
 [resource]
 script = ExtResource("1_fngyd")

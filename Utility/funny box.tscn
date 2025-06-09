@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://37qjbnhpe8lu"]
 
-[ext_resource type="Script" path="res://Utility/MetalBox.cs" id="1_eo7vw"]
+[ext_resource type="Script" uid="uid://be3e2qq7yvuey" path="res://Utility/MetalBox.cs" id="1_eo7vw"]
 [ext_resource type="AudioStream" uid="uid://diped2nvsuich" path="res://assets/metal-pipe-230698.wav" id="2_iuy4f"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cvfam"]

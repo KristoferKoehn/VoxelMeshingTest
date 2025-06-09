@@ -93,11 +93,10 @@ var shader_is_dirty : bool = true
 
 var timer : int = 1
 
-
 func _init():
 	effect_callback_type = EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
 	rd = RenderingServer.get_rendering_device()
-	
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
@@ -105,7 +104,7 @@ func _ready():
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
 	pass
-	
+
 # System notifications, we want to react on the notification that
 # alerts us we are about to be destroyed.
 func _notification(what):

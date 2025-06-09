@@ -1,18 +1,17 @@
-[gd_scene load_steps=32 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=31 format=3 uid="uid://d0yoddkdojog4"]
 
-[ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
+[ext_resource type="Script" uid="uid://ck1rug11q06ux" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_874if"]
-[ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
-[ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
-[ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
+[ext_resource type="Script" uid="uid://c7wvi4jhkeh8c" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
+[ext_resource type="Script" uid="uid://d3x3jm5w5f2vp" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
+[ext_resource type="Shader" uid="uid://bed8cyx0s07c0" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
 [ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
-[ext_resource type="Script" path="res://GameLoop/DebugPanel.cs" id="8_jybo6"]
+[ext_resource type="Script" uid="uid://dj4gnv7ieb3uc" path="res://GameLoop/DebugPanel.cs" id="8_jybo6"]
 [ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="9_i1jmx"]
-[ext_resource type="Script" path="res://GameLoop/InventoryPanel.cs" id="9_lj4mj"]
+[ext_resource type="Script" uid="uid://c7ftxbgppm1ry" path="res://GameLoop/InventoryPanel.cs" id="9_lj4mj"]
 [ext_resource type="Resource" uid="uid://cbgmg3q2e71tc" path="res://GameObjects/Inventories/PlayerInventory.tres" id="10_fxhoj"]
 [ext_resource type="Texture2D" uid="uid://bexf40ypu6lbi" path="res://assets/UI/panel-border-012.png" id="11_pnalr"]
 [ext_resource type="PackedScene" uid="uid://cnmn5et8arm8b" path="res://Menus/Inventory/InventorySlot.tscn" id="12_c7dll"]
-[ext_resource type="PackedScene" uid="uid://v1glitjyc6pf" path="res://GameObjects/ItemDrops/item_box.tscn" id="13_16w70"]
 
 [sub_resource type="Shader" id="Shader_xmxvo"]
 code = "shader_type spatial;
@@ -127,9 +126,9 @@ bg_color = Color(0.0383972, 0.0383972, 0.0383971, 0.203922)
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_6ropx"]
 render_priority = 0
 shader = ExtResource("5_8dgh4")
+shader_parameter/_ascii_tex = ExtResource("6_b6r5k")
 shader_parameter/_char_size = 8.0
 shader_parameter/_char_count = 10.0
-shader_parameter/_ascii_tex = ExtResource("6_b6r5k")
 
 [sub_resource type="QuadMesh" id="QuadMesh_hty1b"]
 material = SubResource("ShaderMaterial_6ropx")
@@ -292,7 +291,7 @@ offset_bottom = 238.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_11oc4")
 script = ExtResource("9_lj4mj")
 Inventory = ExtResource("10_fxhoj")
-InventoryContainer = NodePath("MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/ScrollContainer/GridContainer")
+InventoryContainer = NodePath("MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer2/ScrollContainer/GridContainer")
 EquipContainer = NodePath("MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer/GridContainer")
 SlotScene = ExtResource("12_c7dll")
 DraggerSprite = NodePath("DraggerSprite")
@@ -302,7 +301,7 @@ self_modulate = Color(1, 1, 1, 0.415686)
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Inventory"]
 custom_minimum_size = Vector2(360, 0)
-layout_mode = 2
+layout_mode = 0
 offset_right = 564.0
 offset_bottom = 210.0
 size_flags_horizontal = 3
@@ -350,26 +349,28 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 columns = 3
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer"]
+[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_right = 8
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer2"]
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/ScrollContainer"]
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer2/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 columns = 11
 
-[node name="item_box" parent="." instance=ExtResource("13_16w70")]
-transform = Transform3D(0.496664, 0.718752, 1.76425, 1.2548, 0.83186, -1.13166, -1.39446, 1.56848, -0.290157, -9.79642, -40.388, 0)
-
-[node name="Camera3D" type="Camera3D" parent="."]
-process_mode = 4
+[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("raycast")]
+physics_interpolation_mode = 2
 transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 17, 0)
 environment = ExtResource("3_874if")
 far = 10000.0
 script = ExtResource("3_o0vww")
 sensitivity = 0.2
+raycast = NodePath("RayCast3D")
 
 [node name="ascii" type="MeshInstance3D" parent="Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
@@ -377,6 +378,7 @@ visible = false
 mesh = SubResource("QuadMesh_hty1b")
 
 [node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
+physics_interpolation_mode = 2
 target_position = Vector3(0, 0, -10)
 
 [connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/SpawnSpinBox" to="CanvasLayer/Panel" method="SpawnRadiusChange"]

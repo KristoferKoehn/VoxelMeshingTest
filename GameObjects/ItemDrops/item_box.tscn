@@ -1,7 +1,7 @@
 [gd_scene load_steps=14 format=3 uid="uid://v1glitjyc6pf"]
 
 [ext_resource type="ArrayMesh" uid="uid://hhh2ajyxmq8n" path="res://GameObjects/ItemDrops/Meshes/item_box_mesh.tres" id="1_l0uaq"]
-[ext_resource type="Script" path="res://GameObjects/ItemDrops/Scripts/item_box.gd" id="1_lsal6"]
+[ext_resource type="Script" uid="uid://u422u7rywlnt" path="res://GameObjects/ItemDrops/Scripts/item_box.gd" id="1_lsal6"]
 [ext_resource type="Material" uid="uid://dq4jqtveydc5" path="res://GameObjects/ItemDrops/Materials/item_box_interior_mat.tres" id="2_igoco"]
 [ext_resource type="Material" uid="uid://dlf8283tgb3bb" path="res://GameObjects/ItemDrops/Materials/item_box_exterior_mat.tres" id="3_k3xjc"]
 [ext_resource type="Material" uid="uid://bxrfwdfx5bf8n" path="res://GameObjects/ItemDrops/Materials/item_box_symbol_mat.tres" id="4_6cy5j"]

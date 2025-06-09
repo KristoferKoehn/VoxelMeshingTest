@@ -31,7 +31,6 @@ public partial class SceneSwitcher : Node
         Node scene = GD.Load<PackedScene>(ScenePath).Instantiate<Node>();
         SceneStack.Push(scene);
         AddChild(scene);
-
     }
 
 

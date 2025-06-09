@@ -150,7 +150,7 @@ public partial class ChunkSpawnManager : Node
         RDShaderSpirV GreedyShaderBytecode = GreedyShaderFile.GetSpirV();
         rdFrame.GreedyShaderRID = rdFrame.MesherRenderDevice.ShaderCreateFromSpirV(GreedyShaderBytecode);
 
-        RDShaderFile TerrainShaderFile = ResourceLoader.Load<RDShaderFile>("res://Compute/ChunkGen.glsl", cacheMode: ResourceLoader.CacheMode.Ignore);
+        RDShaderFile TerrainShaderFile = ResourceLoader.Load<RDShaderFile>("res://Compute/ChunkGenV2.glsl", cacheMode: ResourceLoader.CacheMode.Ignore);
         RDShaderSpirV TerrainShaderBytecode = TerrainShaderFile.GetSpirV();
         rdFrame.TerrainShaderRID = rdFrame.GeneratorRenderDevice.ShaderCreateFromSpirV(TerrainShaderBytecode);
 
@@ -221,8 +221,10 @@ public partial class ChunkSpawnManager : Node
                 }
             }
 
+
+
             List<Vector3I> PosList = new List<Vector3I>();
-            Vector3 playerPos = PlayerTrackingManager.Instance().GetPlayerLocation() - PlayerTrackingManager.Instance().GetPlayerVelocity() * 30; // + velocity * 30 to only look in the direction we're moving
+            Vector3 playerPos = PlayerTrackingManager.Instance().GetPlayerLocation() - PlayerTrackingManager.Instance().GetPlayerVelocity(); // + velocity * 30 to only look in the direction we're moving
             Vector3I PlayerCoordinate = (Vector3I)(playerPos / GameConstants.CHUNK_SIZE);
             PlayerCoordinate = new Vector3I(PlayerCoordinate.X, 0, PlayerCoordinate.Z);
 
@@ -262,7 +264,8 @@ public partial class ChunkSpawnManager : Node
                     }
                 }
             }
-            
+
+
             PlayerCoordinateLast = PlayerCoordinate;
         
 
@@ -299,6 +302,8 @@ public partial class ChunkSpawnManager : Node
                 //GD.Print("BAIL, CHUNK ALREADY EXISTS");
                 continue;
             }
+
+
 
             double FindBestPositionStamp = sw.ElapsedMilliseconds;
 

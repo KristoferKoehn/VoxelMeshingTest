@@ -1,7 +1,7 @@
 [gd_scene load_steps=17 format=3 uid="uid://blf8bkjp7a466"]
 
-[ext_resource type="PackedScene" uid="uid://d2v4wlqtrpfdv" path="res://assets/character/Santa.glb" id="1_c3vrs"]
-[ext_resource type="Script" path="res://Controllers/third_person_controller.gd" id="1_p2b4o"]
+[ext_resource type="PackedScene" uid="uid://cavu2g7mchobb" path="res://assets/character/Santa.glb" id="1_c3vrs"]
+[ext_resource type="Script" uid="uid://c13kdwbvmj7nn" path="res://Controllers/third_person_controller.gd" id="1_p2b4o"]
 [ext_resource type="PackedScene" uid="uid://cd8cuok7kojx0" path="res://assets/props/shotgun.gltf" id="3_nsq05"]
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_x0yqh"]
 [ext_resource type="AnimationNodeStateMachine" uid="uid://dy4g64h7p1it6" path="res://Resources/animations/locomotionState.tres" id="4_3vo15"]

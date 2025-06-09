@@ -41,6 +41,8 @@ float perlinNoise3D(vec3 p, float seed) {
 
 
 void vertex() {
+	// Shading Mode: Per Vertex
+	ROUGHNESS = 1.0;
 
 }
 

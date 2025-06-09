@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="FaceData" load_steps=8 format=3 uid="uid://dqghkn4dwwi1b"]
 
-[ext_resource type="Script" path="res://Classes/FaceData.cs" id="1_k4cmr"]
+[ext_resource type="Script" uid="uid://b858eadduj1cs" path="res://Classes/FaceData.cs" id="1_k4cmr"]
 [ext_resource type="Resource" uid="uid://bc116ghic4qfm" path="res://VoxelData/QuadData/TemplateDown.tres" id="1_tu71j"]
 [ext_resource type="Resource" uid="uid://c58podjk8nsc0" path="res://VoxelData/QuadData/TemplateEast.tres" id="2_2u233"]
 [ext_resource type="Resource" uid="uid://c1m0fnqvv4qml" path="res://VoxelData/QuadData/TemplateNorth.tres" id="3_mbphe"]
@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("1_k4cmr")
-ID = 1
+ID = 0
 transparent = false
 UpFace = Array[Object]([ExtResource("5_70grp")])
 NorthFace = Array[Object]([ExtResource("3_mbphe")])

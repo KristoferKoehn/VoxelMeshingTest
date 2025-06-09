@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://bheyek064r2gu"
+path="res://.godot/imported/ChunkGenV2.glsl-45127e4e5ac461dbec871f21813103fe.res"
+
+[deps]
+
+source_file="res://Compute/ChunkGenV2.glsl"
+dest_files=["res://.godot/imported/ChunkGenV2.glsl-45127e4e5ac461dbec871f21813103fe.res"]
+
+[params]
+

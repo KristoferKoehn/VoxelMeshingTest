@@ -2,6 +2,7 @@ using Godot;
 using Godot.Collections;
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Xml.Linq;
 using VoxelMeshingTest.Classes;
 
@@ -74,12 +75,13 @@ public partial class ChunkGeneratorManager : Node
         rdFrame.GeneratorRenderDevice.ComputeListDispatch(ComputeList, 33, 33, 33);
 
         rdFrame.GeneratorRenderDevice.ComputeListEnd();
+        /*
         rdFrame.GeneratorRenderDevice.Submit();
-        rdFrame.GeneratorRenderDevice.Sync();
-
+        rdFrame.GeneratorRenderDevice.Sync();*/
+        
         byte[] chunkData = rdFrame.GeneratorRenderDevice.BufferGetData(ChunkBuffer); 
 
-        rdFrame.GeneratorRenderDevice.BufferClear(ChunkBuffer, 0, (uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4 + 8);
+        //rdFrame.GeneratorRenderDevice.BufferClear(ChunkBuffer, 0, (uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4 + 8);
 
         chunk = new int[66, 66, 66];
 
@@ -87,22 +89,13 @@ public partial class ChunkGeneratorManager : Node
         Buffer.BlockCopy(chunkData, chunkData.Length - 8, count, 0 , 8);
 
         Buffer.BlockCopy(chunkData, 0, chunk, 0, chunkData.Length - 8);
-
-        int blockCount = 0;
-        foreach (int block in chunk)
-        {
-            if (block == 0)
-                blockCount++;
-        }
-
-        //GD.Print($"getting this many zeros {blockCount} out of {66* 66* 66} blocks");
         rdFrame.GeneratorRenderDevice.FreeRid(UniformSet);
         rdFrame.GeneratorRenderDevice.FreeRid(pipelineRID);
         rdFrame.GeneratorRenderDevice.FreeRid(ChunkBuffer);
         rdFrame.GeneratorRenderDevice.FreeRid(ChunkDimensionalBuffer);
 
         ch.ChunkData = chunk;
-        if (count[0] == 0 || count[1] == 66 * 66 * 66)
+        if (count[0] == 0)
         {
             return false;
         }

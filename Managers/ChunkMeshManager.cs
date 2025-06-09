@@ -178,14 +178,14 @@ public partial class ChunkMeshManager : Node
         RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(ComputeList, pipelineRID);
         RDFrame.MesherRenderDevice.ComputeListDispatch(ComputeList, (uint)WorkGroupSide, (uint)WorkGroupSide, (uint)WorkGroupSide);
         RDFrame.MesherRenderDevice.ComputeListEnd();
+        /*
         RDFrame.MesherRenderDevice.Submit();
-        RDFrame.MesherRenderDevice.Sync();
+        RDFrame.MesherRenderDevice.Sync(); */
 
         float initmeshingsw = sw.ElapsedMilliseconds;
 
         int[] Count = new int[4];
 
-        //GD.Print($"start greedy pipeline: {sw.ElapsedMilliseconds}");
         long GreedyComputeList = RDFrame.MesherRenderDevice.ComputeListBegin();
         Rid GreedyPipelineRID = RDFrame.MesherRenderDevice.ComputePipelineCreate(RDFrame.GreedyShaderRID);
         Rid GreedyUniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(Uniforms, RDFrame.GreedyShaderRID, 0);
@@ -193,10 +193,11 @@ public partial class ChunkMeshManager : Node
         RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(GreedyComputeList, GreedyPipelineRID);
         RDFrame.MesherRenderDevice.ComputeListDispatch(GreedyComputeList, 64 * 6, 1, 1);
         RDFrame.MesherRenderDevice.ComputeListEnd();
+        /*
         RDFrame.MesherRenderDevice.Submit();
-        RDFrame.MesherRenderDevice.Sync();
+        RDFrame.MesherRenderDevice.Sync();*/
 
-        //GD.Print($"end greedy pipeline: {sw.ElapsedMilliseconds}");
+        float greedysw = sw.ElapsedMilliseconds;
 
         long CompressorComputeList = RDFrame.MesherRenderDevice.ComputeListBegin();
         Rid CompressorPipelineRID = RDFrame.MesherRenderDevice.ComputePipelineCreate(RDFrame.CompressorShaderRID);
@@ -205,12 +206,15 @@ public partial class ChunkMeshManager : Node
         RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(CompressorComputeList, CompressorPipelineRID);
         RDFrame.MesherRenderDevice.ComputeListDispatch(CompressorComputeList, 32, 32, 32);
         RDFrame.MesherRenderDevice.ComputeListEnd();
+        /*
         RDFrame.MesherRenderDevice.Submit();
-        RDFrame.MesherRenderDevice.Sync();
+        RDFrame.MesherRenderDevice.Sync();*/
 
-        float greedysw = sw.ElapsedMilliseconds;
+        float compressorTime = sw.ElapsedMilliseconds;
+
         byte[] countBytes = RDFrame.MesherRenderDevice.BufferGetData(QuadCountBuffer);
         Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 4);
+        
         if (Count[0] == 0)
         {
             RDFrame.MesherRenderDevice.FreeRid(UniformSet);
@@ -241,7 +245,6 @@ public partial class ChunkMeshManager : Node
         Buffer.BlockCopy(DataBytes, colors_offset, CBuffer, 0, CBuffer.Length);
         Buffer.BlockCopy(DataBytes, collision_offset, ColBuffer, 0, ColBuffer.Length);
 
-        //GD.Print($"{ch.ChunkCoordinates} v {VBuffer.Length}, n {NBuffer.Length}, c {CBuffer.Length} , Col {ColBuffer.Length}, {(uint)Count[0]}");
         float datapullingsw = sw.ElapsedMilliseconds;
 
         Godot.Collections.Array ar = new Godot.Collections.Array();
@@ -257,19 +260,12 @@ public partial class ChunkMeshManager : Node
         //Vector2[] UVs = BytesToVec2(UVBuffer, Count[0]);
         Color[] Colors = BytesToColor(CBuffer, Count[0]);
 
-
         float dataconversionsw = sw.ElapsedMilliseconds;
 
-        /*
-        GD.Print($"mesh count: {Count[0]}");
-        GD.Print($"Greedy size: {Count[1]}");
-        GD.Print($"full test size: {Count[2]}");
-        GD.Print($"Greeded(pad) size: {Count[3]}");
-        GD.Print($"setup time: {Setupsw}, initial meshing: {initmeshingsw}, greedy time: {greedysw}, data pulling time: {datapullingsw}, data conversion time: {dataconversionsw}"); */
+        GD.Print($"initial meshing: {initmeshingsw}, greedy: {greedysw}, data compression: {compressorTime}, data pulling: {datapullingsw}, data conversion: {dataconversionsw}"); 
         
         int[] Indices = new int[Count[0] * 6];
         Buffer.BlockCopy(RDFrame.ints, 0, Indices, 0, Indices.Length * 4);
-
 
         ar[(int)Mesh.ArrayType.Vertex] = Vertices;
         ar[(int)Mesh.ArrayType.Normal] = Normals;
@@ -284,7 +280,6 @@ public partial class ChunkMeshManager : Node
         {
             ch.MeshInstance = new MeshInstance3D();
             ch.CallDeferred("add_child", ch.MeshInstance);
-            //ch.AddChild(ch.MeshInstance);
         }
 
         ch.ConcavePolygon.CallDeferred("set_faces", Collision);

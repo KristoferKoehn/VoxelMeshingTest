@@ -1,12 +1,12 @@
 [gd_scene load_steps=23 format=3 uid="uid://cqnnkjem4q3ct"]
 
-[ext_resource type="Script" path="res://DataTools/VoxelMaker.cs" id="1_a42i5"]
-[ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="2_8h2ao"]
-[ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="3_qccya"]
-[ext_resource type="Shader" path="res://Resources/mobius.gdshader" id="4_wgell"]
-[ext_resource type="Shader" path="res://Resources/ascii.gdshader" id="5_mgfmi"]
+[ext_resource type="Script" uid="uid://cb8fuk7qt7nyw" path="res://DataTools/VoxelMaker.cs" id="1_a42i5"]
+[ext_resource type="Script" uid="uid://c7wvi4jhkeh8c" path="res://Utility/FreeLookCamera.gd" id="2_8h2ao"]
+[ext_resource type="Script" uid="uid://d3x3jm5w5f2vp" path="res://Managers/PlayerTrackingManager.cs" id="3_qccya"]
+[ext_resource type="Shader" uid="uid://d1rt500gq7dgx" path="res://Resources/mobius.gdshader" id="4_wgell"]
+[ext_resource type="Shader" uid="uid://bed8cyx0s07c0" path="res://Resources/ascii.gdshader" id="5_mgfmi"]
 [ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_0cp0j"]
-[ext_resource type="Script" path="res://DataTools/Panel2.cs" id="7_70dgg"]
+[ext_resource type="Script" uid="uid://chnlg7nijc8u5" path="res://DataTools/Panel2.cs" id="7_70dgg"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_bk48e"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -39,9 +39,9 @@ orientation = 2
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_4s3p8"]
 render_priority = 0
 shader = ExtResource("5_mgfmi")
+shader_parameter/_ascii_tex = ExtResource("6_0cp0j")
 shader_parameter/_char_size = 8.0
 shader_parameter/_char_count = 10.0
-shader_parameter/_ascii_tex = ExtResource("6_0cp0j")
 
 [sub_resource type="QuadMesh" id="QuadMesh_fql3j"]
 material = SubResource("ShaderMaterial_4s3p8")
