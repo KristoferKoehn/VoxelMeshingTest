@@ -213,7 +213,7 @@ int biomeIDFromVoronoi(vec3 pos, float seed) {
 			vec2 featurePoint = fract(sin(vec2(
 				dot(latticeCell, vec2(127.1, 74.7)),
 				dot(latticeCell, vec2(113.5, 372.3))
-			)) * 43758.5453 + seed);
+			)) * (43758.5453 + seed));
 
 			vec2 diff = neighbor + featurePoint - frac;
 			float dist = length(diff);
@@ -227,8 +227,17 @@ int biomeIDFromVoronoi(vec3 pos, float seed) {
 
     // Pick biome based on hash of nearest cell
     float h = fract(sin(dot(nearestCell, vec2(12.9898, 45.164))) * 43758.5453);
-    return int(floor(h * 5.0)) + 1; // 4 biome types
+    return int(floor(h * 5.0)) + 1; // Amount of biomes
 }
+
+/* TODO
+
+	* build height function to lerp height on blend borders
+	* reconfigure biome detection to also output border distance
+	* fuzzify border blocks to make blend more convincing
+*/
+
+
 
 
 void main () {
@@ -240,24 +249,51 @@ void main () {
 	
 	vec3 ChunkPosition = ChunkDimensions.ChunkCoordinate.xyz;
 	float seed = 5.0;
+	float scale = 0.5;
 	
 	for (int x = Gx * WorkGroupDataLength; x < (Gx + 1) * WorkGroupDataLength; x++) {
 		for (int y = Gy * WorkGroupDataLength; y < (Gy + 1) * WorkGroupDataLength; y++) {
 			for (int z = Gz * WorkGroupDataLength; z < (Gz + 1) * WorkGroupDataLength; z++) {
 				
-				int biome = biomeIDFromVoronoi((ChunkPosition * 64.0 + vec3(x,y,z)) * 1.0 / 1024.0, seed);
+				int biome = biomeIDFromVoronoi((ChunkPosition * 64.0 + vec3(x,y,z)) * 1.0 / 128.0, seed);
 				
-				if (y < 16 + biome * 4) {
-					ChunkBuffer.chunk[x][y][z] = biome;
-				} else {
-					ChunkBuffer.chunk[x][y][z] = 0;
-				}
-				
+				vec3 warped_pos = vec3((float(ChunkPosition.x + x/64.0 - 1)) * scale, (float(ChunkPosition.y + y/64.0 - 1)) * scale, (float(ChunkPosition.z + z/64.0 - 1)) * scale);
+				float cutoff = domainWarpedNoise2D(warped_pos.zx, seed, 10.0);
 				switch (biome) {
-					case 0:
+					case 2:
+						if (cutoff * 10 + 17 > float(y) + ChunkPosition.y*64.0) {
+							ChunkBuffer.chunk[x][y][z] = 2;
+						} else {
+							ChunkBuffer.chunk[x][y][z] = 0;
+						}
 						break;
-					case 1:
+					case 3:
+						if (cutoff * 10 + 17 > float(y) + ChunkPosition.y*64.0) {
+							ChunkBuffer.chunk[x][y][z] = 3;
+						} else {
+							ChunkBuffer.chunk[x][y][z] = 0;
+						}
 						break;
+					//mountain
+					case 4:
+						float cutoff_mountain = pow(fbm2D(warped_pos.zx, seed), 2.0);
+						if (cutoff_mountain * 600 + 17 + cutoff > float(y) + ChunkPosition.y*64.0) {
+							ChunkBuffer.chunk[x][y][z] = 4;
+						} else {
+							ChunkBuffer.chunk[x][y][z] = 0;
+						}
+						break;
+					//demon
+					case 5:
+						float cutoff_demon = worleyNoise2D(warped_pos.zx - vec2(10000, 10000), seed) ;
+						if (cutoff_demon * 20 + 5 + cutoff > float(y) + ChunkPosition.y*64.0) {
+							ChunkBuffer.chunk[x][y][z] = 5;
+						} else {
+							ChunkBuffer.chunk[x][y][z] = 0;
+						}
+						break;
+					default:
+						ChunkBuffer.chunk[x][y][z] = 0;
 				}
 				
 				if (ChunkBuffer.chunk[x][y][z] != 0) {
