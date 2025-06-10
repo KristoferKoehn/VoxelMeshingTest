@@ -237,6 +237,17 @@ int biomeIDFromVoronoi(vec3 pos, float seed) {
 	* fuzzify border blocks to make blend more convincing
 */
 
+float CutoffHeight(int biome, vec3 ChunkPos, vec3 BlockPos) {
+
+	
+	switch (biome) {
+	
+		default:
+		break;
+	}
+	
+	return 0.0;
+}
 
 
 
