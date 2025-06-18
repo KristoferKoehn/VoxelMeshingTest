@@ -1,11 +1,9 @@
-[gd_scene load_steps=31 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=27 format=3 uid="uid://d0yoddkdojog4"]
 
 [ext_resource type="Script" uid="uid://ck1rug11q06ux" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_874if"]
 [ext_resource type="Script" uid="uid://c7wvi4jhkeh8c" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
 [ext_resource type="Script" uid="uid://d3x3jm5w5f2vp" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
-[ext_resource type="Shader" uid="uid://b18lki3yil65q" path="res://Resources/ascii.gdshader" id="5_8dgh4"]
-[ext_resource type="Texture2D" uid="uid://bjrgh157v0hcg" path="res://assets/ascii.png" id="6_b6r5k"]
 [ext_resource type="Script" uid="uid://dj4gnv7ieb3uc" path="res://GameLoop/DebugPanel.cs" id="8_jybo6"]
 [ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="9_i1jmx"]
 [ext_resource type="Script" uid="uid://c7ftxbgppm1ry" path="res://GameLoop/InventoryPanel.cs" id="9_lj4mj"]
@@ -122,18 +120,6 @@ shader = SubResource("Shader_sd02a")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_11oc4"]
 bg_color = Color(0.0383972, 0.0383972, 0.0383971, 0.203922)
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_6ropx"]
-render_priority = 0
-shader = ExtResource("5_8dgh4")
-shader_parameter/_ascii_tex = ExtResource("6_b6r5k")
-shader_parameter/_char_size = 8.0
-shader_parameter/_char_count = 10.0
-
-[sub_resource type="QuadMesh" id="QuadMesh_hty1b"]
-material = SubResource("ShaderMaterial_6ropx")
-flip_faces = true
-size = Vector2(2, 2)
 
 [node name="GameLoop" type="Node3D" node_paths=PackedStringArray("RayCast")]
 script = ExtResource("1_aic3m")
@@ -371,11 +357,6 @@ far = 10000.0
 script = ExtResource("3_o0vww")
 sensitivity = 0.2
 raycast = NodePath("RayCast3D")
-
-[node name="ascii" type="MeshInstance3D" parent="Camera3D"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2)
-visible = false
-mesh = SubResource("QuadMesh_hty1b")
 
 [node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
 physics_interpolation_mode = 2

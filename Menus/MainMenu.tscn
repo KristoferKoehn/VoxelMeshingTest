@@ -36,6 +36,10 @@ grow_vertical = 2
 layout_mode = 2
 text = "Generate"
 
+[node name="CppButton" type="Button" parent="Control/VBoxContainer"]
+layout_mode = 2
+text = "C++ Mesher"
+
 [node name="VoxelMaker" type="Button" parent="Control/VBoxContainer"]
 layout_mode = 2
 text = "Make Blocks
@@ -51,4 +55,5 @@ directional_shadow_fade_start = 1.0
 directional_shadow_max_distance = 350.0
 
 [connection signal="pressed" from="Control/VBoxContainer/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="Control/VBoxContainer/CppButton" to="." method="_on_cpp_button_pressed"]
 [connection signal="pressed" from="Control/VBoxContainer/VoxelMaker" to="." method="OnVoxelMakerButtonPressed"]

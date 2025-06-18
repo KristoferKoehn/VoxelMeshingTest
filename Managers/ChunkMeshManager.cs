@@ -262,7 +262,7 @@ public partial class ChunkMeshManager : Node
 
         float dataconversionsw = sw.ElapsedMilliseconds;
 
-        GD.Print($"initial meshing: {initmeshingsw}, greedy: {greedysw}, data compression: {compressorTime}, data pulling: {datapullingsw}, data conversion: {dataconversionsw}"); 
+        //GD.Print($"initial meshing: {initmeshingsw}, greedy: {greedysw}, data compression: {compressorTime}, data pulling: {datapullingsw}, data conversion: {dataconversionsw}"); 
         
         int[] Indices = new int[Count[0] * 6];
         Buffer.BlockCopy(RDFrame.ints, 0, Indices, 0, Indices.Length * 4);

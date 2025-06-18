@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7pt6bqueak3d"]
+
+[ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="1_ry22x"]
+[ext_resource type="Script" uid="uid://c7wvi4jhkeh8c" path="res://Utility/FreeLookCamera.gd" id="2_3j61e"]
+
+[node name="CppMeshingTest" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+directional_shadow_max_distance = 1.0
+
+[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("raycast")]
+physics_interpolation_mode = 2
+transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, -0.47679377, 0.49278212, -28.871399)
+environment = ExtResource("1_ry22x")
+far = 10000.0
+script = ExtResource("2_3j61e")
+sensitivity = 0.2
+raycast = NodePath("RayCast3D")
+
+[node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
+physics_interpolation_mode = 2
+target_position = Vector3(0, 0, -10)
+
+[node name="GDExample" type="GDExample" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
