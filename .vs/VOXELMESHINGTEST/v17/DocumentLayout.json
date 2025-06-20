@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\menus\\mainmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:menus\\mainmenu.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|c:\\users\\kristofer\\documents\\voxelmeshingtest\\managers\\chunkmeshmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F8FDD47D-0B59-4B9E-B8C6-DD2DD834141F}|VoxelMeshingTest.csproj|solutionrelative:managers\\chunkmeshmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -62,7 +66,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 404,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -70,7 +74,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "MainMenu.cs",
+              "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Menus\\MainMenu.cs",
+              "RelativeDocumentMoniker": "Menus\\MainMenu.cs",
+              "ToolTip": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Menus\\MainMenu.cs",
+              "RelativeToolTip": "Menus\\MainMenu.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-18T16:26:58.656Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "ChunkGeneratorManager.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\ChunkGeneratorManager.cs",
               "RelativeDocumentMoniker": "Managers\\ChunkGeneratorManager.cs",
@@ -83,7 +100,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "GameLoop.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\GameLoop\\GameLoop.cs",
               "RelativeDocumentMoniker": "GameLoop\\GameLoop.cs",
@@ -96,7 +113,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "ChunkSpawnManager.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\ChunkSpawnManager.cs",
               "RelativeDocumentMoniker": "Managers\\ChunkSpawnManager.cs",
@@ -109,7 +126,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "ChunkMeshManager.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\ChunkMeshManager.cs",
               "RelativeDocumentMoniker": "Managers\\ChunkMeshManager.cs",
@@ -122,7 +139,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "Panel2.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\DataTools\\Panel2.cs",
               "RelativeDocumentMoniker": "DataTools\\Panel2.cs",
@@ -134,7 +151,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "GameConstants.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Classes\\GameConstants.cs",
               "RelativeDocumentMoniker": "Classes\\GameConstants.cs",
@@ -146,7 +163,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "PlayerManager.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Managers\\PlayerManager.cs",
               "RelativeDocumentMoniker": "Managers\\PlayerManager.cs",
@@ -158,7 +175,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "SceneSwitcher.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Menus\\SceneSwitcher.cs",
               "RelativeDocumentMoniker": "Menus\\SceneSwitcher.cs",
@@ -170,7 +187,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "InventoryItem.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Menus\\Inventory\\InventoryItem.cs",
               "RelativeDocumentMoniker": "Menus\\Inventory\\InventoryItem.cs",
@@ -182,7 +199,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 10,
               "Title": "InventorySlot.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Menus\\Inventory\\InventorySlot.cs",
               "RelativeDocumentMoniker": "Menus\\Inventory\\InventorySlot.cs",
@@ -194,7 +211,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 12,
               "Title": "InventoryPanel.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\GameLoop\\InventoryPanel.cs",
               "RelativeDocumentMoniker": "GameLoop\\InventoryPanel.cs",
@@ -206,7 +223,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 13,
               "Title": "DebugPanel.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\GameLoop\\DebugPanel.cs",
               "RelativeDocumentMoniker": "GameLoop\\DebugPanel.cs",
@@ -218,7 +235,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 11,
               "Title": "Inventory.cs",
               "DocumentMoniker": "C:\\Users\\Kristofer\\Documents\\VoxelMeshingTest\\Menus\\Inventory\\Inventory.cs",
               "RelativeDocumentMoniker": "Menus\\Inventory\\Inventory.cs",
