@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://c7pt6bqueak3d"]
+[gd_scene load_steps=7 format=3 uid="uid://c7pt6bqueak3d"]
 
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="1_ry22x"]
 [ext_resource type="Script" uid="uid://c7wvi4jhkeh8c" path="res://Utility/FreeLookCamera.gd" id="2_3j61e"]
@@ -6,7 +6,7 @@
 
 [sub_resource type="Shader" id="Shader_3j61e"]
 code = "shader_type spatial;
-render_mode cull_disabled, wireframe;
+//render_mode cull_disabled, wireframe;
 
 void vertex() {
 	// Called for every vertex the material is visible on.
@@ -25,6 +25,8 @@ void fragment() {
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_32mcv"]
 render_priority = 0
 shader = SubResource("Shader_3j61e")
+
+[sub_resource type="SphereMesh" id="SphereMesh_3j61e"]
 
 [node name="CppMeshingTest" type="Node3D"]
 
@@ -51,3 +53,7 @@ target_position = Vector3(0, 0, -10)
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 material_override = SubResource("ShaderMaterial_32mcv")
 script = ExtResource("3_3j61e")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -29.016632, 0, 0)
+mesh = SubResource("SphereMesh_3j61e")
