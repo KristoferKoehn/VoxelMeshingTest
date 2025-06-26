@@ -32,7 +32,7 @@ void GDExample::_bind_methods()
 }
 
 GDExample::GDExample() {
-	print_error("SUCCESSFULLY RELOADED GDEXTENSION2");
+	print_error("SUCCESSFULLY RELOADED GDEXTENSION 5");
 }
 
 GDExample::~GDExample() {
@@ -40,42 +40,7 @@ GDExample::~GDExample() {
 }
 
 void GDExample::_ready() {
-	/*
-	constexpr int SIZE = 66;
-	constexpr int THREADS = 4;
-	constexpr int TOTAL = SIZE * SIZE * SIZE;
-
-	auto start = std::chrono::high_resolution_clock::now();
-
-	std::vector<std::thread> workers;
-
-	auto worker = [SIZE](uint8_t* data, int z_start, int z_end) {
-		for (int k = z_start; k < z_end; k++) {
-			for (int j = 0; j < SIZE; j++) {
-				for (int i = 0; i < SIZE; i++) {
-					int index = i + j * SIZE + k * SIZE * SIZE;
-					data[index] = k % 4;//fbm_3d(i * 0.3f, j * 0.4f, k * 0.1f);
-				}
-			}
-		}
-	};
-
-	int slice = SIZE / THREADS;
-
-	for (int t = 0; t < THREADS; t++) {
-		int z_start = t * slice;
-		int z_end = (t == THREADS - 1) ? SIZE : z_start + slice;
-		workers.emplace_back(worker, arr.data(), z_start, z_end);
-	}
-
-	for (auto& t : workers) {
-		t.join();
-	}
-
-	GDExample::mesh_chunk_naive(arr.data());
-	auto elapsed = std::chrono::high_resolution_clock::now() - start;
-	print_error(std::chrono::duration<double, std::milli>(elapsed).count());
-	*/
+	
 }
 
 
@@ -83,6 +48,7 @@ constexpr int CHUNK_SIZE = 64;
 constexpr int PAD = 1;
 constexpr int PADDED_SIZE = CHUNK_SIZE + 2 * PAD;
 constexpr int PADDED_VOLUME = PADDED_SIZE * PADDED_SIZE * PADDED_SIZE;
+
 
 inline int index_3d(int x, int y, int z) {
     return x * PADDED_SIZE * PADDED_SIZE + y * PADDED_SIZE + z;
@@ -137,11 +103,13 @@ void greedy_merge(const MaskSlice& slice, int axis, int depth, const std::functi
 
 // +X face
 void build_x_pos_mask(MaskSlice& out, const uint8_t* voxels, int x) {
+
     for (int y = 0; y < CHUNK_SIZE; ++y) {
         uint64_t row = 0;
         for (int z = 0; z < CHUNK_SIZE; ++z) {
             int idx_here = index_3d(x + PAD, y + PAD, z + PAD);
             int idx_next = index_3d(x + PAD + 1, y + PAD, z + PAD);
+
             uint8_t here = voxels[idx_here];
             uint8_t next = voxels[idx_next];
             if (here != 0 && next == 0) {
@@ -285,12 +253,12 @@ void emit_face_data(
     Vector3 dv(0,0,0); dv[axis_v] = w;
 
     int vi = positions.size();
-    positions.push_back(base);           // 0
+    positions.push_back(base);          // 0
     positions.push_back(base + dv);     // 1
     positions.push_back(base + du);     // 2
     positions.push_back(base + dv + du);// 3
 
-    Color mat_color(type / 255.0f, 0, 0); 
+    Color mat_color(depth/66.0f, y/66.0f, z/66.0f); 
     for (int i = 0; i < 4; ++i) colors.push_back(mat_color);
 
     Vector3 normal(0,0,0); 
@@ -316,67 +284,83 @@ void emit_face_data(
     indices.insert(indices.end(), face_indices.begin(), face_indices.end());
 }
 
-// Entry point: mesh a chunk
-Ref<ArrayMesh> GDExample::mesh_chunk(const uint8_t* voxels) {
+Ref<ArrayMesh> GDExample::mesh_chunk(const uint8_t* voxels, int num_threads) {
+    struct PartialData {
+        std::vector<Vector3> positions;
+        std::vector<Color> colors;
+        std::vector<int32_t> indices;
+        std::vector<Vector3> normals;
+    };
+    auto build_axis = [&](int axis, int sign, int start_depth, int end_depth) {
+        PartialData data;
+        MaskSlice mask;
+        for (int d = start_depth; d < end_depth; ++d) {
+            switch (axis) {
+                case 0: sign > 0 ? build_x_pos_mask(mask, voxels, d) : build_x_neg_mask(mask, voxels, d); break;
+                case 1: sign > 0 ? build_y_pos_mask(mask, voxels, d) : build_y_neg_mask(mask, voxels, d); break;
+                case 2: sign > 0 ? build_z_pos_mask(mask, voxels, d) : build_z_neg_mask(mask, voxels, d); break;
+            }
+            greedy_merge(mask, axis, d, [&](int axis_, int depth, int a, int b, int w, int h, uint8_t t) {
+                emit_face_data(axis_, sign, depth, a, b, w, h, t,
+                                data.positions, data.normals, data.colors, data.indices);
+            });
+        }
+        return data;
+    };
+    
+    std::vector<std::thread> threads;
+    std::mutex results_mutex;
+    std::vector<PartialData> all_results;
+
+    auto worker = [&](int axis, int sign) {
+        int slices_per_thread = (CHUNK_SIZE + num_threads - 1) / num_threads;
+        std::vector<PartialData> local_results;
+        local_results.reserve(num_threads); // reserve slots per thread
+
+        for (int thread_index = 0; thread_index < num_threads; ++thread_index) {
+            int start = thread_index * slices_per_thread;
+            int end = std::min(CHUNK_SIZE, start + slices_per_thread);
+            if (start >= CHUNK_SIZE) break;
+            
+            local_results.push_back(build_axis(axis, sign, start, end));
+        }
+
+        std::lock_guard<std::mutex> lock(results_mutex);
+        all_results.insert(all_results.end(),
+                           std::make_move_iterator(local_results.begin()),
+                           std::make_move_iterator(local_results.end()));
+    };
+
+    // Spawn one “worker” per face-direction
+    threads.emplace_back([&]() { worker(0, +1); }); // +X
+    threads.emplace_back([&]() { worker(0, -1); }); // -X
+    threads.emplace_back([&]() { worker(1, +1); }); // +Y
+    threads.emplace_back([&]() { worker(1, -1); }); // -Y
+    threads.emplace_back([&]() { worker(2, +1); }); // +Z
+    threads.emplace_back([&]() { worker(2, -1); }); // -Z
+
+    for (auto &t : threads) {
+        t.join();
+    }
+
+    // Merge all partials
     std::vector<Vector3> positions;
     std::vector<Color> colors;
     std::vector<int32_t> indices;
     std::vector<Vector3> normals;
 
-    MaskSlice mask;
-
-    // +X faces
-    for (int x = 1; x < CHUNK_SIZE + 1; ++x) {
-        build_x_pos_mask(mask, voxels, x);
-        greedy_merge(mask, 0, x, [&](int axis, int depth, int y, int z, int w, int h, uint8_t t) {
-            emit_face_data(axis, +1, depth, y, z, w, h, t, positions, normals, colors, indices);
-        });
-    }
-
-    // -X faces
-    for (int x = 1; x < CHUNK_SIZE + 1; ++x) {
-        build_x_neg_mask(mask, voxels, x);
-        greedy_merge(mask, 0, x, [&](int axis, int depth, int y, int z, int w, int h, uint8_t t) {
-            emit_face_data(axis, -1, depth, y, z, w, h, t, positions, normals, colors, indices);
-        });
-    }
-    
-    // +Y faces
-    for (int y = 1; y < CHUNK_SIZE + 1; ++y) {
-        build_y_pos_mask(mask, voxels, y);
-        greedy_merge(mask, 1, y, [&](int axis, int depth, int x, int z, int w, int h, uint8_t t) {
-            emit_face_data(axis, +1, depth, x, z, w, h, t, positions, normals, colors, indices);
-        });
-    }
-
-    // -Y faces
-    for (int y = 1; y < CHUNK_SIZE + 1; ++y) {
-        build_y_neg_mask(mask, voxels, y);
-        greedy_merge(mask, 1, y, [&](int axis, int depth, int x, int z, int w, int h, uint8_t t) {
-            emit_face_data(axis, -1, depth, x, z, w, h, t, positions, normals, colors, indices);
-        });
-    }
-
-    // +Z faces
-    for (int z = 1; z < CHUNK_SIZE + 1; ++z) {
-        build_z_pos_mask(mask, voxels, z);
-        greedy_merge(mask, 2, z, [&](int axis, int depth, int x, int y, int w, int h, uint8_t t) {
-            emit_face_data(axis, +1, depth, x, y, w, h, t, positions, normals, colors, indices);
-        });
-    }
-
-    // -Z faces
-    for (int z = 1; z < CHUNK_SIZE + 1; ++z) {
-        build_z_neg_mask(mask, voxels, z);
-        greedy_merge(mask, 2, z, [&](int axis, int depth, int x, int y, int w, int h, uint8_t t) {
-            emit_face_data(axis, -1, depth, x, y, w, h, t, positions, normals, colors, indices);
-        });
+    int vertex_offset = 0;
+    for (auto &pd : all_results) {
+        for (auto &p : pd.positions) positions.push_back(p);
+        for (auto &c : pd.colors) colors.push_back(c);
+        for (auto &n : pd.normals) normals.push_back(n);
+        for (int i : pd.indices) indices.push_back(i + vertex_offset);
+        vertex_offset += pd.positions.size();
     }
 
     // Pack into Godot arrays
     Array arrays;
     arrays.resize(Mesh::ARRAY_MAX);
-
     PackedVector3Array gpos;
     PackedColorArray gcol;
     PackedInt32Array gidx;
@@ -393,45 +377,51 @@ Ref<ArrayMesh> GDExample::mesh_chunk(const uint8_t* voxels) {
     arrays[Mesh::ARRAY_NORMAL] = gnorm;
 
     Ref<ArrayMesh> mesh = memnew(ArrayMesh);
-    mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
-
+    if (gpos.size() > 0) {
+        mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
+    }
     return mesh;
 }
 
+
 Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
 	constexpr int SIZE = 66;
-	constexpr int THREADS = 8;
+	constexpr int THREADS = 1;
 	constexpr int TOTAL = SIZE * SIZE * SIZE;
 
 	auto start = std::chrono::high_resolution_clock::now();
 
 	std::vector<std::thread> workers;
 
-	auto worker = [SIZE](uint8_t* data, int z_start, int z_end) {
+	auto worker = [SIZE](uint8_t* data, int z_start, int z_end, Vector3 pos) {
 		for (int k = z_start; k < z_end; k++) {
 			for (int j = 0; j < SIZE; j++) {
 				for (int i = 0; i < SIZE; i++) {
-					int index = i + j * SIZE + k * SIZE * SIZE;
-                    if (k > 1 && k < SIZE - 1) {
-                        if (j > 1 && j < SIZE - 1) {
-                            if (i > 1 && i < SIZE - 1) {
-                                int g = abs(k % 3 - j % 4 - i % 5);
-                                data[index] = g > 0 ? 1 : 0;//fbm_3d(i * 0.3f, j * 0.4f, k * 0.1f);
-                                
-                            } else data[index] = 0;
-                        } else data[index] = 0;
-                    } else data[index] = 0;
+                    int index = i + j * SIZE + k * SIZE * SIZE;
+
+                    if (j < 32 && j != 0 &&
+                        k > 1 && k < 64 &&
+                        i > 1 && i < 64) {
+
+                        float f = fbm_3d((i + pos.z) * 1.0f/32.0f, (j + pos.y) * 1.0f/32.0f, (k + pos.x) * 1.0f/32.0f, 1, 0, 0.01) * 2.0;
+                        //int g = abs(k % 3 - j % 4 - i % 5);
+                        data[index] = f > 0.5 ? 1 : 0;
+                        //data[index] = g > 0 ? 1 : 0;
+                    } else {
+                        data[index] = 0;
+                    }
+
 				}
 			}
 		}
 	};
 
-	int slice = 64 / THREADS;
+	int slice = SIZE / THREADS;
 
 	for (int t = 0; t < THREADS; t++) {
 		int z_start = t * slice;
-		int z_end = (t == THREADS - 1) ? 64 : z_start + slice;
-		workers.emplace_back(worker, arr.data(), z_start, z_end);
+		int z_end = (t == THREADS - 1) ? SIZE : z_start + slice;
+		workers.emplace_back(worker, arr.data(), z_start, z_end, pos);
 	}
 
 	for (auto& t : workers) {
@@ -440,8 +430,8 @@ Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
 
 
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
-    print_error(elapsed.count());
-	return mesh_chunk(arr.data());
+    print_error(std::chrono::duration<double, std::milli>(elapsed).count());
+	return mesh_chunk(arr.data(), THREADS);
 }
 
 void GDExample::_process(double delta) {

@@ -8,7 +8,7 @@ valid=false
 
 [deps]
 
-source_file="res://Extension/src/register_types.windows.template_debug.x86_64.obj"
+source_file="res://MesherExtension/src/register_types.windows.template_debug.x86_64.obj"
 
 [params]
 

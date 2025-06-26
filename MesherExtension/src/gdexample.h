@@ -11,7 +11,7 @@ class GDExample : public Node {
 
 private:
 	Ref<ArrayMesh> mesh_chunk(const uint8_t* voxels);
-	Ref<ArrayMesh> mesh_chunk_naive(const uint8_t* voxels);
+	Ref<ArrayMesh> mesh_chunk(const uint8_t* voxels, int threads);
 	double time_passed;
 	static std::vector<uint8_t> arr;
 

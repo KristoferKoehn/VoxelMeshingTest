@@ -3,12 +3,12 @@
 importer="wavefront_obj"
 importer_version=1
 type="Mesh"
-uid="uid://c2l82u8x156ox"
+uid="uid://c33qce7vy473o"
 valid=false
 
 [deps]
 
-source_file="res://Extension/src/gdexample.windows.template_debug.x86_64.obj"
+source_file="res://MesherExtension/src/gdexample.windows.template_debug.x86_64.obj"
 
 [params]
 
