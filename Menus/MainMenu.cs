@@ -19,4 +19,14 @@ public partial class MainMenu : Node3D
 	{
 		SceneSwitcher.Instance().PushScene("res://GameLoop/GameLoop.tscn");
 	}
+
+    public void _on_cpp_button_pressed()
+    {
+        SceneSwitcher.Instance().PushScene("res://GameLoop/CppMeshingTest.tscn");
+    }
+
+    public void OnVoxelMakerButtonPressed()
+	{
+        SceneSwitcher.Instance().PushScene("res://DataTools/VoxelMaker.tscn");
+    }
 }

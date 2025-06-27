@@ -1,0 +1,167 @@
+[gd_scene load_steps=17 format=3 uid="uid://blf8bkjp7a466"]
+
+[ext_resource type="PackedScene" uid="uid://cavu2g7mchobb" path="res://assets/character/Santa.glb" id="1_c3vrs"]
+[ext_resource type="Script" uid="uid://c13kdwbvmj7nn" path="res://Controllers/third_person_controller.gd" id="1_p2b4o"]
+[ext_resource type="PackedScene" uid="uid://cd8cuok7kojx0" path="res://assets/props/shotgun.gltf" id="3_nsq05"]
+[ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_x0yqh"]
+[ext_resource type="AnimationNodeStateMachine" uid="uid://dy4g64h7p1it6" path="res://Resources/animations/locomotionState.tres" id="4_3vo15"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mb4t7"]
+height = 4.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_xrc3l"]
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_xpwed"]
+filters = ["Rig/Skeleton3D:IK-foot.l", "Rig/Skeleton3D:IK-foot.r", "Rig/Skeleton3D:IK-toe.l", "Rig/Skeleton3D:IK-toe.r", "Rig/Skeleton3D:control-foot-roll.l", "Rig/Skeleton3D:control-foot-roll.r", "Rig/Skeleton3D:control-heel-roll.l", "Rig/Skeleton3D:control-heel-roll.r", "Rig/Skeleton3D:control-toe-roll.l", "Rig/Skeleton3D:control-toe-roll.r", "Rig/Skeleton3D:elbowIK.l", "Rig/Skeleton3D:elbowIK.r", "Rig/Skeleton3D:foot.l", "Rig/Skeleton3D:foot.r", "Rig/Skeleton3D:handIK.l", "Rig/Skeleton3D:handIK.r", "Rig/Skeleton3D:heelIK.l", "Rig/Skeleton3D:heelIK.r", "Rig/Skeleton3D:hips", "Rig/Skeleton3D:kneeIK.l", "Rig/Skeleton3D:kneeIK.r", "Rig/Skeleton3D:lowerleg.l", "Rig/Skeleton3D:lowerleg.r", "Rig/Skeleton3D:root", "Rig/Skeleton3D:toes.l", "Rig/Skeleton3D:toes.r", "Rig/Skeleton3D:upperleg.l", "Rig/Skeleton3D:upperleg.r"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_nvhbv"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_e35sr"]
+animation = &"Running_A"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jqe5p"]
+animation = &"Sit_Chair_StandUp"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_y81lu"]
+animation = &"Spellcast_Summon"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_uhayq"]
+animation = &"Spellcasting"
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_1whda"]
+states/Idle/node = SubResource("AnimationNodeAnimation_nvhbv")
+states/Idle/position = Vector2(335, 61)
+states/Running_A/node = SubResource("AnimationNodeAnimation_e35sr")
+states/Running_A/position = Vector2(426, 191)
+states/Sit_Chair_StandUp/node = SubResource("AnimationNodeAnimation_jqe5p")
+states/Sit_Chair_StandUp/position = Vector2(553, 10)
+states/Spellcast_Summon/node = SubResource("AnimationNodeAnimation_y81lu")
+states/Spellcast_Summon/position = Vector2(662, 191)
+states/Spellcasting/node = SubResource("AnimationNodeAnimation_uhayq")
+states/Spellcasting/position = Vector2(777, 20)
+graph_offset = Vector2(4, 5)
+
+[sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_4dsip"]
+graph_offset = Vector2(-714.503, 108.673)
+nodes/AnimationNodeStateMachine/node = ExtResource("4_3vo15")
+nodes/AnimationNodeStateMachine/position = Vector2(-500, 300)
+nodes/Blend2/node = SubResource("AnimationNodeBlend2_xpwed")
+nodes/Blend2/position = Vector2(40, 160)
+nodes/Hands/node = SubResource("AnimationNodeStateMachine_1whda")
+nodes/Hands/position = Vector2(-520, 140)
+node_connections = [&"Blend2", 0, &"AnimationNodeStateMachine", &"Blend2", 1, &"Hands", &"output", 0, &"Blend2"]
+
+[sub_resource type="SeparationRayShape3D" id="SeparationRayShape3D_pf02o"]
+length = 1.1
+
+[node name="Player3D" type="CharacterBody3D" node_paths=PackedStringArray("Model", "AnimTree", "Camera", "CameraPivot", "SpringArm", "ForwardStepCollision", "LeftStepCollision", "LeftStepCollision2", "RightStepCollision", "RightStepCollision2")]
+script = ExtResource("1_p2b4o")
+Model = NodePath("Santa")
+AnimTree = NodePath("AnimationTree")
+Camera = NodePath("CameraPivot/SpringArm3D/Camera3D")
+CameraPivot = NodePath("CameraPivot")
+SpringArm = NodePath("CameraPivot/SpringArm3D")
+mouse_sensitivity = 0.712
+ForwardStepCollision = NodePath("StairForwardRaycast")
+LeftStepCollision = NodePath("StairLeftRaycast")
+LeftStepCollision2 = NodePath("StairLeftRaycast2")
+RightStepCollision = NodePath("StairRightRaycast")
+RightStepCollision2 = NodePath("StairRightRaycast2")
+step_up_radius = 0.7
+
+[node name="Santa" parent="." instance=ExtResource("1_c3vrs")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, 0, 0)
+
+[node name="Skeleton3D" parent="Santa/Rig" index="0"]
+bones/4/rotation = Quaternion(-0.514121, -0.485468, -0.485468, 0.514122)
+bones/4/scale = Vector3(0.999999, 0.999999, 1)
+bones/5/rotation = Quaternion(1.64805e-09, -5.95036e-08, -0.0552855, 0.998471)
+bones/6/rotation = Quaternion(-9.73784e-11, -2.98437e-10, 0.0266581, 0.999645)
+bones/6/scale = Vector3(1, 1, 1)
+bones/8/rotation = Quaternion(1.60975e-09, 1.60975e-09, -0.707107, 0.707107)
+bones/8/scale = Vector3(1, 1, 1)
+bones/9/rotation = Quaternion(-0.514121, 0.485468, 0.485468, 0.514122)
+bones/9/scale = Vector3(0.999999, 0.999999, 1)
+bones/10/rotation = Quaternion(1.64805e-09, 5.95036e-08, 0.0552855, 0.998471)
+bones/11/rotation = Quaternion(-9.73784e-11, 2.98437e-10, -0.0266581, 0.999645)
+bones/11/scale = Vector3(1, 1, 1)
+bones/13/rotation = Quaternion(1.60973e-09, -1.60973e-09, 0.707107, 0.707107)
+bones/13/scale = Vector3(1, 1, 1)
+bones/15/rotation = Quaternion(0.999849, -7.13276e-08, -1.20427e-08, 0.0173732)
+bones/15/scale = Vector3(1, 1, 1)
+bones/16/rotation = Quaternion(0.106225, 6.86528e-08, -7.37699e-08, 0.994342)
+bones/17/rotation = Quaternion(-0.455239, 1.61971e-08, -3.43568e-08, 0.890369)
+bones/18/rotation = Quaternion(4.77599e-08, 0.920355, -0.391084, 5.80156e-08)
+bones/18/scale = Vector3(1, 0.999997, 1)
+bones/19/rotation = Quaternion(0.999849, 7.42656e-08, -3.17263e-08, 0.0173732)
+bones/19/scale = Vector3(1, 1, 1)
+bones/20/rotation = Quaternion(0.106225, -6.86529e-08, 7.37699e-08, 0.994342)
+bones/22/rotation = Quaternion(2.12198e-08, 0.920355, -0.391084, 6.45059e-08)
+bones/22/scale = Vector3(1, 0.999997, 1)
+bones/23/rotation = Quaternion(0.707107, -2.29302e-07, -4.60552e-08, 0.707107)
+bones/25/rotation = Quaternion(7.10544e-15, -1.38321e-22, 1, -2.33983e-34)
+bones/26/rotation = Quaternion(-1.04035e-07, 0.391084, 0.920355, -2.9526e-08)
+bones/30/rotation = Quaternion(0.707107, -3.82385e-08, 1.45009e-07, 0.707107)
+bones/31/rotation = Quaternion(-0.707107, -7.05285e-08, -7.05285e-08, 0.707107)
+bones/32/rotation = Quaternion(7.10544e-15, -1.38321e-22, 1, -2.33983e-34)
+bones/33/rotation = Quaternion(-1.04035e-07, 0.391084, 0.920355, -2.95261e-08)
+bones/34/rotation = Quaternion(-0.391084, -6.885e-08, -6.56287e-08, 0.920355)
+bones/40/rotation = Quaternion(0.5, -0.5, -0.5, -0.5)
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="Santa/Rig/Skeleton3D" index="7"]
+transform = Transform3D(-0.999999, 6.06228e-07, 3.97706e-07, 4.01214e-07, -5.29247e-07, 0.999999, 5.95056e-07, 0.999999, 5.35882e-07, -0.883132, 1.04926, -5.99045e-07)
+bone_name = "handslot.r"
+bone_idx = 13
+
+[node name="shotgun2" parent="Santa/Rig/Skeleton3D/BoneAttachment3D" instance=ExtResource("3_nsq05")]
+transform = Transform3D(0.0747677, 0, 0.494379, 0, 0.5, 0, -0.494379, 0, 0.0747677, 0, 0, 0)
+
+[node name="AnimationPlayer" parent="Santa" index="1"]
+active = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)
+shape = SubResource("CapsuleShape3D_mb4t7")
+
+[node name="CameraPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.939693, -0.34202, 0, 0.34202, 0.939693, 0, 3, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+shape = SubResource("SphereShape3D_xrc3l")
+spring_length = 7.0
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D"]
+transform = Transform3D(1, 0, 0, 0, 0.939693, -0.34202, 0, 0.34202, 0.939693, 0, 0, 0)
+environment = ExtResource("3_x0yqh")
+current = true
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+root_node = NodePath("../Santa")
+tree_root = SubResource("AnimationNodeBlendTree_4dsip")
+anim_player = NodePath("../Santa/AnimationPlayer")
+parameters/AnimationNodeStateMachine/groundlocomotion/blend_position = Vector2(0, 0)
+parameters/Blend2/blend_amount = 1.0
+
+[node name="StairForwardRaycast" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1.1, 0.5)
+shape = SubResource("SeparationRayShape3D_pf02o")
+
+[node name="StairLeftRaycast" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1.1, 0.5)
+shape = SubResource("SeparationRayShape3D_pf02o")
+
+[node name="StairLeftRaycast2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1.1, 0.5)
+shape = SubResource("SeparationRayShape3D_pf02o")
+
+[node name="StairRightRaycast" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1.1, 0.5)
+shape = SubResource("SeparationRayShape3D_pf02o")
+
+[node name="StairRightRaycast2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 1.1, 0.5)
+shape = SubResource("SeparationRayShape3D_pf02o")
+
+[editable path="Santa"]

@@ -1,0 +1,75 @@
+[gd_resource type="Resource" script_class="Inventory" load_steps=12 format=3 uid="uid://cbgmg3q2e71tc"]
+
+[ext_resource type="Resource" uid="uid://c22mghr2ybk2k" path="res://GameObjects/InventoryItems/Sword.tres" id="1_1bevf"]
+[ext_resource type="Script" uid="uid://jp4vijy8syem" path="res://Menus/Inventory/Inventory.cs" id="1_385hn"]
+[ext_resource type="Texture2D" uid="uid://bo7p1ljay4gde" path="res://assets/UI/monochrome-transparent.png" id="1_ccuji"]
+[ext_resource type="Script" uid="uid://baeapxlqct38l" path="res://Menus/Inventory/InventoryItem.cs" id="2_ex6fw"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7dg3p"]
+atlas = ExtResource("1_ccuji")
+region = Rect2(561, 340, 16, 16)
+
+[sub_resource type="Resource" id="Resource_76dtq"]
+script = ExtResource("2_ex6fw")
+Name = "Stick"
+Sprite = SubResource("AtlasTexture_7dg3p")
+Stackable = false
+StackAmount = 1
+StackMax = 99
+SlotType = 0
+Components = Array[Script]([])
+StatChanges = {}
+
+[sub_resource type="Resource" id="Resource_eguhq"]
+script = ExtResource("2_ex6fw")
+Name = "Stick"
+Sprite = SubResource("AtlasTexture_7dg3p")
+Stackable = false
+StackAmount = 1
+StackMax = 99
+SlotType = 0
+Components = Array[Script]([])
+StatChanges = {}
+
+[sub_resource type="Resource" id="Resource_ryno4"]
+script = ExtResource("2_ex6fw")
+Name = "Stick"
+Sprite = SubResource("AtlasTexture_7dg3p")
+Stackable = false
+StackAmount = 1
+StackMax = 99
+SlotType = 0
+Components = Array[Script]([])
+StatChanges = {}
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wqtxh"]
+atlas = ExtResource("1_ccuji")
+region = Rect2(561, 306, 16, 16)
+
+[sub_resource type="Resource" id="Resource_v22v0"]
+script = ExtResource("2_ex6fw")
+Name = "Apple"
+Sprite = SubResource("AtlasTexture_wqtxh")
+Stackable = true
+StackAmount = 1
+StackMax = 99
+SlotType = 0
+Components = Array[Script]([])
+StatChanges = {}
+
+[sub_resource type="Resource" id="Resource_4yfoq"]
+script = ExtResource("2_ex6fw")
+Name = "Apple"
+Sprite = SubResource("AtlasTexture_wqtxh")
+Stackable = true
+StackAmount = 1
+StackMax = 99
+SlotType = 0
+Components = Array[Script]([])
+StatChanges = {}
+
+[resource]
+script = ExtResource("1_385hn")
+Slots = Array[Resource]([null, null, ExtResource("1_1bevf"), null, SubResource("Resource_76dtq"), null, SubResource("Resource_eguhq"), null, null, null, SubResource("Resource_ryno4"), null, null, null, null, SubResource("Resource_v22v0"), null, null, null, null, SubResource("Resource_4yfoq"), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null])
+Equips = Array[Object]([null, null, null, null, null, null, null, null, null])
+InventorySlots = Array[int]([1, 6, 8, 7, 11, 9, 12, 4, 13])

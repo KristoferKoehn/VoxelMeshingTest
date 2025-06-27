@@ -13,6 +13,7 @@ public partial class SceneSwitcher : Node
         root = GetTree().Root;
         instance = this;
         PushScene("res://Menus/MainMenu.tscn");
+        MesherWrapper.Instance();
     }
     
     public static SceneSwitcher Instance()
@@ -31,7 +32,6 @@ public partial class SceneSwitcher : Node
         Node scene = GD.Load<PackedScene>(ScenePath).Instantiate<Node>();
         SceneStack.Push(scene);
         AddChild(scene);
-
     }
 
 

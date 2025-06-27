@@ -1,0 +1,239 @@
+[gd_resource type="AnimationNodeBlendTree" load_steps=59 format=3 uid="uid://w61rovtpks7e"]
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tym4s"]
+animation = &"Kaykit_anim_library/1H_Melee_Attack_Chop"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_0tuf7"]
+animation = &"Kaykit_anim_library/1H_Ranged_Aiming"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ib5ac"]
+animation = &"Kaykit_anim_library/1H_Ranged_Shoot"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_uw1kh"]
+animation = &"Kaykit_anim_library/Blocking"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ltv6w"]
+animation = &"Kaykit_anim_library/Jump_Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_4jv18"]
+animation = &"Kaykit_anim_library/2H_Melee_Attack_Spin"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_6kgkg"]
+animation = &"Kaykit_anim_library/2H_Melee_Attack_Spinning"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_2dbx7"]
+animation = &"Kaykit_anim_library/2H_Melee_Attack_Stab"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_7g4jk"]
+animation = &"Kaykit_anim_library/Dodge_Left"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_cnn58"]
+animation = &"Kaykit_anim_library/Walking_Backwards"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_d54td"]
+animation = &"Kaykit_anim_library/Running_A"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_owads"]
+animation = &"Kaykit_anim_library/Running_Strafe_Left"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tmy0d"]
+animation = &"Kaykit_anim_library/Running_Strafe_Right"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_b5lcr"]
+animation = &"Kaykit_anim_library/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_j03jw"]
+animation = &"Kaykit_anim_library/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_fix5c"]
+animation = &"Kaykit_anim_library/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_hn18g"]
+animation = &"Kaykit_anim_library/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_p5rcg"]
+animation = &"Kaykit_anim_library/Walking_B"
+
+[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_fn0ac"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_cnn58")
+blend_point_0/pos = Vector2(0, 1)
+blend_point_1/node = SubResource("AnimationNodeAnimation_d54td")
+blend_point_1/pos = Vector2(0, -0.9)
+blend_point_2/node = SubResource("AnimationNodeAnimation_owads")
+blend_point_2/pos = Vector2(-1, 0)
+blend_point_3/node = SubResource("AnimationNodeAnimation_tmy0d")
+blend_point_3/pos = Vector2(1, 0)
+blend_point_4/node = SubResource("AnimationNodeAnimation_b5lcr")
+blend_point_4/pos = Vector2(0, -0.1)
+blend_point_5/node = SubResource("AnimationNodeAnimation_j03jw")
+blend_point_5/pos = Vector2(-0.1, 0)
+blend_point_6/node = SubResource("AnimationNodeAnimation_fix5c")
+blend_point_6/pos = Vector2(0.1, 0)
+blend_point_7/node = SubResource("AnimationNodeAnimation_hn18g")
+blend_point_7/pos = Vector2(0, 0.1)
+blend_point_8/node = SubResource("AnimationNodeAnimation_p5rcg")
+blend_point_8/pos = Vector2(0, -0.6)
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_nu6hs"]
+xfade_time = 0.3
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_b5wu4"]
+xfade_time = 0.3
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_hkn6a"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jrdux"]
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pe0ao"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_k0emq"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_85j4e"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_u165l"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jh2sx"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0g7qc"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_wp3ck"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_37wmo"]
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_4qc2x"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_6r4sh"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_5lsrf"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_qhjg8"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_lv3hw"]
+xfade_time = 0.1
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_s13v7"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_tml1o"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_c2sl4"]
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_qq4m8"]
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_fjfe3"]
+states/1H_Melee_Attack_Chop/node = SubResource("AnimationNodeAnimation_tym4s")
+states/1H_Melee_Attack_Chop/position = Vector2(-505, -2)
+states/1H_Ranged_Aiming/node = SubResource("AnimationNodeAnimation_0tuf7")
+states/1H_Ranged_Aiming/position = Vector2(-74, -2)
+states/1H_Ranged_Shoot/node = SubResource("AnimationNodeAnimation_ib5ac")
+states/1H_Ranged_Shoot/position = Vector2(158, -2)
+states/Blocking/node = SubResource("AnimationNodeAnimation_uw1kh")
+states/Blocking/position = Vector2(-505, 223)
+states/Jump_Idle/node = SubResource("AnimationNodeAnimation_ltv6w")
+states/Jump_Idle/position = Vector2(-505, 139)
+states/Kaykit_anim_library_2H_Melee_Attack_Spin/node = SubResource("AnimationNodeAnimation_4jv18")
+states/Kaykit_anim_library_2H_Melee_Attack_Spin/position = Vector2(192, 139)
+states/Kaykit_anim_library_2H_Melee_Attack_Spinning/node = SubResource("AnimationNodeAnimation_6kgkg")
+states/Kaykit_anim_library_2H_Melee_Attack_Spinning/position = Vector2(199, 213)
+states/Kaykit_anim_library_2H_Melee_Attack_Stab/node = SubResource("AnimationNodeAnimation_2dbx7")
+states/Kaykit_anim_library_2H_Melee_Attack_Stab/position = Vector2(-625, 58)
+states/Kaykit_anim_library_Dodge_Left/node = SubResource("AnimationNodeAnimation_7g4jk")
+states/Kaykit_anim_library_Dodge_Left/position = Vector2(-171, 234)
+states/Start/position = Vector2(-300, -2)
+states/locomotion/node = SubResource("AnimationNodeBlendSpace2D_fn0ac")
+states/locomotion/position = Vector2(-171, 139)
+transitions = ["1H_Ranged_Aiming", "1H_Ranged_Shoot", SubResource("AnimationNodeStateMachineTransition_nu6hs"), "1H_Ranged_Shoot", "1H_Ranged_Aiming", SubResource("AnimationNodeStateMachineTransition_b5wu4"), "locomotion", "1H_Melee_Attack_Chop", SubResource("AnimationNodeStateMachineTransition_hkn6a"), "1H_Melee_Attack_Chop", "locomotion", SubResource("AnimationNodeStateMachineTransition_jrdux"), "locomotion", "Blocking", SubResource("AnimationNodeStateMachineTransition_pe0ao"), "Blocking", "locomotion", SubResource("AnimationNodeStateMachineTransition_k0emq"), "locomotion", "1H_Ranged_Shoot", SubResource("AnimationNodeStateMachineTransition_85j4e"), "1H_Ranged_Shoot", "locomotion", SubResource("AnimationNodeStateMachineTransition_u165l"), "locomotion", "1H_Ranged_Aiming", SubResource("AnimationNodeStateMachineTransition_jh2sx"), "1H_Ranged_Aiming", "locomotion", SubResource("AnimationNodeStateMachineTransition_0g7qc"), "Start", "locomotion", SubResource("AnimationNodeStateMachineTransition_wp3ck"), "Kaykit_anim_library_2H_Melee_Attack_Stab", "locomotion", SubResource("AnimationNodeStateMachineTransition_37wmo"), "locomotion", "Kaykit_anim_library_2H_Melee_Attack_Stab", SubResource("AnimationNodeStateMachineTransition_4qc2x"), "locomotion", "Jump_Idle", SubResource("AnimationNodeStateMachineTransition_6r4sh"), "Jump_Idle", "locomotion", SubResource("AnimationNodeStateMachineTransition_5lsrf"), "locomotion", "Kaykit_anim_library_Dodge_Left", SubResource("AnimationNodeStateMachineTransition_qhjg8"), "Kaykit_anim_library_Dodge_Left", "locomotion", SubResource("AnimationNodeStateMachineTransition_lv3hw"), "locomotion", "Kaykit_anim_library_2H_Melee_Attack_Spin", SubResource("AnimationNodeStateMachineTransition_s13v7"), "Kaykit_anim_library_2H_Melee_Attack_Spin", "Kaykit_anim_library_2H_Melee_Attack_Spinning", SubResource("AnimationNodeStateMachineTransition_tml1o"), "Kaykit_anim_library_2H_Melee_Attack_Spinning", "locomotion", SubResource("AnimationNodeStateMachineTransition_c2sl4"), "Kaykit_anim_library_2H_Melee_Attack_Spin", "locomotion", SubResource("AnimationNodeStateMachineTransition_qq4m8")]
+graph_offset = Vector2(-967, -39)
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_m2shq"]
+animation = &"Kaykit_anim_library/Jump_Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xp5aw"]
+animation = &"Kaykit_anim_library/Running_A"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_cf7oy"]
+animation = &"Kaykit_anim_library/Running_Strafe_Left"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_cwyri"]
+animation = &"Kaykit_anim_library/Running_Strafe_Right"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_y3heu"]
+animation = &"Kaykit_anim_library/Walking_Backwards"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_tl20h"]
+animation = &"Kaykit_anim_library/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_f3i50"]
+animation = &"Kaykit_anim_library/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_0i1wg"]
+animation = &"Kaykit_anim_library/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jcf23"]
+animation = &"Kaykit_anim_library/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_6po8c"]
+animation = &"Kaykit_anim_library/Walking_B"
+
+[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_113qh"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_xp5aw")
+blend_point_0/pos = Vector2(0, -1)
+blend_point_1/node = SubResource("AnimationNodeAnimation_cf7oy")
+blend_point_1/pos = Vector2(-1, 0)
+blend_point_2/node = SubResource("AnimationNodeAnimation_cwyri")
+blend_point_2/pos = Vector2(1, 0)
+blend_point_3/node = SubResource("AnimationNodeAnimation_y3heu")
+blend_point_3/pos = Vector2(0, 1)
+blend_point_4/node = SubResource("AnimationNodeAnimation_tl20h")
+blend_point_4/pos = Vector2(0, 0.1)
+blend_point_5/node = SubResource("AnimationNodeAnimation_f3i50")
+blend_point_5/pos = Vector2(0, -0.1)
+blend_point_6/node = SubResource("AnimationNodeAnimation_0i1wg")
+blend_point_6/pos = Vector2(-0.1, 0)
+blend_point_7/node = SubResource("AnimationNodeAnimation_jcf23")
+blend_point_7/pos = Vector2(0.1, 0)
+blend_point_8/node = SubResource("AnimationNodeAnimation_6po8c")
+blend_point_8/pos = Vector2(0, -0.6)
+sync = true
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_thtio"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_kueh8"]
+xfade_time = 0.1
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_hcfkh"]
+xfade_time = 0.2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_cmg47"]
+states/Jump_Idle/node = SubResource("AnimationNodeAnimation_m2shq")
+states/Jump_Idle/position = Vector2(543, 197)
+states/locomotion/node = SubResource("AnimationNodeBlendSpace2D_113qh")
+states/locomotion/position = Vector2(543, 100)
+transitions = ["Start", "locomotion", SubResource("AnimationNodeStateMachineTransition_thtio"), "locomotion", "Jump_Idle", SubResource("AnimationNodeStateMachineTransition_kueh8"), "Jump_Idle", "locomotion", SubResource("AnimationNodeStateMachineTransition_hcfkh")]
+graph_offset = Vector2(-58, 25)
+
+[sub_resource type="AnimationNodeBlend2" id="AnimationNodeBlend2_yn1rv"]
+filter_enabled = true
+filters = ["Rig/Skeleton3D:IK-foot.l", "Rig/Skeleton3D:IK-foot.r", "Rig/Skeleton3D:IK-toe.l", "Rig/Skeleton3D:IK-toe.r", "Rig/Skeleton3D:control-foot-roll.l", "Rig/Skeleton3D:control-foot-roll.r", "Rig/Skeleton3D:control-heel-roll.l", "Rig/Skeleton3D:control-heel-roll.r", "Rig/Skeleton3D:control-toe-roll.l", "Rig/Skeleton3D:control-toe-roll.r", "Rig/Skeleton3D:foot.l", "Rig/Skeleton3D:foot.r", "Rig/Skeleton3D:heelIK.l", "Rig/Skeleton3D:heelIK.r", "Rig/Skeleton3D:kneeIK.l", "Rig/Skeleton3D:kneeIK.r", "Rig/Skeleton3D:lowerleg.l", "Rig/Skeleton3D:lowerleg.r", "Rig/Skeleton3D:root", "Rig/Skeleton3D:toes.l", "Rig/Skeleton3D:toes.r", "Rig/Skeleton3D:upperleg.l", "Rig/Skeleton3D:upperleg.r"]
+
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_bqc3k"]
+
+[resource]
+graph_offset = Vector2(-505.566, -4.09052)
+nodes/Arms/node = SubResource("AnimationNodeStateMachine_fjfe3")
+nodes/Arms/position = Vector2(0, 20)
+nodes/Legs/node = SubResource("AnimationNodeStateMachine_cmg47")
+nodes/Legs/position = Vector2(200, 200)
+nodes/LocomotionBlend/node = SubResource("AnimationNodeBlend2_yn1rv")
+nodes/LocomotionBlend/position = Vector2(580, 40)
+nodes/TimeScale/node = SubResource("AnimationNodeTimeScale_bqc3k")
+nodes/TimeScale/position = Vector2(220, 40)
+nodes/output/position = Vector2(960, 60)
+node_connections = [&"LocomotionBlend", 0, &"TimeScale", &"LocomotionBlend", 1, &"Legs", &"TimeScale", 0, &"Arms", &"output", 0, &"LocomotionBlend"]

@@ -1,0 +1,60 @@
+GAME PLAN!!!
+
+cubeworldlike but better. We're starting here and feeling out how we move forward.
+
+*yapping*
+Equips and inventory
+
+
+FEATURES TO-DO:
+- inventory / items / equips
+	-stackable, non-stackable
+	-able to equip and use items from it
+		-spawns items in world as drops if dropped
+	-pick up item drops
+	-equipping items easily. Dynamic equip slots?
+
+
+FEATURE TWEAKS
+-generative changes
+	* more terrain differentiation
+-generative structures
+	* trees/rocks
+	* towns
+	* dungeons
+
+
+CONCEPTS
+-multiple classes (at least 6)
+	-fighter
+	-support
+	-tank
+	-rogue
+	-ranger
+	-wizard
+
+-wizard
+	-multiple prestige classes
+
+	-Necromancer
+		* summon goons, has a low health and mana pool
+
+	-elemental wizard
+		* focus on specific element, where each element also has a gameplay gimmick (ice has slows, fire has AOE/DOT, etc)
+	-druid something
+	
+	-huge pool of spells. There's going to be shitters in there, that's the point
+
+
+-fighter
+	-multiple types of melee for comboing
+
+-tank
+	-tbd need help with this one.
+
+-rogue 
+	-stealth
+
+-ranger
+	-different types of arrows/ arrow management
+

@@ -1,0 +1,51 @@
+[gd_scene load_steps=6 format=3 uid="uid://cnmn5et8arm8b"]
+
+[ext_resource type="Script" uid="uid://cyoqvaye7j46o" path="res://Menus/Inventory/InventorySlot.cs" id="1_vtwu6"]
+[ext_resource type="Texture2D" uid="uid://bo7p1ljay4gde" path="res://assets/UI/monochrome-transparent.png" id="2_c7sax"]
+
+[sub_resource type="ImageTexture" id="ImageTexture_kkw82"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_qlid7"]
+font_size = 12
+outline_size = 1
+outline_color = Color(0, 0, 0, 1)
+shadow_size = 2
+shadow_color = Color(0, 0, 0, 1)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tjsrr"]
+resource_local_to_scene = true
+atlas = ExtResource("2_c7sax")
+region = Rect2(629, 68, 16, 16)
+
+[node name="InventorySlot" type="Panel" node_paths=PackedStringArray("Sprite2D", "amount", "SlotUnderlay")]
+custom_minimum_size = Vector2(32, 32)
+script = ExtResource("1_vtwu6")
+Sprite2D = NodePath("ItemDisplay")
+amount = NodePath("Label")
+SlotUnderlay = NodePath("SlotUnderlay")
+
+[node name="ItemDisplay" type="Sprite2D" parent="."]
+scale = Vector2(2, 2)
+texture = SubResource("ImageTexture_kkw82")
+offset = Vector2(8, 8)
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 1.0
+offset_top = 16.0
+offset_right = 30.0
+offset_bottom = 33.0
+text = "99"
+label_settings = SubResource("LabelSettings_qlid7")
+horizontal_alignment = 2
+
+[node name="SlotUnderlay" type="Sprite2D" parent="."]
+visible = false
+self_modulate = Color(1, 1, 1, 0.33)
+texture_filter = 1
+scale = Vector2(2, 2)
+texture = SubResource("AtlasTexture_tjsrr")
+offset = Vector2(8, 8)
+
+[connection signal="mouse_entered" from="." to="." method="MouseEnteredFunction"]
+[connection signal="mouse_exited" from="." to="." method="MouseExitedFunction"]

@@ -1,47 +1,28 @@
 using Godot;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
+using VoxelMeshingTest.Classes;
 
 public partial class ChunkSpawnManager : Node
 {
 
-    /*
-     * 
-     * 
-     * convert dictionary to <Vector3I, Chunk> for keeping track of shit better
-     * 
-     * 
-     * 
-     * Building out the system such that:
-     * Chunks initialize and know their own data in a large range
-     * within a smaller range, the chunks become meshed
-     * 
-     * outside the initialization range, dispose of the chunk. !! BE CAREFUL, DELETING CHUNKS WHILE WORKING IN ANOTHER STEP IS A HAZARD
-     * 
-     * I think these three things can happen on their own threads, just need lockout booleans. 
-     * 
-     * 
-     * 
-     * gotta spawn in chunks around the player.
-     * 
-     * get player location, divide by 128
-     * 
-     * loop over x, y square, check if within render distance. 
-     * 
-     * if 1.5 times render distance, spawn a chunk
-     * 
-     * if 1 times render distance, check files and/or generate
-     * 
-     * 
-     * 
-     */
+    [Signal]
+    public delegate void DeleteAllChunksEventHandler();
 
-    Dictionary<int, Dictionary<int, Dictionary<int, Chunk>>> Chunks = new Dictionary<int, Dictionary<int, Dictionary<int, Chunk>>>();
-
-    List<Chunk> ChunkList = new List<Chunk>();
+    ConcurrentDictionary<Vector3I, Chunk> Chunks = new ConcurrentDictionary<Vector3I, Chunk>();
 
     private static ChunkSpawnManager instance;
+
+    private object lockObj = new object();
+    private object GenerateLock = new object();
+
+    private List<Thread> ThreadList = new List<Thread>();
+    private int ThreadCountTarget = GameConstants.CHUNK_THREADS;
+
+    private ConcurrentQueue<Vector3I> ChunkCandidates = new ConcurrentQueue<Vector3I>();
 
     private ChunkSpawnManager() { 
 
@@ -61,183 +42,327 @@ public partial class ChunkSpawnManager : Node
     // Called when the node enters the scene tree for the first time.
     public override void _Ready()
 	{
+        //ChangeThreading(GameConstants.CHUNK_THREADS);
+    }
 
-        /*
-        for (int i = -3; i < 3; i++)
-        {
-            for (int j = -3; j < 3; j++)
-            {
-                if ((new Vector3I(0,0,0) - new Vector3(i, 0, j)).Length() < 5)
-                {
-                    InitializeChunk(i, 0, j);
-                }
-            }
-        }*/
-
-        HandleChunkLoading();        
-	}
-
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
+    public override void _Process(double delta)
 	{
+        if (Input.IsActionJustPressed("regenerate"))
+        {
+            GameConstants.CHUNK_THREADS = 0;
+            EmitSignal(SignalName.DeleteAllChunks);
+            GetTree().CreateTimer(0.4).Timeout += () =>
+            {
+                EmitSignal(SignalName.DeleteAllChunks);
+                GameConstants.CHUNK_THREADS = 1;
+            };
+        }
 
+        ChangeThreading(GameConstants.CHUNK_THREADS);
     }
 
-    public void GenerateWorld()
+    public void ChangeThreading(int threads)
     {
-        foreach(Chunk chunk in ChunkList)
+        lock (lockObj)
         {
-            chunk.QueueFree();
-        }
-        ChunkList.Clear();
+            ThreadCountTarget = threads;
 
-        ThreadPool.QueueUserWorkItem(state =>
-        {
-            for (int i = 0; i < 4; i++)
+            if (threads > ThreadList.Count)
             {
-                for (int j = 0; j < 1; j++)
+                // Start new threads
+                for (int i = ThreadList.Count; i < threads; i++)
                 {
-                    for (int k = 0; k < 4; k++)
-                    {
-                        int xCopy = i;
-                        int yCopy = j;
-                        int zCopy = k;
-                        AddChunk(new Chunk(), i, j, k);
-                        //GenerateChunk(xCopy, yCopy, zCopy);
-                        GeneratePChunk(xCopy, yCopy, zCopy);
-                    }
+                    int threadID = i;  // Capture loop variable safely
+                    Thread thread = new Thread(() => ChunkerThread(threadID));
+                    thread.IsBackground = true;
+                    ThreadList.Add(thread);
+                    GD.Print($"starting new thread {threadID}");
+                    thread.Start();
                 }
             }
-        });
+            else if (threads < ThreadList.Count)
+            {
+                // Let extra threads exit gracefully
+                GD.Print("Removing ended threads");
+                ThreadList.RemoveAll(t => !t.IsAlive);
+            }
+            else
+            {
+                //do nothing
+            }
+        }
+
     }
 
-    void GeneratePChunk(int x, int y, int z)
+    public void DeregisterChunk(Chunk chunk, Vector3I pos)
     {
-        int[] data = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
-        Chunks[x][y][z].ChunkData = data;
-        ChunkMeshManager.Instance().RequestChunkMeshUpdate(Chunks[x][y][z]);
-    }
 
-    void AddChunk(Chunk chunk, int x, int y, int z)
-    {
-        if (!Chunks.ContainsKey(x))
+        if (chunk.ChunkData == null)
         {
-            Chunks[x] = new Dictionary<int, Dictionary<int, Chunk>>();
-        } 
-        if (!Chunks[x].ContainsKey(y))
-        {
-            Chunks[x][y] = new Dictionary<int, Chunk>();
-        }
-        if (!Chunks[x][y].ContainsKey(z))
-        {
-            Chunks[x][y][z] = chunk;
-            chunk.ChunkPosition = new Vector3(x * 256, y * 256, z * 256);
-            //chunk.Visible = false;
-        }
-
-        chunk.Generated = false;
-        ChunkList.Add(chunk);
-        CallDeferred("add_child", chunk);
-    }
-
-    bool CheckChunk(int x, int y, int z)
-    {
-        if (!Chunks.ContainsKey(x))
-        {
-            return false;
-        }
-        if (!Chunks[x].ContainsKey(y))
-        {
-            return false;
-        }
-        if (!Chunks[x][y].ContainsKey(z))
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    void InitializeChunk(int x, int y, int z)
-    {
-        if (CheckChunk(x, y, z))
-        {
+            GD.Print("Deleting ungenerated chunk");
             return;
         }
 
-        GD.Print($"initializing chunk {x}, {z}...");
-
-        Chunk ch = new Chunk();
-        AddChunk(ch, x, y, z); //adds chunk as child in here
-
-
-        ch.ChunkData = ChunkGeneratorManager.Instance().GenerateChunk(x, y, z);
-    }
-
-    void GenerateChunkMesh(int x, int y, int z)
-    {
-        if (CheckChunk(x, y, z))
+        if (Chunks.ContainsKey(pos))
         {
-            if (!Chunks[x][y][z].Generated)
-            {
-                Chunks[x][y][z].Generated = true;
-                ThreadPool.QueueUserWorkItem(async state =>
-                {
-                    await Task.Run(() => {
-                        int xC = x;
-                        int yC = y;
-                        int zC = z;
-
-                        GeneratePChunk(xC, yC, zC);
-                    });
-                });
-            } else
-            {
-                //already generated
-                return;
-            }
-
-        } else
-        {
-            GD.PrintErr("Nonexistent chunk attempted to generate at " + new Vector3(x,y,z) + "!");
+            Chunks.TryRemove(new KeyValuePair<Vector3I,Chunk>(pos, chunk));
         }
     }
 
-    async void HandleChunkLoading()
+    public struct RenderDeviceFrame {
+        public RenderingDevice MesherRenderDevice;
+        public RenderingDevice GeneratorRenderDevice;
+
+        public int[] ints;
+
+        public Rid MesherShaderRID;
+        public Rid GreedyShaderRID;
+        public Rid TerrainShaderRID;
+        public Rid CompressorShaderRID;
+
+        public Rid VoxelDataBuffer;
+        public RDUniform VoxelDataUniform;
+
+        public Rid QuadBuffer;
+        public RDUniform QuadUniform;
+
+        public Rid GreedyBuffer;
+        public RDUniform GreedyUniform;
+
+        public Rid CompressorBuffer;
+        public RDUniform CompressorUniform;
+    }
+
+    void ChunkerThread(int threadID)
     {
-        await Task.Run(() =>
+        GD.Print($"thread {threadID} initializing");
+        //initialize the RD 
+        RenderDeviceFrame rdFrame = new RenderDeviceFrame();
+        rdFrame.MesherRenderDevice = RenderingServer.CreateLocalRenderingDevice();
+        rdFrame.GeneratorRenderDevice = RenderingServer.CreateLocalRenderingDevice();
+
+        RDShaderFile shaderFile = ResourceLoader.Load<RDShaderFile>("res://Compute/ChunkMesherFast5.glsl", cacheMode: ResourceLoader.CacheMode.Ignore);
+        RDShaderSpirV shaderBytecode = shaderFile.GetSpirV();
+        rdFrame.MesherShaderRID = rdFrame.MesherRenderDevice.ShaderCreateFromSpirV(shaderBytecode);
+
+        RDShaderFile GreedyShaderFile = ResourceLoader.Load<RDShaderFile>("res://Compute/GreedyMesher.glsl", cacheMode: ResourceLoader.CacheMode.Ignore);
+        RDShaderSpirV GreedyShaderBytecode = GreedyShaderFile.GetSpirV();
+        rdFrame.GreedyShaderRID = rdFrame.MesherRenderDevice.ShaderCreateFromSpirV(GreedyShaderBytecode);
+
+        RDShaderFile TerrainShaderFile = ResourceLoader.Load<RDShaderFile>("res://Compute/ChunkGenV2.glsl", cacheMode: ResourceLoader.CacheMode.Ignore);
+        RDShaderSpirV TerrainShaderBytecode = TerrainShaderFile.GetSpirV();
+        rdFrame.TerrainShaderRID = rdFrame.GeneratorRenderDevice.ShaderCreateFromSpirV(TerrainShaderBytecode);
+
+        RDShaderFile CompressorShaderFile = ResourceLoader.Load<RDShaderFile>("res://Compute/Compressor.glsl", cacheMode: ResourceLoader.CacheMode.Ignore);
+        RDShaderSpirV CompressorShaderBytecode = CompressorShaderFile.GetSpirV();
+        rdFrame.CompressorShaderRID = rdFrame.MesherRenderDevice.ShaderCreateFromSpirV(CompressorShaderBytecode);
+
+        rdFrame.QuadBuffer = rdFrame.MesherRenderDevice.StorageBufferCreate(GameConstants.BUFFER_SIZE);
+        //output quad uniform
+        rdFrame.QuadUniform = new RDUniform();
+        rdFrame.QuadUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        rdFrame.QuadUniform.Binding = 0;
+        rdFrame.QuadUniform.AddId(rdFrame.QuadBuffer);
+
+        rdFrame.GreedyBuffer = rdFrame.MesherRenderDevice.StorageBufferCreate(6291456 + GameConstants.BUFFER_SIZE); //6291456
+        rdFrame.GreedyUniform = new RDUniform();
+        rdFrame.GreedyUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        rdFrame.GreedyUniform.Binding = 5;
+        rdFrame.GreedyUniform.AddId(rdFrame.GreedyBuffer);
+
+        rdFrame.VoxelDataBuffer = rdFrame.MesherRenderDevice.StorageBufferCreate(256 * 4000 + 32 * 4000, ChunkMeshManager.Instance().GetVoxelDataBytes());
+        rdFrame.VoxelDataUniform = new RDUniform();
+        rdFrame.VoxelDataUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        rdFrame.VoxelDataUniform.Binding = 4;
+        rdFrame.VoxelDataUniform.AddId(rdFrame.VoxelDataBuffer);
+
+        rdFrame.CompressorBuffer = rdFrame.MesherRenderDevice.StorageBufferCreate(264 * (64*64*64) / 2);
+        rdFrame.CompressorUniform = new RDUniform();
+        rdFrame.CompressorUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        rdFrame.CompressorUniform.Binding = 6;
+        rdFrame.CompressorUniform.AddId(rdFrame.CompressorBuffer);
+        rdFrame.ints = new int[66000 * 4];
+
+        for (int i = 0; i < 11000 * 4; i++)
         {
-            GD.Print("Chunk Loading thread start");
-            while (true)
+            rdFrame.ints[i * 6 + 0] = i * 4 + 0;
+            rdFrame.ints[i * 6 + 1] = i * 4 + 1;
+            rdFrame.ints[i * 6 + 2] = i * 4 + 2;
+            rdFrame.ints[i * 6 + 3] = i * 4 + 0;
+            rdFrame.ints[i * 6 + 4] = i * 4 + 2;
+            rdFrame.ints[i * 6 + 5] = i * 4 + 3;
+        }
+
+
+        Vector3I PlayerCoordinateLast = new Vector3I(-20, 20, -4000);
+        GD.Print($"{threadID} starting loop");
+        while (IsInsideTree() && !IsQueuedForDeletion())
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            
+            lock (lockObj)
             {
-                Vector3 pos = PlayerTrackingManager.Instance().GetPlayerLocation();
-                Vector3 ChunkPos = (pos + new Vector3(128, 0, 128)) / 256;
-
-                for (int i = (int)ChunkPos.X - 4; i < (int)ChunkPos.X + 4; i++)
+                if (threadID >= ThreadCountTarget)
                 {
-                    for (int j = (int)ChunkPos.Z - 4; j < (int)ChunkPos.Z + 4; j++)
-                    {
-                        if ((ChunkPos - new Vector3(i, 0, j)).Length() < 4)
-                        {
-                            
-                            InitializeChunk(i, 0, j);
-                        }
-                    }
+                    //dispose of rdFrame
+                    rdFrame.MesherRenderDevice.FreeRid(rdFrame.QuadBuffer);
+                    rdFrame.MesherRenderDevice.FreeRid(rdFrame.GreedyBuffer);
+                    rdFrame.MesherRenderDevice.FreeRid(rdFrame.MesherShaderRID);
+                    rdFrame.MesherRenderDevice.FreeRid(rdFrame.GreedyShaderRID);
+                    rdFrame.MesherRenderDevice.FreeRid(rdFrame.CompressorBuffer);
+                    rdFrame.MesherRenderDevice.FreeRid(rdFrame.VoxelDataBuffer);
+                    rdFrame.MesherRenderDevice.FreeRid(rdFrame.CompressorShaderRID);
+                    rdFrame.MesherRenderDevice.Free();
+                    rdFrame.GeneratorRenderDevice.FreeRid(rdFrame.TerrainShaderRID);
+                    rdFrame.GeneratorRenderDevice.Free();
+                    GD.Print($"Thread {threadID} disposing...");
+                    break;
                 }
+            }
 
-                Vector3 ChunkPosCopy = ChunkPos;
 
-                for (int i = (int)ChunkPosCopy.X - 3; i < (int)ChunkPosCopy.X + 3; i++)
+
+            List<Vector3I> PosList = new List<Vector3I>();
+            Vector3 playerPos = PlayerTrackingManager.Instance().GetPlayerLocation() - PlayerTrackingManager.Instance().GetPlayerVelocity(); // + velocity * 30 to only look in the direction we're moving
+            Vector3I PlayerCoordinate = (Vector3I)(playerPos / GameConstants.CHUNK_SIZE);
+            PlayerCoordinate = new Vector3I(PlayerCoordinate.X, 0, PlayerCoordinate.Z);
+
+            for (int i = -GameConstants.SPAWN_RADIUS; i < GameConstants.SPAWN_RADIUS; i++)
+            {
+                for (int j = -GameConstants.SPAWN_RADIUS; j < GameConstants.SPAWN_RADIUS; j++)
                 {
-                    for (int j = (int)ChunkPosCopy.Z - 3; j < (int)ChunkPosCopy.Z + 3; j++)
+                    for (int k = GameConstants.WORLD_DEPTH; k < GameConstants.WORLD_HEIGHT; k++)
                     {
-                        if ((ChunkPosCopy - new Vector3(i, 0, j)).Length() < 3)
+
+                        Vector3I Pos = PlayerCoordinate + new Vector3I(i, k, j);
+
+                        if ((Pos - PlayerCoordinate).Length() > GameConstants.SPAWN_RADIUS)
                         {
-                            GenerateChunkMesh(i, 0, j);
+                            continue;
                         }
+
+                        if (Chunks.ContainsKey(Pos))
+                        {
+                            if (Chunks.ContainsKey(Pos) && Chunks[Pos] != null) //it keeps breaking on these so I have to check containskey a bunch
+                            {
+                                if (Chunks.ContainsKey(Pos) && Chunks[Pos].Stale == true)
+                                {
+
+                                    PosList.Add(Pos);
+
+                                } //else do nothing
+                            } //else do nothing
+                        }
+                        else
+                        {
+
+                            PosList.Add(Pos);
+
+                        } //else do nothing
+
                     }
                 }
             }
-        });
+
+
+            PlayerCoordinateLast = PlayerCoordinate;
+        
+
+            double CandidateList = sw.ElapsedMilliseconds;
+
+            Vector3I Candidate = Vector3I.Zero;
+
+
+            //while can get chunks
+            if (PosList.Count == 0)
+            {
+                continue;
+            }
+
+            Vector3 PlayerOffset = PlayerTrackingManager.Instance().GetPlayerLocation();
+            Candidate = FindBestPosition(PlayerTrackingManager.Instance().GetPlayerBasis().GetRotationQuaternion() * new Vector3(0, 0, -1), PlayerOffset, PosList);
+            Chunk chunk = new Chunk();
+
+
+            if (!Chunks.TryAdd(Candidate, chunk))
+            {
+                if (Chunks.ContainsKey(Candidate) && Chunks[Candidate] != null)
+                {
+                    if (IsInstanceValid(Chunks[Candidate]) && !Chunks[Candidate].IsQueuedForDeletion() && Chunks[Candidate].Stale)
+                    {
+                        //Chunks[Candidate].CallDeferred("queue_free");
+                        //just refresh the fkin chunkie and return
+                        ChunkMeshManager.Instance().GenerateChunkMesh(Chunks[Candidate], rdFrame);
+                        //GD.Print("updating stale chunk");
+                        Chunks[Candidate].Stale = false;
+                        continue;
+                    }
+                }
+                //GD.Print("BAIL, CHUNK ALREADY EXISTS");
+                continue;
+            }
+
+
+
+            double FindBestPositionStamp = sw.ElapsedMilliseconds;
+
+            double GenerateStamp;
+            //do the stuff
+            lock (GenerateLock)
+            {
+
+                chunk.ChunkPosition = new Vector3(Candidate.X * GameConstants.CHUNK_SIZE, Candidate.Y * GameConstants.CHUNK_SIZE, Candidate.Z * GameConstants.CHUNK_SIZE);
+                chunk.ChunkCoordinates = Candidate;
+                if (ChunkGeneratorManager.Instance().ComputeGenerateChunk(Candidate, chunk, rdFrame))
+                {
+                    ChunkMeshManager.Instance().GenerateChunkMesh(chunk, rdFrame);
+                }
+                GenerateStamp = sw.ElapsedMilliseconds;
+
+            }
+            double MeshStamp = sw.ElapsedMilliseconds;
+            DeleteAllChunks += chunk.SpecialDispose;
+            CallDeferred("add_child", chunk);
+
+            //GD.Print($"adding chunk from thread {threadID} at {Candidate}, Candidate List: {CandidateList}, FindBestPosition: {FindBestPositionStamp}, Generate Stamp: {GenerateStamp}, Mesh Stamp: {MeshStamp}");
+        }
+    }
+
+ 
+    Vector3I FindBestPosition(Vector3 forwardView, Vector3 PlayerPosition, List<Vector3I> positions)
+    {
+        Vector3I bestPosition = positions[0];
+        float bestScore = float.MinValue;
+
+        float speedFactor = Mathf.Clamp(PlayerTrackingManager.Instance().GetPlayerVelocity().Length() / 10f, 0f, 30f);
+        float dynamicWeight = Mathf.Lerp(0.001f, 0.05f, speedFactor);
+
+        foreach (var pos in positions)
+        {
+            Vector3 worldPos = new Vector3(pos.X, pos.Y, pos.Z) * 64;
+            float distance = (PlayerPosition - worldPos).Length();
+            float alignment = (worldPos - PlayerPosition).Normalized().Dot(forwardView);
+
+            // Weighted score: prioritize alignment but still consider distance
+            float score = alignment - (distance * GameConstants.ALIGNMENT_SCORE_WEIGHT); // Adjust weighting as needed
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestPosition = pos;
+            }
+        }
+
+        return bestPosition;
+    }
+
+    public Chunk GetChunk(Vector3I pos)
+    {
+        if (!Chunks.ContainsKey(pos))
+        {
+            return null;
+        }
+        return Chunks[pos];
     }
 }

@@ -4,8 +4,8 @@ extends Camera3D
 const SHIFT_MULTIPLIER = 2.5
 const ALT_MULTIPLIER = 1.0 / SHIFT_MULTIPLIER
 
-
 @export_range(0.0, 1.0) var sensitivity: float = 0.25
+@export var raycast : RayCast3D
 
 # Mouse state
 var _mouse_position = Vector2(0.0, 0.0)
@@ -28,6 +28,14 @@ var _e = false
 var _shift = false
 var _alt = false
 
+func _enter_tree():
+	#get_parent().set_embedding_subwindows(false)
+	pass
+
+func _ready():
+	#Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	pass
+
 func _input(event):
 	# Receives mouse motion
 	if event is InputEventMouseMotion:
@@ -36,12 +44,10 @@ func _input(event):
 	# Receives mouse button input
 	if event is InputEventMouseButton:
 		match event.button_index:
-			MOUSE_BUTTON_RIGHT: # Only allows rotation if right click down
-				Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED if event.pressed else Input.MOUSE_MODE_VISIBLE)
 			MOUSE_BUTTON_WHEEL_UP: # Increases max velocity
-				_vel_multiplier = clamp(_vel_multiplier * 1.1, 0.2, 20)
+				_vel_multiplier = clamp(_vel_multiplier * 1.1, 0.2, 80)
 			MOUSE_BUTTON_WHEEL_DOWN: # Decereases max velocity
-				_vel_multiplier = clamp(_vel_multiplier / 1.1, 0.2, 20)
+				_vel_multiplier = clamp(_vel_multiplier / 1.1, 0.2, 80)
 
 	# Receives key input
 	if event is InputEventKey:
@@ -63,11 +69,24 @@ func _input(event):
 			KEY_ALT:
 				_alt = event.pressed
 
+	if event is InputEventKey and Input.is_key_pressed(KEY_P):
+		var vp = get_viewport()
+		vp.debug_draw = (vp.debug_draw + 1 ) % 6
+		#vp.debug_draw = Viewport.DEBUG_DRAW_INTERNAL_BUFFER
+
+	if event.is_action_pressed("view_toggle"):
+		if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		else:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
+
 # Updates mouselook and movement every frame
 func _process(delta):
 	_update_mouselook()
 	_update_movement(delta)
-
+	
 # Updates camera movement
 func _update_movement(delta):
 	# Computes desired direction from key states
@@ -111,6 +130,5 @@ func _update_mouselook():
 		# Prevents looking up/down too far
 		pitch = clamp(pitch, -90 - _total_pitch, 90 - _total_pitch)
 		_total_pitch += pitch
-	
 		rotate_y(deg_to_rad(-yaw))
 		rotate_object_local(Vector3(1,0,0), deg_to_rad(-pitch))

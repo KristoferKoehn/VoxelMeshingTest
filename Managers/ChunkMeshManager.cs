@@ -1,11 +1,12 @@
 using Godot;
 using Godot.Collections;
-using Godot.NativeInterop;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
+using VoxelMeshingTest.Classes;
 
 public partial class ChunkMeshManager : Node
 {
@@ -13,391 +14,312 @@ public partial class ChunkMeshManager : Node
 	private static ChunkMeshManager instance = null;
 
     public static int ChunkCount = 0;
-    public ConcurrentBag<Chunk> ChunksToUpdate { get; set; } = new ConcurrentBag<Chunk>();
+    public ConcurrentQueue<Chunk> ChunksToUpdate { get; set; } = new ConcurrentQueue<Chunk>();
 
     private ChunkMeshManager() { }
 
-	public static ChunkMeshManager Instance()
+    private byte[] VoxelData;
+
+    RenderingDevice rd { get; set; }
+    Rid VoxelDataBuffer;
+    RDUniform VoxelDataUniform;
+
+    public Godot.Collections.Dictionary<FaceData, Array<QuadData>> FaceQuadResourceDictionary = new();
+
+    public static ChunkMeshManager Instance()
 	{
 		if (instance == null)
 		{
 			instance = new ChunkMeshManager();
+            instance.rd = RenderingServer.CreateLocalRenderingDevice();
 			SceneSwitcher.Instance().AddChild(instance);
 			instance.Name = "ChunkMeshManager";
-		}
+            
+        }
 		return instance;
 	}
-
 
 	public override void _Ready()
 	{
 
-	}
+    }
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-    int count = 2;
-	public override void _Process(double delta)
+    public override void _Process(double delta)
 	{
-        if (count % 2 == 0)
+        
+    }
+
+    public void RequestChunkMeshUpdate(Chunk chunk, bool expedite = false)
+    {
+        if (ChunksToUpdate.Contains(chunk))
         {
-            if (count >= Int32.MaxValue)
+            return;
+        }
+        if (expedite) { 
+            ChunksToUpdate.Prepend(chunk);
+        }
+        ChunksToUpdate.Enqueue(chunk);
+    }
+
+    public byte[] GetVoxelDataBytes()
+    {
+        FaceQuadResourceDictionary.Clear();
+        //rewrite this into a system that generates structs that mirror glsl structs
+        Array<FaceData> faces = new Array<FaceData>();
+
+        byte[] QuadInData = new byte[256 * 4000];
+        byte[] FaceData = new byte[32 * 4000];
+        VoxelData = new byte[256 * 4000 + 32 * 4000];
+        //get list of resources
+        int QuadOffset = 0;
+
+        string[] FaceFiles = DirAccess.GetFilesAt("res://VoxelData/FaceData/");
+        foreach (string name in FaceFiles)
+        {
+            if (name.Contains(".tres"))
             {
-                count = 0;
+                faces.Add(ResourceLoader.Load<FaceData>($"res://VoxelData/FaceData/{name}", cacheMode: ResourceLoader.CacheMode.Ignore));
+            }
+        }
+
+        foreach (FaceData faceData in faces)
+        {
+            Array<Array<QuadData>> quads = faceData.GetFacesArray();
+            Array<QuadData> blockquad = new Array<QuadData>();
+
+            int[] quadIndices = new int[8];
+            if (faceData.transparent)
+            {
+                quadIndices[6] = 1;
             }
 
-            if (ChunksToUpdate.TryTake(out Chunk chunk))
+            for (int i = 0; i < 6; i++)
             {
-                Task.Run(() =>
+                quadIndices[i] = QuadOffset;
+                for (int j = 0; j < quads[i].Count; j++)
                 {
-                    Chunk ch = chunk;
-                    GeneratePChunkMesh2(chunk.ChunkData, chunk);
-
-                });
+                    if (j != quads[i].Count - 1)
+                    {
+                        quads[i][j].NextFace = QuadOffset + 1;
+                    }
+                    blockquad.Add(quads[i][j]);
+                    byte[] b = quads[i][j].Serialize();
+                    Buffer.BlockCopy(b, 0, QuadInData, QuadOffset * 256, 132);
+                    QuadOffset += 1;
+                }
             }
+
+            Buffer.BlockCopy(quadIndices, 0, FaceData, faceData.ID * 32, 32);
+            FaceQuadResourceDictionary[faceData] = blockquad;
         }
-        count++;
+
+        GD.Print($"total quads on initialization: {QuadOffset}");
+
+        Buffer.BlockCopy(QuadInData, 0, VoxelData, 0, 256 * 4000);
+        Buffer.BlockCopy(FaceData, 0, VoxelData, 256 * 4000, 32 * 4000);
+
+        return VoxelData;
+
     }
 
-    public void RequestChunkMeshUpdate(Chunk chunk)
-    {
-        ChunksToUpdate.Add(chunk);
-    }
-
-    public static float[] GenerateMeshFastBytes(int[] Data, Vector3 ChunkPosition)
-    {
-
-        RenderingDevice rd = RenderingServer.CreateLocalRenderingDevice();
-        RDShaderFile shaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkMesherFast.glsl");
-        RDShaderSpirV shaderBytecode = shaderFile.GetSpirV();
-        Rid ShaderRID = rd.ShaderCreateFromSpirV(shaderBytecode);
-        Rid pipelineRID = rd.ComputePipelineCreate(ShaderRID);
-
-        long ComputeList = rd.ComputeListBegin();
-
-        //compute uniform
-        byte[] inputBytes = new byte[Data.Length * sizeof(int)];
-        Buffer.BlockCopy(Data, 0, inputBytes, 0, inputBytes.Length);
-
-        int ChunkSize = 128;
-        int WorkGroupSide = 32;
-        int WorkGroups = WorkGroupSide * WorkGroupSide * WorkGroupSide;
-
-        byte[] DimensionBytes = new byte[sizeof(int) * 2];
-        Buffer.BlockCopy(new int[] {ChunkSize, WorkGroupSide}, 0, DimensionBytes, 0, DimensionBytes.Length);
-
-        byte[] PlayerPositionBytes = new byte[sizeof(float) * 3];
-        Vector3 pp = PlayerTrackingManager.Instance().GetPlayerLocation() - ChunkPosition;
-        //Buffer.BlockCopy(new float[] {pp.X, pp.Y, pp.Z }, 0, PlayerPositionBytes, 0, sizeof(float) * 3);
-        Buffer.BlockCopy(new float[] {0, 0, 0 }, 0, PlayerPositionBytes, 0, sizeof(float) * 3);
-
-        uint BufferSize = 402653184;
-
-        Rid QuadBuffer = rd.StorageBufferCreate(BufferSize);
-        Rid QuadCountBuffer = rd.StorageBufferCreate((uint)(sizeof(int) * WorkGroups));
-        Rid ChunkDataBuffer = rd.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
-        Rid ChunkDimensionalBuffer = rd.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
-        Rid PlayerPositionBuffer = rd.StorageBufferCreate(sizeof(float) * 3, PlayerPositionBytes);
-
-        Array<RDUniform> Uniforms = new Array<RDUniform>();
-
-        //output quad uniform
-        RDUniform QuadUniform = new RDUniform();
-        Uniforms.Add(QuadUniform);
-        QuadUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        QuadUniform.Binding = 0;
-        QuadUniform.AddId(QuadBuffer);
-
-        //output quad count uniform
-        RDUniform QuadCountUniform = new RDUniform();
-        Uniforms.Add(QuadCountUniform);
-        QuadCountUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        QuadCountUniform.Binding = 1;
-        QuadCountUniform.AddId(QuadCountBuffer);
-
-        //chunk data input uniform
-        RDUniform ChunkDataUniform = new RDUniform();
-        Uniforms.Add(ChunkDataUniform);
-        ChunkDataUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        ChunkDataUniform.Binding = 2;
-        ChunkDataUniform.AddId(ChunkDataBuffer);
-
-        //chunk data input uniform
-        RDUniform ChunkDimensionalUniform = new RDUniform();
-        Uniforms.Add(ChunkDimensionalUniform);
-        ChunkDimensionalUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        ChunkDimensionalUniform.Binding = 3;
-        ChunkDimensionalUniform.AddId(ChunkDimensionalBuffer);
-
-        //chunk data input uniform
-        RDUniform PlayerPositionUniform = new RDUniform();
-        Uniforms.Add(PlayerPositionUniform);
-        PlayerPositionUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        PlayerPositionUniform.Binding = 4;
-        PlayerPositionUniform.AddId(PlayerPositionBuffer);
-
-        Rid UniformSet = rd.UniformSetCreate(Uniforms, ShaderRID, 0);
-
-        rd.ComputeListBindUniformSet(ComputeList, UniformSet, 0);
-        rd.ComputeListBindComputePipeline(ComputeList, pipelineRID);
-        rd.ComputeListDispatch(ComputeList, (uint)WorkGroupSide, (uint)WorkGroupSide, (uint)WorkGroupSide);
-        rd.ComputeListEnd();
-
-        rd.Submit();
-        rd.Sync();
-
-        byte[] countBytes = rd.BufferGetData(QuadCountBuffer);
-
-        uint[] Count = new uint[WorkGroups];
-
-        Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * Count.Length);
-
-        int QuadCount = 0;
-        for (int i = 0; i < Count.Length; i++)
-        {
-            QuadCount += (int)Count[i];
-        }
-
-        float[] data = new float[QuadCount * 16];
-
-        byte[] QBytes = rd.BufferGetData(QuadBuffer, 0, BufferSize);
-
-        int CumQuad = 0;
-        for(int i = 0; i < WorkGroups; i++)
-        {
-            if (Count[i] != 0)
-            {
-                int WorkGroupPosition = (int)(BufferSize / WorkGroups);
-                //byte[] QBytes = rd.BufferGetData(QuadBuffer, , Count[i] * 64);
-                //GD.Print($"reading from: {(uint)(WorkGroupPosition * i)} through {(uint)(WorkGroupPosition * i) + Count[i] * 64} ");
-                //GD.Print($"reading from: {Count[i]} ");
-                //if everything gets put back to /64 , it's still broken. Maybe reading from the wrong addresses?
-
-                Buffer.BlockCopy(QBytes, WorkGroupPosition * i, data, CumQuad * 64, (int)Count[i] * 64);
-                //GD.Print($"writing to: {CumQuad * 64} through {CumQuad * 64 + (int)Count[i] * 64} ");
-                CumQuad += (int)Count[i];
-            }
-        }
-
-        /*
-        byte[] QuadBytes = rd.BufferGetData(QuadBuffer, 0, Count[0]*64);
-        */
-        //Buffer.BlockCopy(QuadBytes, 0, data, 0, (int)Count[0] * 64);
-
-        rd.FreeRid(pipelineRID);
-        rd.FreeRid(QuadBuffer);
-        rd.FreeRid(ChunkDataBuffer);
-        rd.FreeRid(QuadCountBuffer);
-        rd.FreeRid(ShaderRID);
-        rd.FreeRid(ChunkDimensionalBuffer);
-        rd.FreeRid(PlayerPositionBuffer);
-        rd.Free();
-
-        return data; 
-    }
-
-    public void GeneratePChunkMesh(int[] Data, Vector3 ChunkPosition, Chunk ch)
-    {
-        RenderingDevice rd = RenderingServer.CreateLocalRenderingDevice();
-        RDShaderFile shaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkMesherFast.glsl");
-        RDShaderSpirV shaderBytecode = shaderFile.GetSpirV();
-        Rid ShaderRID = rd.ShaderCreateFromSpirV(shaderBytecode);
-        Rid pipelineRID = rd.ComputePipelineCreate(ShaderRID);
-
-        long ComputeList = rd.ComputeListBegin();
-
-        //compute uniform
-        byte[] inputBytes = new byte[Data.Length * sizeof(int)];
-        Buffer.BlockCopy(Data, 0, inputBytes, 0, inputBytes.Length);
-
-        int ChunkSize = 128;
-        int WorkGroupSide = 64;
-        int WorkGroups = WorkGroupSide * WorkGroupSide * WorkGroupSide;
-
-        byte[] DimensionBytes = new byte[sizeof(int) * 2];
-        Buffer.BlockCopy(new int[] { ChunkSize, WorkGroupSide }, 0, DimensionBytes, 0, DimensionBytes.Length);
-
-        uint BufferSize = 402653184;
-
-        Rid QuadBuffer = rd.StorageBufferCreate(BufferSize);
-        Rid QuadCountBuffer = rd.StorageBufferCreate((uint)(sizeof(int) * WorkGroups));
-        Rid ChunkDataBuffer = rd.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
-        Rid ChunkDimensionalBuffer = rd.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
-
-        Array<RDUniform> Uniforms = new Array<RDUniform>();
-
-        //output quad uniform
-        RDUniform QuadUniform = new RDUniform();
-        Uniforms.Add(QuadUniform);
-        QuadUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        QuadUniform.Binding = 0;
-        QuadUniform.AddId(QuadBuffer);
-
-        //output quad count uniform
-        RDUniform QuadCountUniform = new RDUniform();
-        Uniforms.Add(QuadCountUniform);
-        QuadCountUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        QuadCountUniform.Binding = 1;
-        QuadCountUniform.AddId(QuadCountBuffer);
-
-        //chunk data input uniform
-        RDUniform ChunkDataUniform = new RDUniform();
-        Uniforms.Add(ChunkDataUniform);
-        ChunkDataUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        ChunkDataUniform.Binding = 2;
-        ChunkDataUniform.AddId(ChunkDataBuffer);
-
-        //chunk data input uniform
-        RDUniform ChunkDimensionalUniform = new RDUniform();
-        Uniforms.Add(ChunkDimensionalUniform);
-        ChunkDimensionalUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        ChunkDimensionalUniform.Binding = 3;
-        ChunkDimensionalUniform.AddId(ChunkDimensionalBuffer);
-
-        Rid UniformSet = rd.UniformSetCreate(Uniforms, ShaderRID, 0);
-
-        rd.ComputeListBindUniformSet(ComputeList, UniformSet, 0);
-        rd.ComputeListBindComputePipeline(ComputeList, pipelineRID);
-        rd.ComputeListDispatch(ComputeList, (uint)WorkGroupSide, (uint)WorkGroupSide, (uint)WorkGroupSide);
-        rd.ComputeListEnd();
-
-        rd.Submit();
-        rd.Sync();
-
-        byte[] countBytes = rd.BufferGetData(QuadCountBuffer);
-        byte[] QBytes = rd.BufferGetData(QuadBuffer, 0, BufferSize);
-
-        uint[] Count = new uint[WorkGroups];
-        Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * WorkGroups);
-
-        int QuadCount = 0;
-        for (int i = 0; i < Count.Length; i++)
-        {
-            QuadCount += (int)Count[i];
-        }
-
-        byte[] CondensedQuads = new byte[QuadCount * 64];
-
-        int CumQuad = 0;
-        for (int i = 0; i < WorkGroups; i++)
-        {
-            if (Count[i] != 0)
-            {
-                int WorkGroupPosition = (int)(BufferSize / WorkGroups);
-                Buffer.BlockCopy(QBytes, WorkGroupPosition * i, CondensedQuads, CumQuad * 64, (int)Count[i] * 64);
-                CumQuad += (int)Count[i];
-            }
-        }
-
-        ch.PChunkByteIngestion(CondensedQuads, countBytes);
-
-        Task.Run(() => {
-            rd.FreeRid(pipelineRID);
-            rd.FreeRid(QuadBuffer);
-            rd.FreeRid(ChunkDataBuffer);
-            rd.FreeRid(QuadCountBuffer);
-            rd.FreeRid(ShaderRID);
-            rd.FreeRid(ChunkDimensionalBuffer);
-            rd.Free();
-        });
-
-
-        return;
-    }
-
-    public void GeneratePChunkMesh2(int[] Data, Chunk ch)
+    public Chunk GenerateChunkMesh(Chunk ch, ChunkSpawnManager.RenderDeviceFrame RDFrame)
     {
         Stopwatch sw = Stopwatch.StartNew();
-        RenderingDevice rd = RenderingServer.CreateLocalRenderingDevice();
-        RDShaderFile shaderFile = GD.Load<RDShaderFile>("res://Compute/ChunkMesherFast2.glsl");
-        RDShaderSpirV shaderBytecode = shaderFile.GetSpirV();
-        Rid ShaderRID = rd.ShaderCreateFromSpirV(shaderBytecode);
-        Rid pipelineRID = rd.ComputePipelineCreate(ShaderRID);
-
-        long ComputeList = rd.ComputeListBegin();
-
+        long ComputeList = RDFrame.MesherRenderDevice.ComputeListBegin();
         //compute uniform
-        byte[] inputBytes = new byte[Data.Length * sizeof(int)];
-        Buffer.BlockCopy(Data, 0, inputBytes, 0, inputBytes.Length);
+        byte[] inputBytes = new byte[ch.ChunkData.Length * sizeof(int)];
+        Buffer.BlockCopy(ch.ChunkData, 0, inputBytes, 0, inputBytes.Length);
 
-        int ChunkSize = 256;
-        int WorkGroupSide = 128;
-        int WorkGroups = WorkGroupSide * WorkGroupSide * WorkGroupSide;
+        int ChunkSize = GameConstants.CHUNK_SIZE;
+        int WorkGroupSide = GameConstants.WORKGROUPS;
 
         byte[] DimensionBytes = new byte[sizeof(int) * 2];
         Buffer.BlockCopy(new int[] { ChunkSize, WorkGroupSide }, 0, DimensionBytes, 0, DimensionBytes.Length);
 
-        uint BufferSize = 402653184;
+        //uint BufferSection = 786432 * 4;
 
-        Rid QuadBuffer = rd.StorageBufferCreate(BufferSize);
-        Rid QuadCountBuffer = rd.StorageBufferCreate(sizeof(int));
-        GD.Print((uint)inputBytes.Length);
-        Rid ChunkDataBuffer = rd.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
-        Rid ChunkDimensionalBuffer = rd.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
-
-        Array<RDUniform> Uniforms = new Array<RDUniform>();
-
-        //output quad uniform
-        RDUniform QuadUniform = new RDUniform();
-        Uniforms.Add(QuadUniform);
-        QuadUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
-        QuadUniform.Binding = 0;
-        QuadUniform.AddId(QuadBuffer);
-
+        Rid QuadCountBuffer = RDFrame.MesherRenderDevice.StorageBufferCreate(sizeof(int) * 4);
+        Rid ChunkDataBuffer = RDFrame.MesherRenderDevice.StorageBufferCreate((uint)inputBytes.Length, inputBytes);
+        Rid ChunkDimensionalBuffer = RDFrame.MesherRenderDevice.StorageBufferCreate(sizeof(int) * 2, DimensionBytes);
         //output quad count uniform
         RDUniform QuadCountUniform = new RDUniform();
-        Uniforms.Add(QuadCountUniform);
         QuadCountUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
         QuadCountUniform.Binding = 1;
         QuadCountUniform.AddId(QuadCountBuffer);
 
         //chunk data input uniform
         RDUniform ChunkDataUniform = new RDUniform();
-        Uniforms.Add(ChunkDataUniform);
         ChunkDataUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
         ChunkDataUniform.Binding = 2;
         ChunkDataUniform.AddId(ChunkDataBuffer);
 
         //chunk data input uniform
         RDUniform ChunkDimensionalUniform = new RDUniform();
-        Uniforms.Add(ChunkDimensionalUniform);
         ChunkDimensionalUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
         ChunkDimensionalUniform.Binding = 3;
         ChunkDimensionalUniform.AddId(ChunkDimensionalBuffer);
 
-        Rid UniformSet = rd.UniformSetCreate(Uniforms, ShaderRID, 0);
+        Array<RDUniform> Uniforms = new()
+        {
+            RDFrame.VoxelDataUniform,
+            RDFrame.QuadUniform,
+            RDFrame.GreedyUniform,
+            ChunkDimensionalUniform,
+            ChunkDataUniform,
+            QuadCountUniform,
+            RDFrame.CompressorUniform,
+        };
 
-        rd.ComputeListBindUniformSet(ComputeList, UniformSet, 0);
-        rd.ComputeListBindComputePipeline(ComputeList, pipelineRID);
-        rd.ComputeListDispatch(ComputeList, (uint)WorkGroupSide, (uint)WorkGroupSide, (uint)WorkGroupSide);
-        rd.ComputeListEnd();
+        float Setupsw = sw.ElapsedMilliseconds;
 
-        rd.Submit();
+        Rid pipelineRID = RDFrame.MesherRenderDevice.ComputePipelineCreate(RDFrame.MesherShaderRID);
+        Rid UniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(Uniforms, RDFrame.MesherShaderRID, 0);
+        RDFrame.MesherRenderDevice.ComputeListBindUniformSet(ComputeList, UniformSet, 0);
+        RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(ComputeList, pipelineRID);
+        RDFrame.MesherRenderDevice.ComputeListDispatch(ComputeList, (uint)WorkGroupSide, (uint)WorkGroupSide, (uint)WorkGroupSide);
+        RDFrame.MesherRenderDevice.ComputeListEnd();
+        /*
+        RDFrame.MesherRenderDevice.Submit();
+        RDFrame.MesherRenderDevice.Sync(); */
+
+        float initmeshingsw = sw.ElapsedMilliseconds;
+
+        int[] Count = new int[4];
+
+        long GreedyComputeList = RDFrame.MesherRenderDevice.ComputeListBegin();
+        Rid GreedyPipelineRID = RDFrame.MesherRenderDevice.ComputePipelineCreate(RDFrame.GreedyShaderRID);
+        Rid GreedyUniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(Uniforms, RDFrame.GreedyShaderRID, 0);
+        RDFrame.MesherRenderDevice.ComputeListBindUniformSet(GreedyComputeList, GreedyUniformSet, 0);
+        RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(GreedyComputeList, GreedyPipelineRID);
+        RDFrame.MesherRenderDevice.ComputeListDispatch(GreedyComputeList, 64 * 6, 1, 1);
+        RDFrame.MesherRenderDevice.ComputeListEnd();
+        /*
+        RDFrame.MesherRenderDevice.Submit();
+        RDFrame.MesherRenderDevice.Sync();*/
+
+        float greedysw = sw.ElapsedMilliseconds;
+
+        long CompressorComputeList = RDFrame.MesherRenderDevice.ComputeListBegin();
+        Rid CompressorPipelineRID = RDFrame.MesherRenderDevice.ComputePipelineCreate(RDFrame.CompressorShaderRID);
+        Rid CompressorUniformSet = RDFrame.MesherRenderDevice.UniformSetCreate(Uniforms, RDFrame.CompressorShaderRID, 0);
+        RDFrame.MesherRenderDevice.ComputeListBindUniformSet(CompressorComputeList, CompressorUniformSet, 0);
+        RDFrame.MesherRenderDevice.ComputeListBindComputePipeline(CompressorComputeList, CompressorPipelineRID);
+        RDFrame.MesherRenderDevice.ComputeListDispatch(CompressorComputeList, 32, 32, 32);
+        RDFrame.MesherRenderDevice.ComputeListEnd();
+        /*
+        RDFrame.MesherRenderDevice.Submit();
+        RDFrame.MesherRenderDevice.Sync();*/
+
+        float compressorTime = sw.ElapsedMilliseconds;
+
+        byte[] countBytes = RDFrame.MesherRenderDevice.BufferGetData(QuadCountBuffer);
+        Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint) * 4);
         
-        rd.Sync();
+        if (Count[0] == 0)
+        {
+            RDFrame.MesherRenderDevice.FreeRid(UniformSet);
+            RDFrame.MesherRenderDevice.FreeRid(CompressorUniformSet);
+            RDFrame.MesherRenderDevice.FreeRid(CompressorPipelineRID);
+            RDFrame.MesherRenderDevice.FreeRid(pipelineRID);
+            RDFrame.MesherRenderDevice.FreeRid(QuadCountBuffer);
+            RDFrame.MesherRenderDevice.FreeRid(ChunkDataBuffer);
+            RDFrame.MesherRenderDevice.FreeRid(ChunkDimensionalBuffer);
+            return null;
+        }
+
+        byte[] DataBytes = RDFrame.MesherRenderDevice.BufferGetData(RDFrame.CompressorBuffer, 0, (uint)Count[0] * (12 + 12 + 16 + 8 + 6 + 18) * 4);
         
+        int vertices_offset = 0; 
+        int normals_offset = vertices_offset + 12 * Count[0] * 4;
+        int colors_offset = normals_offset + Count[0] * 12 * 4;
+        int uv_offset = colors_offset + Count[0] * 16 * 4;
+        int collision_offset = uv_offset + Count[0] * 8 * 4;
 
+        byte[] VBuffer = new byte[Count[0] * 12 * 4];
+        byte[] NBuffer = new byte[Count[0] * 12 * 4];
+        byte[] CBuffer = new byte[Count[0] * 16 * 4];
+        byte[] ColBuffer = new byte[Count[0] * 18 * 4]; 
+
+        Buffer.BlockCopy(DataBytes, 0, VBuffer, 0, VBuffer.Length);
+        Buffer.BlockCopy(DataBytes, normals_offset, NBuffer, 0, NBuffer.Length);
+        Buffer.BlockCopy(DataBytes, colors_offset, CBuffer, 0, CBuffer.Length);
+        Buffer.BlockCopy(DataBytes, collision_offset, ColBuffer, 0, ColBuffer.Length);
+
+        float datapullingsw = sw.ElapsedMilliseconds;
+
+        Godot.Collections.Array ar = new Godot.Collections.Array();
+        ar.Resize((int)Mesh.ArrayType.Max);
+
+        byte[] Colbytes = new byte[8 + (uint)Count[0] * 72];
+        Buffer.BlockCopy(new int[] { (int)Variant.Type.PackedVector3Array, Count[0] * 6 }, 0, Colbytes, 0, 8);
+        Buffer.BlockCopy(ColBuffer, 0, Colbytes, 8, Count[0] * 72);
+
+        Vector3[] Collision = (Vector3[])GD.BytesToVar(Colbytes);
+        Vector3[] Vertices = BytesToVec3(VBuffer, Count[0]);
+        Vector3[] Normals = BytesToVec3(NBuffer, Count[0]);
+        //Vector2[] UVs = BytesToVec2(UVBuffer, Count[0]);
+        Color[] Colors = BytesToColor(CBuffer, Count[0]);
+
+        float dataconversionsw = sw.ElapsedMilliseconds;
+
+        //GD.Print($"initial meshing: {initmeshingsw}, greedy: {greedysw}, data compression: {compressorTime}, data pulling: {datapullingsw}, data conversion: {dataconversionsw}"); 
         
-        byte[] countBytes = rd.BufferGetData(QuadCountBuffer);
-        int[] Count = new int[1];
-        Buffer.BlockCopy(countBytes, 0, Count, 0, sizeof(uint));
+        int[] Indices = new int[Count[0] * 6];
+        Buffer.BlockCopy(RDFrame.ints, 0, Indices, 0, Indices.Length * 4);
 
-        byte[] QBytes = rd.BufferGetData(QuadBuffer, 0, (uint)Count[0]*64);
-        sw.Stop();
+        ar[(int)Mesh.ArrayType.Vertex] = Vertices;
+        ar[(int)Mesh.ArrayType.Normal] = Normals;
+        //ar[(int)Mesh.ArrayType.TexUV] = UVs;
+        ar[(int)Mesh.ArrayType.Index] = Indices;
+        ar[(int)Mesh.ArrayType.Color] = Colors;
 
-        ch.PChunkByteIngestion(QBytes, countBytes);
-        
-        GD.Print($"mesh data sans ingestion time: {sw.ElapsedMilliseconds}");
+        RDFrame.MesherRenderDevice.BufferClear(QuadCountBuffer, 0, 16);
+        RDFrame.MesherRenderDevice.BufferClear(RDFrame.GreedyBuffer, 0, 6291456 + GameConstants.BUFFER_SIZE);
 
-        rd.FreeRid(pipelineRID);
-        rd.FreeRid(QuadBuffer);
-        rd.FreeRid(ChunkDataBuffer);
-        rd.FreeRid(QuadCountBuffer);
-        rd.FreeRid(ShaderRID);
-        rd.FreeRid(ChunkDimensionalBuffer);
-        rd.Free();
+        if (ch.MeshInstance == null)
+        {
+            ch.MeshInstance = new MeshInstance3D();
+            ch.CallDeferred("add_child", ch.MeshInstance);
+        }
 
-        return;
+        ch.ConcavePolygon.CallDeferred("set_faces", Collision);
+
+        ch.MeshData = ar;
+
+        RDFrame.MesherRenderDevice.FreeRid(UniformSet);
+        RDFrame.MesherRenderDevice.FreeRid(CompressorUniformSet);
+        RDFrame.MesherRenderDevice.FreeRid(CompressorPipelineRID);
+        RDFrame.MesherRenderDevice.FreeRid(pipelineRID);
+        RDFrame.MesherRenderDevice.FreeRid(QuadCountBuffer);
+        RDFrame.MesherRenderDevice.FreeRid(ChunkDataBuffer);
+        RDFrame.MesherRenderDevice.FreeRid(ChunkDimensionalBuffer);
+
+        return ch;
     }
 
+    public Vector3[] BytesToVec3(byte[] buffer, int count)
+    {
+        byte[] Vbytes = new byte[8 + (uint)count * 48];
+        Buffer.BlockCopy(new int[] { (int)Variant.Type.PackedVector3Array, count * 4 }, 0, Vbytes, 0, 8);
+        Buffer.BlockCopy(buffer, 0, Vbytes, 8, count * 48);
+        return (Vector3[])GD.BytesToVar(Vbytes);
+    }
 
+    public Vector2[] BytesToVec2(byte[] buffer, int count)
+    {
+        byte[] Vbytes = new byte[8 + (uint)count * 32];
+        Buffer.BlockCopy(new int[] { (int)Variant.Type.PackedVector2Array, count * 4 }, 0, Vbytes, 0, 8);
+        Buffer.BlockCopy(buffer, 0, Vbytes, 8, count * 32);
+
+        return (Vector2[])GD.BytesToVar(Vbytes);
+    }
+
+    public Color[] BytesToColor(byte[] buffer, int count)
+    {
+        byte[] Vbytes = new byte[8 + (uint)count * 64];
+        Buffer.BlockCopy(new int[] { (int)Variant.Type.PackedColorArray, count * 4 }, 0, Vbytes, 0, 8);
+        Buffer.BlockCopy(buffer, 0, Vbytes, 8, count * 64);
+
+        return (Color[])GD.BytesToVar(Vbytes);
+    }
 }

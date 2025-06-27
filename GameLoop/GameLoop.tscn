@@ -1,68 +1,372 @@
-[gd_scene load_steps=10 format=3 uid="uid://d0yoddkdojog4"]
+[gd_scene load_steps=27 format=3 uid="uid://d0yoddkdojog4"]
 
-[ext_resource type="Script" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
-[ext_resource type="PackedScene" uid="uid://dlbkch6iuy8gn" path="res://addons/fp_controller/player.tscn" id="3_kpwlr"]
-[ext_resource type="Script" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
-[ext_resource type="Script" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
+[ext_resource type="Script" uid="uid://ck1rug11q06ux" path="res://GameLoop/GameLoop.cs" id="1_aic3m"]
+[ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="3_874if"]
+[ext_resource type="Script" uid="uid://c7wvi4jhkeh8c" path="res://Utility/FreeLookCamera.gd" id="3_o0vww"]
+[ext_resource type="Script" uid="uid://d3x3jm5w5f2vp" path="res://Managers/PlayerTrackingManager.cs" id="4_cg07s"]
+[ext_resource type="Script" uid="uid://dj4gnv7ieb3uc" path="res://GameLoop/DebugPanel.cs" id="8_jybo6"]
+[ext_resource type="QuadMesh" uid="uid://3ulskaqjndx3" path="res://assets/Banana.tres" id="9_i1jmx"]
+[ext_resource type="Script" uid="uid://c7ftxbgppm1ry" path="res://GameLoop/InventoryPanel.cs" id="9_lj4mj"]
+[ext_resource type="Resource" uid="uid://cbgmg3q2e71tc" path="res://GameObjects/Inventories/PlayerInventory.tres" id="10_fxhoj"]
+[ext_resource type="Texture2D" uid="uid://bexf40ypu6lbi" path="res://assets/UI/panel-border-012.png" id="11_pnalr"]
+[ext_resource type="PackedScene" uid="uid://cnmn5et8arm8b" path="res://Menus/Inventory/InventorySlot.tscn" id="12_c7dll"]
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_bi2te"]
-noise_type = 3
-frequency = 0.035
+[sub_resource type="Shader" id="Shader_xmxvo"]
+code = "shader_type spatial;
+
+uniform sampler2D noise3 : filter_nearest;
+uniform sampler2D noise2 : filter_nearest;
+uniform sampler2D noise : filter_nearest;
+
+void vertex() {
+	// Called for every vertex the material is visible on.
+}
+
+void fragment() {
+	float n1 = texture(noise, UV).r;
+	float n2 = texture(noise2, UV).g;
+	float n3 = texture(noise3, UV).b;
+	ALBEDO = vec3(0);
+	if (n1 > 0.5 && n3 > 0.5) {
+		ALBEDO = vec3(0,1,0);
+	} else if (n1 > 0.5 && n3 < 0.5) {
+		ALBEDO = normalize(vec3(0,1,1));
+	} else if (n1 < 0.5 && n2 < 0.5) {
+		ALBEDO = normalize(vec3(1,1,0));
+	} else if (n1 < 0.5 && n3 > 0.5) {
+		ALBEDO = vec3(0,0,1);
+	}
+}"
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_h1lar"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_3m8io"]
+noise = SubResource("FastNoiseLite_h1lar")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_apotl"]
 fractal_type = 2
-fractal_octaves = 1
-fractal_ping_pong_strength = 2.465
-metadata/_preview_in_3d_space_ = true
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_gi2x0"]
-noise_type = 3
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_0d8xx"]
+noise = SubResource("FastNoiseLite_apotl")
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_eyhjg"]
+noise_type = 2
+frequency = 0.0053
 fractal_type = 3
-fractal_octaves = 1
 
-[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_j18j3"]
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_h8v8b"]
+noise = SubResource("FastNoiseLite_eyhjg")
 
-[sub_resource type="Sky" id="Sky_ir56b"]
-sky_material = SubResource("PhysicalSkyMaterial_j18j3")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vse3g"]
+render_priority = 0
+shader = SubResource("Shader_xmxvo")
+shader_parameter/noise3 = SubResource("NoiseTexture2D_h8v8b")
+shader_parameter/noise2 = SubResource("NoiseTexture2D_0d8xx")
+shader_parameter/noise = SubResource("NoiseTexture2D_3m8io")
 
-[sub_resource type="Environment" id="Environment_fngh7"]
-background_mode = 2
-sky = SubResource("Sky_ir56b")
-tonemap_mode = 2
-volumetric_fog_density = 0.012
-volumetric_fog_emission = Color(0.2484, 0.2484, 0.2484, 1)
-volumetric_fog_temporal_reprojection_enabled = false
+[sub_resource type="QuadMesh" id="QuadMesh_1avtn"]
+material = SubResource("ShaderMaterial_vse3g")
 
-[node name="GameLoop" type="Node3D"]
+[sub_resource type="Shader" id="Shader_cedl4"]
+code = "shader_type canvas_item;
+
+void vertex() {
+	// Called for every vertex the material is visible on.
+}
+
+void fragment() {
+	float radius = length((UV - vec2(0.5)));
+	if (radius < 0.05) {
+		COLOR = vec4(0.7, 0.7, 0.7, 10.0 - radius * 10.0);
+	} else {
+		COLOR = vec4(0);
+	}
+	// Called for every pixel the material is visible on.
+}
+
+//void light() {
+	// Called for every pixel for every light affecting the CanvasItem.
+	// Uncomment to replace the default light processing function with this one.
+//}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_u0uxn"]
+shader = SubResource("Shader_cedl4")
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_0noxq"]
+
+[sub_resource type="Shader" id="Shader_sd02a"]
+code = "shader_type canvas_item;
+
+void vertex() {
+	// Called for every vertex the material is visible on.
+}
+
+void fragment() {
+	COLOR = vec4(0, 0, 0, 0.3);
+	// Called for every pixel the material is visible on.
+}
+
+//void light() {
+	// Called for every pixel for every light affecting the CanvasItem.
+	// Uncomment to replace the default light processing function with this one.
+//}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_582b2"]
+shader = SubResource("Shader_sd02a")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6rhan"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_11oc4"]
+bg_color = Color(0.0383972, 0.0383972, 0.0383971, 0.203922)
+
+[node name="GameLoop" type="Node3D" node_paths=PackedStringArray("RayCast")]
 script = ExtResource("1_aic3m")
-Terrain = SubResource("FastNoiseLite_bi2te")
-SurfaceCutoff = SubResource("FastNoiseLite_gi2x0")
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_fngh7")
+RayCast = NodePath("Camera3D/RayCast3D")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.977416, -0.179214, 0.111985, 0, 0.529919, 0.848048, -0.211325, -0.828896, 0.517952, 0, 0, 0)
+transform = Transform3D(-0.0332743, -0.999262, -0.0191979, 0.845322, -0.0383859, 0.532877, -0.53322, 0.00150269, 0.845976, 0, 0, 0)
+light_energy = 0.319
 shadow_enabled = true
-shadow_normal_bias = 3.782
-shadow_blur = 0.3
-directional_shadow_mode = 1
-directional_shadow_max_distance = 758.0
-
-[node name="Player" parent="." instance=ExtResource("3_kpwlr")]
-visible = false
-walk_back_speed = 5.0
-walk_speed = 5.0
-sprint_speed = 10.0
-jump_height = 3.0
-acceleration = 20.0
-camera_sensitivity = 4.0
-camera_start_deadzone = 0.0
-camera_end_deadzone = 0.0
-
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 0, 0)
-current = true
-script = ExtResource("3_o0vww")
+shadow_blur = 0.697
+directional_shadow_blend_splits = true
+directional_shadow_max_distance = 200.0
 
 [node name="PlayerTracker" type="Node" parent="." node_paths=PackedStringArray("TrackingItem")]
 script = ExtResource("4_cg07s")
 TrackingItem = NodePath("../Camera3D")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 21.9706, 0)
+visible = false
+mesh = ExtResource("9_i1jmx")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.51805, 0)
+visible = false
+mesh = SubResource("QuadMesh_1avtn")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control"]
+material = SubResource("ShaderMaterial_u0uxn")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = SubResource("CanvasTexture_0noxq")
+
+[node name="Panel" type="Panel" parent="CanvasLayer" node_paths=PackedStringArray("Spawn", "DespawnMargin", "Threads", "Depth", "Height", "Align")]
+material = SubResource("ShaderMaterial_582b2")
+offset_left = 24.0
+offset_top = 26.0
+offset_right = 307.0
+offset_bottom = 342.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_6rhan")
+script = ExtResource("8_jybo6")
+Spawn = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/SpawnSpinBox")
+DespawnMargin = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/DespawnMarginSpinBox")
+Threads = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/ThreadsSpinBox")
+Depth = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/DepthSpinBox")
+Height = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/HeightSpinBox")
+Align = NodePath("MarginContainer/HBoxContainer/VBoxContainer2/AlignmentSpinBox")
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Panel/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="Label" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "SPAWN_RADIUS"
+
+[node name="Label6" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+text = "DESPAWN_MARGIN"
+
+[node name="Label2" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "CHUNK_THREADS"
+
+[node name="Label3" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+text = "WORLD_DEPTH"
+
+[node name="Label4" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+text = "WORLD_HEIGHT"
+
+[node name="Label5" type="Label" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 31)
+layout_mode = 2
+text = "ALIGN_SCORE"
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="SpawnSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+max_value = 156.0
+
+[node name="DespawnMarginSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+max_value = 10000.0
+
+[node name="ThreadsSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="DepthSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+min_value = -10.0
+max_value = 0.0
+
+[node name="HeightSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="AlignmentSpinBox" type="SpinBox" parent="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+max_value = 0.5
+step = 0.001
+
+[node name="Inventory" type="Panel" parent="CanvasLayer" node_paths=PackedStringArray("InventoryContainer", "EquipContainer", "DraggerSprite")]
+offset_left = 544.0
+offset_top = 28.0
+offset_right = 1108.0
+offset_bottom = 238.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_11oc4")
+script = ExtResource("9_lj4mj")
+Inventory = ExtResource("10_fxhoj")
+InventoryContainer = NodePath("MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer2/ScrollContainer/GridContainer")
+EquipContainer = NodePath("MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer/GridContainer")
+SlotScene = ExtResource("12_c7dll")
+DraggerSprite = NodePath("DraggerSprite")
+
+[node name="DraggerSprite" type="Sprite2D" parent="CanvasLayer/Inventory"]
+self_modulate = Color(1, 1, 1, 0.415686)
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Inventory"]
+custom_minimum_size = Vector2(360, 0)
+layout_mode = 0
+offset_right = 564.0
+offset_bottom = 210.0
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 5
+
+[node name="NinePatchRect" type="NinePatchRect" parent="CanvasLayer/Inventory/MarginContainer"]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("11_pnalr")
+region_rect = Rect2(0, 0, 96, 96)
+patch_margin_left = 20
+patch_margin_top = 20
+patch_margin_right = 20
+patch_margin_bottom = 20
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 5
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 5
+theme_override_constants/margin_bottom = 25
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 25
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 25
+
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+columns = 3
+
+[node name="MarginContainer2" type="MarginContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_right = 8
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer2"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="GridContainer" type="GridContainer" parent="CanvasLayer/Inventory/MarginContainer/NinePatchRect/MarginContainer/HBoxContainer/MarginContainer2/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+columns = 11
+
+[node name="Camera3D" type="Camera3D" parent="." node_paths=PackedStringArray("raycast")]
+physics_interpolation_mode = 2
+transform = Transform3D(-1, 0, 1.50996e-07, 0, 1, 0, -1.50996e-07, 0, -1, 0, 17, 0)
+environment = ExtResource("3_874if")
+far = 10000.0
+script = ExtResource("3_o0vww")
+sensitivity = 0.2
+raycast = NodePath("RayCast3D")
+
+[node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
+physics_interpolation_mode = 2
+target_position = Vector3(0, 0, -10)
+
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/SpawnSpinBox" to="CanvasLayer/Panel" method="SpawnRadiusChange"]
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/DespawnMarginSpinBox" to="CanvasLayer/Panel" method="DespawnMarginChange"]
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/ThreadsSpinBox" to="CanvasLayer/Panel" method="ChunkThreadsChange"]
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/DepthSpinBox" to="CanvasLayer/Panel" method="WorldDepthChange"]
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/HeightSpinBox" to="CanvasLayer/Panel" method="WorldHeightChange"]
+[connection signal="value_changed" from="CanvasLayer/Panel/MarginContainer/HBoxContainer/VBoxContainer2/AlignmentSpinBox" to="CanvasLayer/Panel" method="AlignmentChange"]
+[connection signal="mouse_entered" from="CanvasLayer/Inventory" to="CanvasLayer/Inventory" method="MouseEnteredFunction"]
+[connection signal="mouse_exited" from="CanvasLayer/Inventory" to="CanvasLayer/Inventory" method="MouseExitedFunction"]

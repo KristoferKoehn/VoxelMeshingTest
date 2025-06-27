@@ -1,6 +1,10 @@
 using Godot;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Godot.Collections;
+using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Xml.Linq;
+using VoxelMeshingTest.Classes;
 
 public partial class ChunkGeneratorManager : Node
 {
@@ -9,13 +13,6 @@ public partial class ChunkGeneratorManager : Node
 
 	private ChunkGeneratorManager() { }
 
-	public static FastNoiseLite Terrain {  get; set; }
-	public static FastNoiseLite SurfaceCutoff {  get; set; }
-
-	public static Vector2 CutoffOffset { get; set; }
-
-	public Dictionary<int, Dictionary<int, int[]>> GeneratedChunks { get; set; } = new Dictionary<int, Dictionary<int, int[]>>();
-
     public static ChunkGeneratorManager Instance()
 	{
 		if (instance == null)
@@ -23,7 +20,7 @@ public partial class ChunkGeneratorManager : Node
 			instance = new ChunkGeneratorManager();
 			SceneSwitcher.root.AddChild(instance);
 			instance.Name = "ChunkGeneratorManager";
-		}
+        }
 
 		return instance;
 	}
@@ -32,7 +29,7 @@ public partial class ChunkGeneratorManager : Node
 	public override void _Ready()
 	{
 
-	}
+    }
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
@@ -40,79 +37,69 @@ public partial class ChunkGeneratorManager : Node
 
 	}
 
-	public void PreGenerate()
-	{
-        GeneratedChunks = new Dictionary<int, Dictionary<int, int[]>>();
-        for (int i = -4; i < 4; i++)
+    public bool ComputeGenerateChunk(Vector3I pos, Chunk ch, ChunkSpawnManager.RenderDeviceFrame rdFrame)
+    {
+        int[,,] chunk;
+      
+        long ComputeList = rdFrame.GeneratorRenderDevice.ComputeListBegin();
+
+        Rid ChunkBuffer = rdFrame.GeneratorRenderDevice.StorageBufferCreate((uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4 + 8);
+
+        byte[] DimensionBytes = new byte[32];
+        Buffer.BlockCopy(new float[] { GameConstants.CHUNK_DATA_SIZE, 33, 0, 0, pos.X, pos.Y, pos.Z, 0 }, 0, DimensionBytes, 0, 32);
+
+        Rid ChunkDimensionalBuffer = rdFrame.GeneratorRenderDevice.StorageBufferCreate((uint)DimensionBytes.Length, DimensionBytes);
+
+        RDUniform ChunkUniform = new RDUniform();
+        ChunkUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        ChunkUniform.Binding = 2;
+        ChunkUniform.AddId(ChunkBuffer);
+
+        //chunk data input uniform
+        RDUniform ChunkDimensionalUniform = new RDUniform();
+        ChunkDimensionalUniform.UniformType = RenderingDevice.UniformType.StorageBuffer;
+        ChunkDimensionalUniform.Binding = 3;
+        ChunkDimensionalUniform.AddId(ChunkDimensionalBuffer);
+
+        Array<RDUniform> Uniforms = new Array<RDUniform>() {
+            ChunkUniform,
+            ChunkDimensionalUniform
+        };
+
+        Rid pipelineRID = rdFrame.GeneratorRenderDevice.ComputePipelineCreate(rdFrame.TerrainShaderRID);
+
+        Rid UniformSet = rdFrame.GeneratorRenderDevice.UniformSetCreate(Uniforms, rdFrame.TerrainShaderRID, 0);
+
+        rdFrame.GeneratorRenderDevice.ComputeListBindUniformSet(ComputeList, UniformSet, 0);
+        rdFrame.GeneratorRenderDevice.ComputeListBindComputePipeline(ComputeList, pipelineRID);
+        rdFrame.GeneratorRenderDevice.ComputeListDispatch(ComputeList, 33, 33, 33);
+
+        rdFrame.GeneratorRenderDevice.ComputeListEnd();
+        /*
+        rdFrame.GeneratorRenderDevice.Submit();
+        rdFrame.GeneratorRenderDevice.Sync();*/
+        
+        byte[] chunkData = rdFrame.GeneratorRenderDevice.BufferGetData(ChunkBuffer); 
+
+        //rdFrame.GeneratorRenderDevice.BufferClear(ChunkBuffer, 0, (uint)(GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE * GameConstants.CHUNK_DATA_SIZE) * 4 + 8);
+
+        chunk = new int[66, 66, 66];
+
+        int[] count = { 0, 0 };
+        Buffer.BlockCopy(chunkData, chunkData.Length - 8, count, 0 , 8);
+
+        Buffer.BlockCopy(chunkData, 0, chunk, 0, chunkData.Length - 8);
+        rdFrame.GeneratorRenderDevice.FreeRid(UniformSet);
+        rdFrame.GeneratorRenderDevice.FreeRid(pipelineRID);
+        rdFrame.GeneratorRenderDevice.FreeRid(ChunkBuffer);
+        rdFrame.GeneratorRenderDevice.FreeRid(ChunkDimensionalBuffer);
+
+        ch.ChunkData = chunk;
+        if (count[0] == 0)
         {
-            GeneratedChunks.Add(i, new Dictionary<int, int[]>());
-            for (int j = -4; j < 4; j++)
-            {
-                GeneratedChunks[i].Add(j, GenerateChunk(i, 0, j));
-            }
+            return false;
         }
+
+        return true;
     }
-
-    public int[] GenerateChunk(int x, int y, int z) {
-		//get the data from some bullshit elsewhere. 
-		int side = 256;
-
-		int dataSideLength = side + 2;
-		int ChunkSize = dataSideLength * dataSideLength * dataSideLength;
-
-		int[] chunkData = new int[ChunkSize];
-
-
-		if (GeneratedChunks.ContainsKey(x))
-		{
-			if (GeneratedChunks[x].ContainsKey(z))
-			{
-				return GeneratedChunks[x][z];
-			}
-		} else
-		{
-			GeneratedChunks[x] = new Dictionary<int, int[]>();
-		}
-
-
-        Parallel.For (0, dataSideLength, i =>
-		{
-			Parallel.For(0, dataSideLength, j =>
-			{
-				Parallel.For(0, dataSideLength, k =>
-				{
-
-					float cutoffmod = (SurfaceCutoff.GetNoise2D(i + (x * side) + CutoffOffset.X, k + (z * side) + CutoffOffset.Y) * 128) / 30;
-
-					//chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = (uint)RNGManager.Instance().rng.Randi() % 2;
-
-					//if (j > 32 + cutoffmod && j < 96 + cutoffmod)
-
-					if (j > 32 + cutoffmod) // && j < 96 + cutoffmod)
-					{
-						chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 0;
-					}
-					else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
-					//else if (Terrain.GetNoise3D(i + (x * side), j + (y * side), k + (z * side)) > 0.5)
-					{
-						if (j + cutoffmod > 10)
-						{
-							chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 1;
-						}
-						else
-						{
-							chunkData[k + j * dataSideLength + i * dataSideLength * dataSideLength] = 2;
-						}
-
-					}
-					//chunkData[i + j * side + k*side*side] = 1;
-				});
-			});
-        });
-
-
-		GeneratedChunks[x][z] = chunkData;
-		
-		return chunkData;
-	}
 }

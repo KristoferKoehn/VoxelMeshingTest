@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="InventoryItem" load_steps=4 format=3 uid="uid://ennaly4666ao"]
+
+[ext_resource type="Script" uid="uid://baeapxlqct38l" path="res://Menus/Inventory/InventoryItem.cs" id="1_0upq2"]
+[ext_resource type="Texture2D" uid="uid://bo7p1ljay4gde" path="res://assets/UI/monochrome-transparent.png" id="1_10vep"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wqtxh"]
+atlas = ExtResource("1_10vep")
+region = Rect2(561, 306, 16, 16)
+
+[resource]
+script = ExtResource("1_0upq2")
+Name = "Apple"
+Sprite = SubResource("AtlasTexture_wqtxh")
+Stackable = true
+StackAmount = 1
+StackMax = 98
+SlotType = 0
+Components = Array[Script]([])
+StatChanges = {}
