@@ -130,3 +130,55 @@ int biome_from_voronoi(const Vector2 &pos, float seed) {
 
     return hash_biome(closest_cell, seed);
 }
+
+
+inline Vector2 fract(const Vector2 &v) {
+    return Vector2(fract(v.x), fract(v.y));
+}
+
+// Helper function to simulate GLSL `dot`
+inline float dot(const Vector2 &a, const Vector2 &b) {
+    return a.x * b.x + a.y * b.y;
+}
+
+// Displacement function (you can replace this with your own)
+Vector2 displacement(const Vector2 &pos) {
+    // Simple noise-like displacement for demonstration
+    return fract(Vector2(
+        std::sin(dot(pos, Vector2(12.9898, 78.233))) * 43758.5453,
+        std::sin(dot(pos, Vector2(93.9898, 67.345))) * 12345.6789
+    ));
+}
+
+int biome_id_from_voronoi(const Vector3 &pos, float seed) {
+    Vector2 cell = Vector2(std::floor(pos.x), std::floor(pos.z));
+    Vector2 frac = Vector2(fract(pos.x), fract(pos.z));
+
+    frac += displacement(cell + frac);
+
+    float min_dist = 1000.0f;
+    Vector2 nearest_cell = Vector2(0, 0);
+
+    for (int x = -1; x <= 1; ++x) {
+        for (int z = -1; z <= 1; ++z) {
+            Vector2 neighbor(x, z);
+            Vector2 lattice_cell = cell + neighbor;
+
+            Vector2 feature_point = fract(Vector2(
+                std::sin(dot(lattice_cell, Vector2(127.1, 74.7))),
+                std::sin(dot(lattice_cell, Vector2(113.5, 372.3)))
+            ) * (43758.5453f + seed));
+
+            Vector2 diff = neighbor + feature_point - frac;
+            float dist = diff.length();
+
+            if (dist < min_dist) {
+                min_dist = dist;
+                nearest_cell = lattice_cell;
+            }
+        }
+    }
+
+    float h = fract(std::sin(dot(nearest_cell, Vector2(12.9898, 45.164))) * 43758.5453f);
+    return static_cast<int>(std::floor(h * 5.0f)) + 1;
+}

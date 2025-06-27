@@ -3,7 +3,7 @@ extends MeshInstance3D
 
 
 var c_pos
-var move_scale = 0.05;
+var move_scale = 2;
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	c_pos = global_position

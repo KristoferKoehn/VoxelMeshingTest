@@ -9,6 +9,8 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <chrono>
+
 using namespace godot;
 
 std::vector<uint8_t> GDExample::arr(66 * 66 * 66);
@@ -358,22 +360,32 @@ Ref<ArrayMesh> GDExample::mesh_chunk(const uint8_t* voxels, int num_threads) {
         vertex_offset += pd.positions.size();
     }
 
-    // Pack into Godot arrays
-    Array arrays;
-    arrays.resize(Mesh::ARRAY_MAX);
+    // Pack into Godot arrays using direct memory copy
+Array arrays;
+arrays.resize(Mesh::ARRAY_MAX);
+
+    // Fill positions
     PackedVector3Array gpos;
-    PackedColorArray gcol;
-    PackedInt32Array gidx;
-    PackedVector3Array gnorm;
-
-    for (auto &p : positions) gpos.push_back(p);
-    for (auto &c : colors) gcol.push_back(c);
-    for (auto &i : indices) gidx.push_back(i);
-    for (auto &n : normals) gnorm.push_back(n);
-
+    gpos.resize(positions.size());
+    memcpy(gpos.ptrw(), positions.data(), positions.size() * sizeof(Vector3));
     arrays[Mesh::ARRAY_VERTEX] = gpos;
+
+    // Fill colors
+    PackedColorArray gcol;
+    gcol.resize(colors.size());
+    memcpy(gcol.ptrw(), colors.data(), colors.size() * sizeof(Color));
     arrays[Mesh::ARRAY_COLOR] = gcol;
+
+    // Fill indices
+    PackedInt32Array gidx;
+    gidx.resize(indices.size());
+    memcpy(gidx.ptrw(), indices.data(), indices.size() * sizeof(int32_t));
     arrays[Mesh::ARRAY_INDEX] = gidx;
+
+    // Fill normals
+    PackedVector3Array gnorm;
+    gnorm.resize(normals.size());
+    memcpy(gnorm.ptrw(), normals.data(), normals.size() * sizeof(Vector3));
     arrays[Mesh::ARRAY_NORMAL] = gnorm;
 
     Ref<ArrayMesh> mesh = memnew(ArrayMesh);
@@ -386,7 +398,7 @@ Ref<ArrayMesh> GDExample::mesh_chunk(const uint8_t* voxels, int num_threads) {
 
 Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
 	constexpr int SIZE = 66;
-	constexpr int THREADS = 1;
+	constexpr int THREADS = 8;
 	constexpr int TOTAL = SIZE * SIZE * SIZE;
 
 	auto start = std::chrono::high_resolution_clock::now();
@@ -398,19 +410,10 @@ Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
 			for (int j = 0; j < SIZE; j++) {
 				for (int i = 0; i < SIZE; i++) {
                     int index = i + j * SIZE + k * SIZE * SIZE;
-
-                    if (j < 32 && j != 0 &&
-                        k > 1 && k < 64 &&
-                        i > 1 && i < 64) {
-
-                        float f = fbm_3d((i + pos.z) * 1.0f/32.0f, (j + pos.y) * 1.0f/32.0f, (k + pos.x) * 1.0f/32.0f, 1, 0, 0.01) * 2.0;
-                        //int g = abs(k % 3 - j % 4 - i % 5);
-                        data[index] = f > 0.5 ? 1 : 0;
-                        //data[index] = g > 0 ? 1 : 0;
-                    } else {
-                        data[index] = 0;
-                    }
-
+                    float f = fbm_3d((i + pos.z) * 1.0f/16.0f, (j + pos.y) * 1.0f/16.0f, (k + pos.x) * 1.0f/16.0f, 1, 0, 0.01) * 2.0;
+                    //int g = abs(k % 3 - j % 4 - i % 5);
+                    data[index] = f > 0.5 ? 1 : 0;
+                    //data[index] = g > 0 ? 1 : 0;
 				}
 			}
 		}
@@ -428,9 +431,8 @@ Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
 		t.join();
 	}
 
-
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
-    print_error(std::chrono::duration<double, std::milli>(elapsed).count());
+    //print_error(std::chrono::duration<double, std::milli>(elapsed).count());
 	return mesh_chunk(arr.data(), THREADS);
 }
 
