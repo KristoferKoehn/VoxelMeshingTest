@@ -56,41 +56,6 @@ target_position = Vector3(0, 0, -10)
 material_override = SubResource("ShaderMaterial_32mcv")
 script = ExtResource("3_3j61e")
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 64, 0)
-material_override = SubResource("ShaderMaterial_32mcv")
-script = ExtResource("3_3j61e")
-
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 64)
-material_override = SubResource("ShaderMaterial_32mcv")
-script = ExtResource("3_3j61e")
-
-[node name="MeshInstance3D4" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 64, 64)
-material_override = SubResource("ShaderMaterial_32mcv")
-script = ExtResource("3_3j61e")
-
-[node name="MeshInstance3D5" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0, 0)
-material_override = SubResource("ShaderMaterial_32mcv")
-script = ExtResource("3_3j61e")
-
-[node name="MeshInstance3D6" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 64, 0)
-material_override = SubResource("ShaderMaterial_32mcv")
-script = ExtResource("3_3j61e")
-
-[node name="MeshInstance3D7" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 0, 64)
-material_override = SubResource("ShaderMaterial_32mcv")
-script = ExtResource("3_3j61e")
-
-[node name="MeshInstance3D8" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 64, 64, 64)
-material_override = SubResource("ShaderMaterial_32mcv")
-script = ExtResource("3_3j61e")
-
 [node name="GDExample" type="GDExample" parent="."]
 
 [node name="ruler" type="MeshInstance3D" parent="."]
