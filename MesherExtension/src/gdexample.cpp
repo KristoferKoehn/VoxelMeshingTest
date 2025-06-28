@@ -16,14 +16,6 @@ using namespace godot;
 std::vector<uint8_t> GDExample::arr(66 * 66 * 66);
 
 /*
-todos
-
-get normals working
-
-investigate binary bs, it's gotta be almost done-ish?
-
-think on how to do collision. might be spicy?
-do uber-mask greedy pass?
 
 */
 
@@ -34,7 +26,7 @@ void GDExample::_bind_methods()
 }
 
 GDExample::GDExample() {
-	print_error("SUCCESSFULLY RELOADED GDEXTENSION 5");
+	print_error("SUCCESSFULLY RELOADED GDEXTENSION 6");
 }
 
 GDExample::~GDExample() {
@@ -260,7 +252,13 @@ void emit_face_data(
     positions.push_back(base + du);     // 2
     positions.push_back(base + dv + du);// 3
 
-    Color mat_color(depth/66.0f, y/66.0f, z/66.0f); 
+    Color mat_color;
+    if (axis == 1) {
+        mat_color = Color(0.0f, depth/66.0f, 0.0f); 
+    } else {
+        mat_color = Color(1.0f, 1.0f, 1.0f); 
+    }
+
     for (int i = 0; i < 4; ++i) colors.push_back(mat_color);
 
     Vector3 normal(0,0,0); 
@@ -398,7 +396,7 @@ arrays.resize(Mesh::ARRAY_MAX);
 
 Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
 	constexpr int SIZE = 66;
-	constexpr int THREADS = 8;
+	constexpr int THREADS = 1;
 	constexpr int TOTAL = SIZE * SIZE * SIZE;
 
 	auto start = std::chrono::high_resolution_clock::now();
@@ -412,8 +410,9 @@ Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
                     int index = i + j * SIZE + k * SIZE * SIZE;
                     float f = fbm_3d((i + pos.z) * 1.0f/16.0f, (j + pos.y) * 1.0f/16.0f, (k + pos.x) * 1.0f/16.0f, 1, 0, 0.01) * 2.0;
                     //int g = abs(k % 3 - j % 4 - i % 5);
-                    data[index] = f > 0.5 ? 1 : 0;
+                    data[index] = f > 0.7 ? 1 : 0;
                     //data[index] = g > 0 ? 1 : 0;
+                    //data[index] = (i + int(pos.z) + int(pos.y) + int(pos.x) + j + k) % 2;
 				}
 			}
 		}
@@ -432,7 +431,7 @@ Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
 	}
 
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
-    //print_error(std::chrono::duration<double, std::milli>(elapsed).count());
+    print_error(std::chrono::duration<double, std::milli>(elapsed).count());
 	return mesh_chunk(arr.data(), THREADS);
 }
 

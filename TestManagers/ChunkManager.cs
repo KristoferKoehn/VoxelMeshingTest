@@ -75,7 +75,8 @@ public partial class ChunkManager : Node
         foreach (var chunkPos in candidates)
         {
             // Send chunk job to worker pool
-            ChunkWorkerPool.Instance.QueueChunkJob(chunkPos, ChunkSize);
+            //ChunkWorkerPool.Instance.QueueChunkJob(chunkPos, ChunkSize);
+            GetTree().Root.GetViewport().GetCamera3D();
             loadedChunks.Add(chunkPos); // Pre-mark to avoid duplicate work
         }
     }
