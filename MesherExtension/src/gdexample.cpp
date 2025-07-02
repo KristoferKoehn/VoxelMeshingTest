@@ -1,6 +1,9 @@
+//#include "Biomes/biome_registry.hpp"
 #include <thread>
 #include "gdexample.h"
-#include "noise_functions.hpp"
+#include "Noise/noise_functions.hpp"
+#include "biomes.hpp"
+#include "cutoffs.hpp"
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/variant/packed_color_array.hpp>
@@ -10,14 +13,14 @@
 #include <cstdint>
 #include <functional>
 #include <chrono>
+#include <string>
+#include <iomanip> // For std::setw
+#include <sstream> // For std::ostringstream
 
 using namespace godot;
 
-std::vector<uint8_t> GDExample::arr(66 * 66 * 66);
-
-/*
-
-*/
+std::vector<uint32_t> GDExample::arr(66 * 66 * 66);
+std::unordered_map<uint32_t, std::string> keys;
 
 void GDExample::_bind_methods()
 {
@@ -26,8 +29,52 @@ void GDExample::_bind_methods()
 }
 
 GDExample::GDExample() {
-	print_error("SUCCESSFULLY RELOADED GDEXTENSION 6");
+    print_line_rich("=== [pulse]loaded mesher extension[/pulse] ===");
+    auto& biome_map = get_biome_function_map();
+    auto& cutoff_map = get_cutoff_function_map();
+
+    if (biome_map.size() != cutoff_map.size()) {
+        print_line_rich("[color=yellow]!!! [pulse] MAPPING SIZE MISMATCH [/pulse] !!![/color]");
+    } else {
+        print_line_rich("[color=green][[[ [pulse]  MAPPING SIZE MATCH [/pulse]   ]]][/color]");
+    }
+
+    std::set<std::string> all_keys;
+    uint8_t i = 0;
+    for (const auto& [name, _] : biome_map) {
+        all_keys.insert(name);
+        keys[i] = name;
+        i++;
+    }
+    for (const auto& [name, _] : cutoff_map) {
+        all_keys.insert(name);
+    }
+
+    size_t max_len = 0;
+    for (const auto& name : all_keys) {
+        max_len = std::max(max_len, name.length());
+    }
+
+    // Column widths
+    int name_width = static_cast<int>(max_len) + 3;
+    int col_width  = 10;
+
+    //magic formatting
+    print_line_rich(vformat("%*s   %s     %s", max_len, " ", "biome", "cutoff"));
+
+    for (const auto& name : all_keys) {
+        bool has_biome = biome_map.find(name) != biome_map.end();
+        bool has_cutoff = cutoff_map.find(name) != cutoff_map.end();
+
+        const char* biome_status = has_biome ? "[pulse][color=green]OK[/color][/pulse]" : "[pulse][color=red] X[/color][/pulse]";
+        const char* cutoff_status = has_cutoff ? "[pulse][color=green]OK[/color][/pulse]" : "[pulse][color=red] X[/color][/pulse]";
+
+        print_line_rich(vformat("%-*s  %-2s         %-2s", name_width, name.c_str(), biome_status, cutoff_status));
+    }
+    print_line_rich("-------------------------------");
 }
+
+
 
 GDExample::~GDExample() {
 	// Add your cleanup here.
@@ -51,18 +98,18 @@ inline int index_3d(int x, int y, int z) {
 // Mask for one axis slice
 struct MaskSlice {
     uint64_t solid[CHUNK_SIZE];       // 1 bit per voxel along Z
-    uint8_t  type[CHUNK_SIZE][CHUNK_SIZE]; // per voxel type
+    uint32_t  type[CHUNK_SIZE][CHUNK_SIZE]; // per voxel type
 };
 
 // Greedy meshing with typed bitmask mask
-void greedy_merge(const MaskSlice& slice, int axis, int depth, const std::function<void(int, int, int, int, int, int, uint8_t)>& emit_func) {
+void greedy_merge(const MaskSlice& slice, int axis, int depth, const std::function<void(int, int, int, int, int, int, uint32_t)>& emit_func) {
     bool visited[CHUNK_SIZE][CHUNK_SIZE] = {};
 
     for (int y = 0; y < CHUNK_SIZE; ++y) {
         uint64_t row = slice.solid[y];
         for (int z = 0; z < CHUNK_SIZE; ++z) {
             if (!(row & (1ULL << z)) || visited[y][z]) continue;
-            uint8_t t = slice.type[y][z];
+            uint32_t t = slice.type[y][z];
 
             // Greedy width (z-axis)
             int w = 1;
@@ -96,7 +143,7 @@ void greedy_merge(const MaskSlice& slice, int axis, int depth, const std::functi
 }
 
 // +X face
-void build_x_pos_mask(MaskSlice& out, const uint8_t* voxels, int x) {
+void build_x_pos_mask(MaskSlice& out, const uint32_t* voxels, int x) {
 
     for (int y = 0; y < CHUNK_SIZE; ++y) {
         uint64_t row = 0;
@@ -104,8 +151,8 @@ void build_x_pos_mask(MaskSlice& out, const uint8_t* voxels, int x) {
             int idx_here = index_3d(x + PAD, y + PAD, z + PAD);
             int idx_next = index_3d(x + PAD + 1, y + PAD, z + PAD);
 
-            uint8_t here = voxels[idx_here];
-            uint8_t next = voxels[idx_next];
+            uint32_t here = voxels[idx_here];
+            uint32_t next = voxels[idx_next];
             if (here != 0 && next == 0) {
                 row |= (1ULL << z);
                 out.type[y][z] = here;
@@ -118,14 +165,14 @@ void build_x_pos_mask(MaskSlice& out, const uint8_t* voxels, int x) {
 }
 
 // -X face
-void build_x_neg_mask(MaskSlice& out, const uint8_t* voxels, int x) {
+void build_x_neg_mask(MaskSlice& out, const uint32_t* voxels, int x) {
     for (int y = 0; y < CHUNK_SIZE; ++y) {
         uint64_t row = 0;
         for (int z = 0; z < CHUNK_SIZE; ++z) {
             int idx_here = index_3d(x + PAD, y + PAD, z + PAD);
             int idx_prev = index_3d(x + PAD - 1, y + PAD, z + PAD);
-            uint8_t here = voxels[idx_here];
-            uint8_t prev = voxels[idx_prev];
+            uint32_t here = voxels[idx_here];
+            uint32_t prev = voxels[idx_prev];
             if (here != 0 && prev == 0) {
                 row |= (1ULL << z);
                 out.type[y][z] = here;
@@ -138,14 +185,14 @@ void build_x_neg_mask(MaskSlice& out, const uint8_t* voxels, int x) {
 }
 
 // +Y face
-void build_y_pos_mask(MaskSlice& out, const uint8_t* voxels, int y) {
+void build_y_pos_mask(MaskSlice& out, const uint32_t* voxels, int y) {
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         uint64_t row = 0;
         for (int z = 0; z < CHUNK_SIZE; ++z) {
             int idx_here = index_3d(x + PAD, y + PAD, z + PAD);
             int idx_next = index_3d(x + PAD, y + PAD + 1, z + PAD);
-            uint8_t here = voxels[idx_here];
-            uint8_t next = voxels[idx_next];
+            uint32_t here = voxels[idx_here];
+            uint32_t next = voxels[idx_next];
             if (here != 0 && next == 0) {
                 row |= (1ULL << z);
                 out.type[x][z] = here;
@@ -158,14 +205,14 @@ void build_y_pos_mask(MaskSlice& out, const uint8_t* voxels, int y) {
 }
 
 // -Y face
-void build_y_neg_mask(MaskSlice& out, const uint8_t* voxels, int y) {
+void build_y_neg_mask(MaskSlice& out, const uint32_t* voxels, int y) {
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         uint64_t row = 0;
         for (int z = 0; z < CHUNK_SIZE; ++z) {
             int idx_here = index_3d(x + PAD, y + PAD, z + PAD);
             int idx_prev = index_3d(x + PAD, y + PAD - 1, z + PAD);
-            uint8_t here = voxels[idx_here];
-            uint8_t prev = voxels[idx_prev];
+            uint32_t here = voxels[idx_here];
+            uint32_t prev = voxels[idx_prev];
             if (here != 0 && prev == 0) {
                 row |= (1ULL << z);
                 out.type[x][z] = here;
@@ -178,14 +225,14 @@ void build_y_neg_mask(MaskSlice& out, const uint8_t* voxels, int y) {
 }
 
 // +Z face
-void build_z_pos_mask(MaskSlice& out, const uint8_t* voxels, int z) {
+void build_z_pos_mask(MaskSlice& out, const uint32_t* voxels, int z) {
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         uint64_t row = 0;
         for (int y = 0; y < CHUNK_SIZE; ++y) {
             int idx_here = index_3d(x + PAD, y + PAD, z + PAD);
             int idx_next = index_3d(x + PAD, y + PAD, z + PAD + 1);
-            uint8_t here = voxels[idx_here];
-            uint8_t next = voxels[idx_next];
+            uint32_t here = voxels[idx_here];
+            uint32_t next = voxels[idx_next];
             if (here != 0 && next == 0) {
                 row |= (1ULL << y); // shift by y
                 out.type[x][y] = here;
@@ -198,14 +245,14 @@ void build_z_pos_mask(MaskSlice& out, const uint8_t* voxels, int z) {
 }
 
 // -Z face
-void build_z_neg_mask(MaskSlice& out, const uint8_t* voxels, int z) {
+void build_z_neg_mask(MaskSlice& out, const uint32_t* voxels, int z) {
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         uint64_t row = 0;
         for (int y = 0; y < CHUNK_SIZE; ++y) {
             int idx_here = index_3d(x + PAD, y + PAD, z + PAD);
             int idx_prev = index_3d(x + PAD, y + PAD, z + PAD - 1);
-            uint8_t here = voxels[idx_here];
-            uint8_t prev = voxels[idx_prev];
+            uint32_t here = voxels[idx_here];
+            uint32_t prev = voxels[idx_prev];
             if (here != 0 && prev == 0) {
                 row |= (1ULL << y); // shift by y
                 out.type[x][y] = here;
@@ -223,7 +270,7 @@ void emit_face_data(
     int depth,
     int y, int z,
     int w, int h,
-    uint8_t type,
+    uint32_t type,
     std::vector<Vector3>& positions,
     std::vector<Vector3>& normals,
     std::vector<Color>& colors,
@@ -252,13 +299,13 @@ void emit_face_data(
     positions.push_back(base + du);     // 2
     positions.push_back(base + dv + du);// 3
 
-    Color mat_color;
-    if (axis == 1) {
-        mat_color = Color(0.0f, depth/66.0f, 0.0f); 
-    } else {
-        mat_color = Color(1.0f, 1.0f, 1.0f); 
-    }
+    float r;
+    float g;
+    float b;
 
+    decode_rgb888(type, r, g, b);
+
+    Color mat_color(r, g, b);
     for (int i = 0; i < 4; ++i) colors.push_back(mat_color);
 
     Vector3 normal(0,0,0); 
@@ -284,7 +331,7 @@ void emit_face_data(
     indices.insert(indices.end(), face_indices.begin(), face_indices.end());
 }
 
-Ref<ArrayMesh> GDExample::mesh_chunk(const uint8_t* voxels, int num_threads) {
+Ref<ArrayMesh> GDExample::mesh_chunk(const uint32_t* voxels, int num_threads) {
     struct PartialData {
         std::vector<Vector3> positions;
         std::vector<Color> colors;
@@ -300,7 +347,7 @@ Ref<ArrayMesh> GDExample::mesh_chunk(const uint8_t* voxels, int num_threads) {
                 case 1: sign > 0 ? build_y_pos_mask(mask, voxels, d) : build_y_neg_mask(mask, voxels, d); break;
                 case 2: sign > 0 ? build_z_pos_mask(mask, voxels, d) : build_z_neg_mask(mask, voxels, d); break;
             }
-            greedy_merge(mask, axis, d, [&](int axis_, int depth, int a, int b, int w, int h, uint8_t t) {
+            greedy_merge(mask, axis, d, [&](int axis_, int depth, int a, int b, int w, int h, uint32_t t) {
                 emit_face_data(axis_, sign, depth, a, b, w, h, t,
                                 data.positions, data.normals, data.colors, data.indices);
             });
@@ -359,8 +406,8 @@ Ref<ArrayMesh> GDExample::mesh_chunk(const uint8_t* voxels, int num_threads) {
     }
 
     // Pack into Godot arrays using direct memory copy
-Array arrays;
-arrays.resize(Mesh::ARRAY_MAX);
+    Array arrays;
+    arrays.resize(Mesh::ARRAY_MAX);
 
     // Fill positions
     PackedVector3Array gpos;
@@ -393,26 +440,45 @@ arrays.resize(Mesh::ARRAY_MAX);
     return mesh;
 }
 
+int cutoff_calc(Vector3 pos, int seed) {
+    float distance;
+    int primary_biome;
+    int closest_biome;
+    auto& cutoff_map = get_cutoff_function_map();
+    voronoi_data(pos, seed, primary_biome, closest_biome, distance);
+    int p_cutoff = cutoff_map.at(keys[primary_biome])(Vector2(pos.x, pos.z) * 256.0, seed);
+    
+    int s_cutoff = cutoff_map.at(keys[closest_biome])(Vector2(pos.x, pos.z) * 256.0, seed);
+    if (distance > 0.8) {
+        return sigmoid_lerp(p_cutoff, s_cutoff, (distance - 0.8) * 2.5);
+    }
+
+    return p_cutoff;
+}
 
 Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
+
 	constexpr int SIZE = 66;
-	constexpr int THREADS = 1;
+	constexpr int THREADS = 4;
 	constexpr int TOTAL = SIZE * SIZE * SIZE;
+
+    std::vector<uint32_t> data(66 * 66 * 66);
 
 	auto start = std::chrono::high_resolution_clock::now();
 
 	std::vector<std::thread> workers;
-
-	auto worker = [SIZE](uint8_t* data, int z_start, int z_end, Vector3 pos) {
+	auto worker = [SIZE](uint32_t* data, int z_start, int z_end, Vector3 pos) {
+        auto& biome_map = get_biome_function_map();
+        
+        OpenSimplex2 os(5.0);
 		for (int k = z_start; k < z_end; k++) {
-			for (int j = 0; j < SIZE; j++) {
-				for (int i = 0; i < SIZE; i++) {
+			for (int i = 0; i < SIZE; i++) {
+                int biome = biome_id_from_voronoi(((pos + Vector3(k, 0, i)) * 1.0f/256.0f), 5);
+                int cutoff = cutoff_calc((pos + Vector3(k, 0, i)) * 1.0f/256.0f, 5);
+
+				for (int j = 0; j < ((cutoff > 0 && cutoff < 64) ? cutoff : 1); j++) {
                     int index = i + j * SIZE + k * SIZE * SIZE;
-                    float f = fbm_3d((i + pos.z) * 1.0f/16.0f, (j + pos.y) * 1.0f/16.0f, (k + pos.x) * 1.0f/16.0f, 1, 0, 0.01) * 2.0;
-                    //int g = abs(k % 3 - j % 4 - i % 5);
-                    data[index] = f > 0.7 ? 1 : 0;
-                    //data[index] = g > 0 ? 1 : 0;
-                    //data[index] = (i + int(pos.z) + int(pos.y) + int(pos.x) + j + k) % 2;
+                    data[index] = biome_map.at(keys[biome])(pos + Vector3(k, j, i), 5);
 				}
 			}
 		}
@@ -423,7 +489,7 @@ Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
 	for (int t = 0; t < THREADS; t++) {
 		int z_start = t * slice;
 		int z_end = (t == THREADS - 1) ? SIZE : z_start + slice;
-		workers.emplace_back(worker, arr.data(), z_start, z_end, pos);
+		workers.emplace_back(worker, data.data(), z_start, z_end, pos);
 	}
 
 	for (auto& t : workers) {
@@ -431,12 +497,11 @@ Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
 	}
 
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
-    print_error(std::chrono::duration<double, std::milli>(elapsed).count());
-	return mesh_chunk(arr.data(), THREADS);
+    //print_line_rich(vformat("[color=dimgray]%.2fms[/color]",std::chrono::duration<double, std::milli>(elapsed).count()));
+	return mesh_chunk(data.data(), THREADS);
 }
 
 void GDExample::_process(double delta) {
 
 }
-
 

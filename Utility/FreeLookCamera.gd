@@ -1,7 +1,7 @@
 extends Camera3D
 
 # Modifier keys' speed multiplier
-const SHIFT_MULTIPLIER = 2.5
+const SHIFT_MULTIPLIER = 3.5
 const ALT_MULTIPLIER = 1.0 / SHIFT_MULTIPLIER
 
 @export_range(0.0, 1.0) var sensitivity: float = 0.25
@@ -45,9 +45,9 @@ func _input(event):
 	if event is InputEventMouseButton:
 		match event.button_index:
 			MOUSE_BUTTON_WHEEL_UP: # Increases max velocity
-				_vel_multiplier = clamp(_vel_multiplier * 1.1, 0.2, 80)
+				_vel_multiplier = clamp(_vel_multiplier * 1.1, 0.2, 160)
 			MOUSE_BUTTON_WHEEL_DOWN: # Decereases max velocity
-				_vel_multiplier = clamp(_vel_multiplier / 1.1, 0.2, 80)
+				_vel_multiplier = clamp(_vel_multiplier / 1.1, 0.2, 160)
 
 	# Receives key input
 	if event is InputEventKey:

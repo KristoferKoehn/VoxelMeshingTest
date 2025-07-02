@@ -5,7 +5,7 @@ var move_scale = 1;
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	c_pos = global_position
-	mesh = $"../GDExample".generate_and_mesh(c_pos)
+	#mesh = $"../GDExample".generate_and_mesh(c_pos)
 	pass # Replace with function body.
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -27,4 +27,4 @@ func _process(_delta):
 		
 	if mov != Vector3.ZERO:
 		c_pos += mov
-		mesh = $"../GDExample".generate_and_mesh(c_pos)
+		#mesh = $"../GDExample".generate_and_mesh(c_pos)

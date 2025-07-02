@@ -10,10 +10,8 @@ class GDExample : public Node {
 	GDCLASS(GDExample, Node)
 
 private:
-	Ref<ArrayMesh> mesh_chunk(const uint8_t* voxels);
-	Ref<ArrayMesh> mesh_chunk(const uint8_t* voxels, int threads);
 	double time_passed;
-	static std::vector<uint8_t> arr;
+	static std::vector<uint32_t> arr;
 
 
 protected:
@@ -22,6 +20,7 @@ protected:
 public:
 	GDExample();
 	~GDExample();
+	Ref<ArrayMesh> mesh_chunk(const uint32_t *voxels, int num_threads);
 	Ref<ArrayMesh> generate_and_mesh(Vector3 pos);
 	void _process(double delta) override;
 	void _ready() override;

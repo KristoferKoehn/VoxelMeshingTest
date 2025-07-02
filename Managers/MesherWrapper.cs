@@ -32,9 +32,9 @@ public partial class MesherWrapper : Node
 
 	}
 
-	public ArrayMesh GenerateAndMeshChunk(Vector3 pos)
+	public static ArrayMesh GenerateAndMeshChunk(Vector3 pos)
 	{
-		return (ArrayMesh)mesher.Call("generate_and_mesh", pos);
+		return (ArrayMesh)Instance().mesher.Call("generate_and_mesh", pos * 64);
 	}
 
 	

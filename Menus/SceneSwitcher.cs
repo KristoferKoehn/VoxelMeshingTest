@@ -14,6 +14,7 @@ public partial class SceneSwitcher : Node
         instance = this;
         PushScene("res://Menus/MainMenu.tscn");
         MesherWrapper.Instance();
+        //ChunkManager.Instance();
     }
     
     public static SceneSwitcher Instance()
