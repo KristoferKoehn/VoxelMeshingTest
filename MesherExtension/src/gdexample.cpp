@@ -654,7 +654,15 @@ Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
 
 void GDExample::process_chunk(MeshInstance3D& m, uint32_t* data = nullptr) {
 
-    
+
+
+    //change function to take in a packedint32array
+    //get .ptr() and do all the shit to it
+    //hopefully that will be reflected on the other side
+
+
+
+
     //get mesh and data(nullable)
     //if data == nullptr, generate
     //unroll vertices for collision (for now, maybe abuse greedy for faster array building)
