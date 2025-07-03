@@ -3,6 +3,7 @@
 
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/classes/array_mesh.hpp>
+#include <godot_cpp/classes/mesh_instance3d.hpp>
 
 namespace godot {
 
@@ -22,6 +23,7 @@ public:
 	~GDExample();
 	Ref<ArrayMesh> mesh_chunk(const uint32_t *voxels, int num_threads);
 	Ref<ArrayMesh> generate_and_mesh(Vector3 pos);
+	void process_chunk(MeshInstance3D& m, uint32_t *data);
 	void _process(double delta) override;
 	void _ready() override;
 };

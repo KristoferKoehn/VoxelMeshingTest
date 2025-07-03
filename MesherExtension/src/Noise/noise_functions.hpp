@@ -37,17 +37,15 @@ float hash_vec2(const Vector2& v, int seed) {
     return std::fmod(std::sin(dot_val) * 43758.5453f, 1.0f);
 }
 
+inline Vector2 fract(const Vector2& v) {
+    return Vector2(v.x - std::floor(v.x), v.y - std::floor(v.y));
+}
+
 // Helper: Hash into -1 to 1
 float value_noise(const Vector2& p, int seed) {
     return hash_vec2(p, seed) * 2.0f - 1.0f;
 }
 
-// Domain warp: displace input coordinates using pseudo-random gradient
-Vector2 domain_warp(const Vector2& pos, float strength, int seed) {
-    float dx = value_noise(pos + Vector2(5.2f, 1.3f), seed);
-    float dy = value_noise(pos + Vector2(9.8f, 2.6f), seed + 1);
-    return pos + Vector2(dx, dy) * strength; // 0.5 = warp strength
-}
 
 // 2D noise vector from position
 Vector2 gradient_noise(const Vector2& p, int seed) {
@@ -73,6 +71,88 @@ Vector2 fractal_domain_warp_value(const Vector2& pos, int seed, int octaves = 3,
     return pos + warp;
 }
 
+inline Vector2 floor(const Vector2& v) {
+    return Vector2(std::floor(v.x), std::floor(v.y));
+}
+
+inline float mix(float a, float b, float t) {
+    return a * (1.0f - t) + b * t;
+}
+
+inline Vector2 mix(const Vector2& a, const Vector2& b, float t) {
+    return a * (1.0f - t) + b * t;
+}
+
+inline float dot(const Vector2& a, const Vector2& b) {
+    return a.x * b.x + a.y * b.y;
+}
+
+// Helper: fract for float
+inline float fract(float f) {
+    return f - std::floor(f);
+}
+
+// Helper: fract for Vector2
+inline Vector2 fract_vec(const Vector2 &v) {
+    return Vector2(fract(v.x), fract(v.y));
+}
+
+// Helper: floor for Vector2
+inline Vector2 floor_vec(const Vector2 &v) {
+    return Vector2(std::floor(v.x), std::floor(v.y));
+}
+
+//
+// Hash function: pseudo-random gradient from grid point
+//
+Vector2 hash2(const Vector2& p, float seed) {
+    float x = p.x;
+    float y = p.y;
+    float _dot = x * 127.1f + y * 311.7f + seed * 0.01f;
+    float s = std::sin(_dot) * 43758.5453f;
+    float frac_x = s - std::floor(s);
+
+    _dot = x * 269.5f + y * 183.3f + seed * 0.017f;
+    s = std::sin(_dot) * 43758.5453f;
+    float frac_y = s - std::floor(s);
+
+    // Convert [0,1) to [-1,1) and normalize
+    Vector2 g = Vector2(frac_x * 2.0f - 1.0f, frac_y * 2.0f - 1.0f);
+    float len = std::sqrt(dot(g, g));
+    return g * (1.0f / (len + 1e-6f));
+}
+
+//
+// Perlin noise function
+//
+float perlinNoise2D(const Vector2& p, float seed) {
+    Vector2 i = floor(p);
+    Vector2 f = fract(p);
+
+    Vector2 g00 = hash2(i + Vector2(0.0f, 0.0f), seed);
+    Vector2 g10 = hash2(i + Vector2(1.0f, 0.0f), seed);
+    Vector2 g01 = hash2(i + Vector2(0.0f, 1.0f), seed);
+    Vector2 g11 = hash2(i + Vector2(1.0f, 1.0f), seed);
+
+    float d00 = dot(g00, f - Vector2(0.0f, 0.0f));
+    float d10 = dot(g10, f - Vector2(1.0f, 0.0f));
+    float d01 = dot(g01, f - Vector2(0.0f, 1.0f));
+    float d11 = dot(g11, f - Vector2(1.0f, 1.0f));
+
+    Vector2 u = f * f * (Vector2(3.0f, 3.0f) - f * 2.0f); // Smoothstep
+
+    float mix_x0 = mix(d00, d10, u.x);
+    float mix_x1 = mix(d01, d11, u.x);
+    return mix(mix_x0, mix_x1, u.y);
+}
+
+// Domain warp: displace input coordinates using pseudo-random gradient
+Vector2 domain_warp(const Vector2& pos, float strength, int seed) {
+    float dx = perlinNoise2D(pos + Vector2(5.2f, 1.3f), seed);
+    float dy = perlinNoise2D(pos + Vector2(9.8f, 2.6f), seed + 1);
+    return pos + Vector2(dx, dy) * strength; // 0.5 = warp strength
+}
+
 // Warp function
 Vector2 fractal_domain_warp_simplex(const Vector2& pos, int64_t seed,
                             int octaves = 3,
@@ -85,10 +165,13 @@ Vector2 fractal_domain_warp_simplex(const Vector2& pos, int64_t seed,
     Vector2 base_pos = pos;
     
     for (int i = 0; i < octaves; ++i) {
-        OpenSimplex2 noise(seed + i * 37); // new seed per octave
+        //OpenSimplex2 noise(seed + i * 37); // new seed per octave
         Vector2 p = base_pos + total_warp;
+        /*
         double nx = noise.noise(p.x * frequency, p.y * frequency);
-        double ny = noise.noise((p.x + 100.0) * frequency, (p.y - 100.0) * frequency); // decorrelated axis
+        double ny = noise.noise((p.x + 100.0) * frequency, (p.y - 100.0) * frequency); // decorrelated axis*/
+        double nx = perlinNoise2D(p * frequency, seed);
+        double ny = perlinNoise2D((p + Vector2(100, -100)) * frequency, seed);
 
         Vector2 offset(nx, ny);
         total_warp = total_warp + (offset * warp_strength);
@@ -135,20 +218,7 @@ int lerp_round(int a, int b, float t) {
     return static_cast<int>(std::round(a + (b - a) * t));
 }
 
-// Helper: fract for float
-inline float fract(float f) {
-    return f - std::floor(f);
-}
 
-// Helper: fract for Vector2
-inline Vector2 fract_vec(const Vector2 &v) {
-    return Vector2(fract(v.x), fract(v.y));
-}
-
-// Helper: floor for Vector2
-inline Vector2 floor_vec(const Vector2 &v) {
-    return Vector2(std::floor(v.x), std::floor(v.y));
-}
 
 // Pseudo-random feature point generator using seed
 Vector2 random2_seeded(const Vector2 &p, float seed) {
@@ -244,15 +314,6 @@ int biome_from_voronoi(const Vector2 &pos, float seed) {
 }
 
 
-inline Vector2 fract(const Vector2 &v) {
-    return Vector2(fract(v.x), fract(v.y));
-}
-
-// Helper function to simulate GLSL `dot`
-inline float dot(const Vector2 &a, const Vector2 &b) {
-    return a.x * b.x + a.y * b.y;
-}
-
 // --- Gradient utility ---
 inline float fade(float t) {
     return t * t * t * (t * (t * 6 - 15) + 10);
@@ -328,7 +389,7 @@ int biome_id_from_voronoi(const Vector3 &pos, float seed) {
     }
 
     float h = fract(std::sin(dot(nearest_cell, Vector2(12.9898, 45.164))) * 43758.5453f);
-    return (static_cast<int>(std::floor(h * 254)) + 1) % 3;
+    return (static_cast<int>(std::floor(h * 256)));
 }
 
 void voronoi_data(const Vector3 &pos, float seed, int& primary_biome, int& secondary_biome, float& distance) {
@@ -372,10 +433,10 @@ void voronoi_data(const Vector3 &pos, float seed, int& primary_biome, int& secon
     }
 
     float h = fract(std::sin(dot(nearest_cell, Vector2(12.9898, 45.164))) * 43758.5453f);
-    primary_biome = (static_cast<int>(std::floor(h * 254)) + 1) % 3;
+    primary_biome = (static_cast<int>(std::floor(h * 256)));
 
     float g = fract(std::sin(dot(secondary_cell, Vector2(12.9898, 45.164))) * 43758.5453f);
-    secondary_biome = (static_cast<int>(std::floor(g * 254)) + 1) % 3;
+    secondary_biome = (static_cast<int>(std::floor(g * 256)));
 
     // Compute edge proximity (0 = center, 1 = edge)
     float edge_factor = (second_min_dist - min_dist) / (second_min_dist + 1e-5f);
