@@ -1,4 +1,5 @@
 using Godot;
+using Godot.NativeInterop;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -37,5 +38,8 @@ public partial class MesherWrapper : Node
 		return (ArrayMesh)Instance().mesher.Call("generate_and_mesh", pos * 64);
 	}
 
-	
+    public static int[] ProcessChunk(MeshInstance3D m, int[] data, bool generate_data)
+    {
+        return (int[])Instance().mesher.Call("process_chunk", m, data, generate_data);
+    }
 }

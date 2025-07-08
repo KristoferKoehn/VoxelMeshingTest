@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://c7pt6bqueak3d"]
+[gd_scene load_steps=7 format=3 uid="uid://c7pt6bqueak3d"]
 
 [ext_resource type="Script" uid="uid://bftpm00g7rpnn" path="res://GameLoop/CppMeshingTest.cs" id="1_32mcv"]
 [ext_resource type="Environment" uid="uid://cqnbus2k8ayj7" path="res://Resources/Environments/OverworldEnvironment.tres" id="1_ry22x"]
@@ -30,9 +30,6 @@ void fragment() {
 render_priority = 0
 shader = SubResource("Shader_3j61e")
 
-[sub_resource type="BoxMesh" id="BoxMesh_3j61e"]
-size = Vector3(1, 64, 1)
-
 [node name="CppMeshingTest" type="Node3D"]
 script = ExtResource("1_32mcv")
 
@@ -53,24 +50,10 @@ raycast = NodePath("RayCast3D")
 
 [node name="RayCast3D" type="RayCast3D" parent="Camera3D"]
 physics_interpolation_mode = 2
+visible = false
 target_position = Vector3(0, 0, -10)
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
 visible = false
 material_override = SubResource("ShaderMaterial_32mcv")
 script = ExtResource("3_3j61e")
-
-[node name="ruler" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 32, 0)
-visible = false
-mesh = SubResource("BoxMesh_3j61e")
-
-[node name="ruler2" type="MeshInstance3D" parent="."]
-transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 32, 0, 0)
-visible = false
-mesh = SubResource("BoxMesh_3j61e")
-
-[node name="ruler3" type="MeshInstance3D" parent="."]
-transform = Transform3D(1.9106855e-15, 4.371139e-08, 1, 1, -4.371139e-08, 0, 4.371139e-08, 1, -4.371139e-08, 0, 0, 32)
-visible = false
-mesh = SubResource("BoxMesh_3j61e")

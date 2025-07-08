@@ -21,9 +21,9 @@ protected:
 public:
 	GDExample();
 	~GDExample();
-	Ref<ArrayMesh> mesh_chunk(const uint32_t *voxels, int num_threads);
-	Ref<ArrayMesh> generate_and_mesh(Vector3 pos);
-	void process_chunk(MeshInstance3D& m, uint32_t *data);
+	//Ref<ArrayMesh> mesh_chunk(const int32_t *voxels, int num_threads);
+	Array generate_mesh_array(const int32_t *voxels, int num_threads);
+	PackedInt32Array process_chunk(MeshInstance3D* m, const Variant &data, bool generate);
 	void _process(double delta) override;
 	void _ready() override;
 };

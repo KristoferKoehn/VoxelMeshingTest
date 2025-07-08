@@ -5,14 +5,15 @@ using VoxelMeshingTest.Classes;
 public partial class C_Chunk : MeshInstance3D
 {
 
+    public int[] VoxelData = new int[66 * 66 * 66];
     Timer t = new();
 
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-		Mesh.SurfaceSetMaterial(0, GD.Load<ShaderMaterial>("res://Resources/ChunkMaterial/ChunkMaterial.tres"));
-		Tween tween = CreateTween();
-		tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, 32, 0), 0.5).SetTrans(Tween.TransitionType.Circ);
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready()
+    {
+        Mesh.SurfaceSetMaterial(0, GD.Load<ShaderMaterial>("res://Resources/ChunkMaterial/ChunkMaterial.tres"));
+        Tween tween = CreateTween();
+        tween.TweenProperty(this, "global_position", GlobalPosition + new Vector3(0, 32, 0), 0.5).SetTrans(Tween.TransitionType.Circ);
         AddChild(t);
         t.Start(1.3);
         t.Timeout += DisposalCheck;
@@ -40,8 +41,6 @@ public partial class C_Chunk : MeshInstance3D
 
         if ((CameraChunkCoord - chunkCoord).Length() > GameConstants.DESPAWN_RADIUS)
         {
-
-
             Tween tween = CreateTween();
             tween.TweenProperty(this, "global_position", GlobalPosition - new Vector3(0, 32, 0), 0.5).SetTrans(Tween.TransitionType.Linear);
             tween.Finished += () =>
@@ -49,8 +48,6 @@ public partial class C_Chunk : MeshInstance3D
                 ChunkManager.Instance().DeregisterChunk(chunkCoord);
                 this.QueueFree();
             };
-
-
         }
     }
 }

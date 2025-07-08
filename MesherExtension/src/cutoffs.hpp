@@ -5,29 +5,29 @@
 #include <unordered_map>
 #include <string>
 
-using CutoffFunc = uint32_t (*)(godot::Vector2, int);
+using CutoffFunc = int32_t (*)(godot::Vector2, int);
 
 
 // --- Function definitions ---
-static uint32_t rolling_hills(godot::Vector2 pos, int seed) {
+static int32_t rolling_hills(godot::Vector2 pos, int seed) {
 	/*
 	OpenSimplex2 os(seed);
 	uint32_t s = os.noise((pos.y) * 0.025, (pos.x) * 0.025) * 4 + 32;*/
 
-	uint32_t s = perlinNoise2D(pos * 0.025 , seed) * 12 + 25;
+	int32_t s = perlinNoise2D(pos * 0.025 , seed) * 12 + 25;
 	return s;
 }
 
-static uint32_t cutoff_mountains(godot::Vector2 pos, int seed) {
+static int32_t cutoff_mountains(godot::Vector2 pos, int seed) {
 	OpenSimplex2 os(seed);
-	uint32_t s = os.noise((pos.y) * 0.02, (pos.x) * 0.02) * 18 + 30;
+	int32_t s = os.noise((pos.y) * 0.02, (pos.x) * 0.02) * 18 + 30;
 	return s;
 }
 
-static uint32_t cutoff_desert(godot::Vector2 pos, int seed) {
+static int32_t cutoff_desert(godot::Vector2 pos, int seed) {
 	//OpenSimplex2 os(seed);
 	//Vector2 v = fractal_domain_warp_simplex(pos, seed, 3, 20.0, 4.0, 3.0, 1.0);
-	uint32_t s = perlinNoise2D(pos * 0.03, seed) * 20 + 25;
+	int32_t s = perlinNoise2D(pos * 0.03, seed) * 20 + 25;
 	return s;
 }
 

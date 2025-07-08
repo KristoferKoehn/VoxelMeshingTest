@@ -7,23 +7,23 @@
 #include <unordered_map>
 #include <string>
 
-using BiomeFunc = uint32_t (*)(godot::Vector3, int);
+using BiomeFunc = int32_t (*)(godot::Vector3, int);
 
 // --- Function definitions ---
 
-static uint32_t rolling_hills(godot::Vector3 pos, int seed) {
+static int32_t rolling_hills(godot::Vector3 pos, int seed) {
     return encode_rgb888(0.1, 0.75, 0);
 }
 
-static uint32_t noise_mountains(godot::Vector3 pos, int seed) {
-    if (pos.y > 40 + fbm2(Vector2(pos.x, pos.z) * 0.05) * 5) {
+static int32_t noise_mountains(godot::Vector3 pos, int seed) {
+    if (pos.y > 20 + fbm2(Vector2(pos.x, pos.z) * 0.05) * 5) {
         return encode_rgb888(1.0, 1.0, 1.0);
     } else {
         return encode_rgb888(0.15, 0.15, 0.1);
     }
 }
 
-static uint32_t biome_desert(godot::Vector3 pos, int seed) {
+static int32_t biome_desert(godot::Vector3 pos, int seed) {
     return encode_rgb888( 250.0 / 256.0, 21004.0 / 256.0, 127.0 / 256.0);
 }
 

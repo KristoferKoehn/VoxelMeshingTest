@@ -15,6 +15,6 @@ namespace VoxelMeshingTest.Classes
         public static int CHUNK_THREADS = 1;
         public static int WORLD_DEPTH = 0;
         public static int WORLD_HEIGHT = 1;
-        public static float ALIGNMENT_SCORE_WEIGHT = 0.05f;
+        public static float ALIGNMENT_SCORE_WEIGHT = 0.02f;
     }
 }

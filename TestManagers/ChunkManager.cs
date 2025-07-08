@@ -173,11 +173,13 @@ public partial class ChunkManager : Node
                 if ((CameraChunkCoord - chunk).Length() <= GameConstants.DESPAWN_RADIUS)
                 {
                     loadedChunks[chunk] = true;
-                    ArrayMesh am = MesherWrapper.GenerateAndMeshChunk(chunk);
                     C_Chunk m = new C_Chunk();
+                    ArrayMesh am = new ArrayMesh();
                     m.Mesh = am;
-                    m.Position = chunk * 64 - new Vector3(0, 32, 0);
+                    m.Position = chunk * 64;
+                    m.VoxelData = MesherWrapper.ProcessChunk(m, m.VoxelData, true);
                     CallDeferred("add_child", m);
+                    m.Position -= new Vector3(0, 32, 0); //this is for the spawn in animation. if this is done before ProcessChunk, it messes with the generation
                 }
                 //else cull
             }

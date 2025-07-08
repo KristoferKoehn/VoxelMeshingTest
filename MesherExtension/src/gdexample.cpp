@@ -14,8 +14,9 @@
 #include <functional>
 #include <chrono>
 #include <string>
-#include <iomanip> // For std::setw
-#include <sstream> // For std::ostringstream
+#include <godot_cpp/classes/static_body3d.hpp>
+#include <godot_cpp/classes/collision_shape3d.hpp>
+#include <godot_cpp/classes/concave_polygon_shape3d.hpp>
 
 using namespace godot;
 
@@ -28,7 +29,7 @@ constexpr float SCALE = 1.0f/512.0f;
 void GDExample::_bind_methods()
 {
 	//Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
-	ClassDB::bind_method(D_METHOD("generate_and_mesh", "pos"), &GDExample::generate_and_mesh);
+	ClassDB::bind_method(D_METHOD("process_chunk", "m", "data", "generate_data"), &GDExample::process_chunk);
 }
 
 GDExample::GDExample() {
@@ -80,13 +81,12 @@ GDExample::GDExample() {
 
 
 GDExample::~GDExample() {
-	// Add your cleanup here.
+	
 }
 
 void GDExample::_ready() {
 	
 }
-
 
 constexpr int CHUNK_SIZE = 64;
 constexpr int PAD = 1;
@@ -102,6 +102,7 @@ inline int index_3d(int x, int y, int z) {
 struct MaskSlice {
     uint64_t solid[CHUNK_SIZE];       // 1 bit per voxel along Z
     uint32_t  type[CHUNK_SIZE][CHUNK_SIZE]; // per voxel type
+    uint8_t ao[CHUNK_SIZE][CHUNK_SIZE][4];
 };
 
 // Greedy meshing with typed bitmask mask
@@ -146,7 +147,7 @@ void greedy_merge(const MaskSlice& slice, int axis, int depth, const std::functi
 }
 
 // +X face
-void build_x_pos_mask(MaskSlice& out, const uint32_t* voxels, int x) {
+void build_x_pos_mask(MaskSlice& out, const int32_t* voxels, int x) {
 
     for (int y = 0; y < CHUNK_SIZE; ++y) {
         uint64_t row = 0;
@@ -168,7 +169,7 @@ void build_x_pos_mask(MaskSlice& out, const uint32_t* voxels, int x) {
 }
 
 // -X face
-void build_x_neg_mask(MaskSlice& out, const uint32_t* voxels, int x) {
+void build_x_neg_mask(MaskSlice& out, const int32_t* voxels, int x) {
     for (int y = 0; y < CHUNK_SIZE; ++y) {
         uint64_t row = 0;
         for (int z = 0; z < CHUNK_SIZE; ++z) {
@@ -188,7 +189,7 @@ void build_x_neg_mask(MaskSlice& out, const uint32_t* voxels, int x) {
 }
 
 // +Y face
-void build_y_pos_mask(MaskSlice& out, const uint32_t* voxels, int y) {
+void build_y_pos_mask(MaskSlice& out, const int32_t* voxels, int y) {
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         uint64_t row = 0;
         for (int z = 0; z < CHUNK_SIZE; ++z) {
@@ -208,7 +209,7 @@ void build_y_pos_mask(MaskSlice& out, const uint32_t* voxels, int y) {
 }
 
 // -Y face
-void build_y_neg_mask(MaskSlice& out, const uint32_t* voxels, int y) {
+void build_y_neg_mask(MaskSlice& out, const int32_t* voxels, int y) {
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         uint64_t row = 0;
         for (int z = 0; z < CHUNK_SIZE; ++z) {
@@ -228,7 +229,7 @@ void build_y_neg_mask(MaskSlice& out, const uint32_t* voxels, int y) {
 }
 
 // +Z face
-void build_z_pos_mask(MaskSlice& out, const uint32_t* voxels, int z) {
+void build_z_pos_mask(MaskSlice& out, const int32_t* voxels, int z) {
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         uint64_t row = 0;
         for (int y = 0; y < CHUNK_SIZE; ++y) {
@@ -248,7 +249,7 @@ void build_z_pos_mask(MaskSlice& out, const uint32_t* voxels, int z) {
 }
 
 // -Z face
-void build_z_neg_mask(MaskSlice& out, const uint32_t* voxels, int z) {
+void build_z_neg_mask(MaskSlice& out, const int32_t* voxels, int z) {
     for (int x = 0; x < CHUNK_SIZE; ++x) {
         uint64_t row = 0;
         for (int y = 0; y < CHUNK_SIZE; ++y) {
@@ -334,141 +335,7 @@ void emit_face_data(
     indices.insert(indices.end(), face_indices.begin(), face_indices.end());
 }
 
-Array get_mesh_array(const uint32_t* voxels, int num_threads) {
-    struct PartialData {
-        std::vector<Vector3> positions;
-        std::vector<Color> colors;
-        std::vector<int32_t> indices;
-        std::vector<Vector3> normals;
-    };
-
-    auto build_axis = [&](int axis, int sign, int start_depth, int end_depth) {
-        PartialData data;
-        MaskSlice mask;
-
-        for (int d = start_depth; d < end_depth; ++d) {
-            switch (axis) {
-                case 0: sign > 0 ? build_x_pos_mask(mask, voxels, d) : build_x_neg_mask(mask, voxels, d); break;
-                case 1: sign > 0 ? build_y_pos_mask(mask, voxels, d) : build_y_neg_mask(mask, voxels, d); break;
-                case 2: sign > 0 ? build_z_pos_mask(mask, voxels, d) : build_z_neg_mask(mask, voxels, d); break;
-            }
-
-            greedy_merge(mask, axis, d, [&](int axis_, int depth, int a, int b, int w, int h, uint32_t t) {
-                emit_face_data(axis_, sign, depth, a, b, w, h, t,
-                               data.positions, data.normals, data.colors, data.indices);
-            });
-        }
-
-        return data;
-    };
-
-    std::vector<std::thread> threads;
-    std::mutex results_mutex;
-    std::vector<PartialData> all_results;
-
-    auto worker = [&](int axis, int sign) {
-        int slices_per_thread = (CHUNK_SIZE + num_threads - 1) / num_threads;
-        std::vector<PartialData> local_results;
-        local_results.reserve(num_threads);
-
-        for (int thread_index = 0; thread_index < num_threads; ++thread_index) {
-            int start = thread_index * slices_per_thread;
-            int end = std::min(CHUNK_SIZE, start + slices_per_thread);
-            if (start >= CHUNK_SIZE) break;
-
-            local_results.push_back(build_axis(axis, sign, start, end));
-        }
-
-        std::lock_guard<std::mutex> lock(results_mutex);
-        all_results.insert(all_results.end(),
-                           std::make_move_iterator(local_results.begin()),
-                           std::make_move_iterator(local_results.end()));
-    };
-
-    // Spawn one worker per face direction
-    threads.emplace_back([&]() { worker(0, +1); }); // +X
-    threads.emplace_back([&]() { worker(0, -1); }); // -X
-    threads.emplace_back([&]() { worker(1, +1); }); // +Y
-    threads.emplace_back([&]() { worker(1, -1); }); // -Y
-    threads.emplace_back([&]() { worker(2, +1); }); // +Z
-    threads.emplace_back([&]() { worker(2, -1); }); // -Z
-
-    for (auto& t : threads) {
-        t.join();
-    }
-
-    // Merge all partials
-    std::vector<Vector3> positions;
-    std::vector<Color> colors;
-    std::vector<int32_t> indices;
-    std::vector<Vector3> normals;
-
-    size_t total_positions = 0;
-    size_t total_indices = 0;
-
-    for (const auto& pd : all_results) {
-        total_positions += pd.positions.size();
-        total_indices += pd.indices.size();
-    }
-
-    positions.reserve(total_positions);
-    colors.reserve(total_positions);
-    normals.reserve(total_positions);
-    indices.reserve(total_indices);
-
-    int vertex_offset = 0;
-    for (auto& pd : all_results) {
-        positions.insert(positions.end(), pd.positions.begin(), pd.positions.end());
-        colors.insert(colors.end(), pd.colors.begin(), pd.colors.end());
-        normals.insert(normals.end(), pd.normals.begin(), pd.normals.end());
-
-        for (int i : pd.indices)
-            indices.push_back(i + vertex_offset);
-
-        vertex_offset += pd.positions.size();
-    }
-
-    // === 🧠 Direct memory copy to PackedArrays ===
-    Array arrays;
-    arrays.resize(Mesh::ARRAY_MAX);
-
-    // Vertex positions
-    PackedVector3Array gpos;
-    gpos.resize(positions.size());
-    if (!positions.empty()) {
-        memcpy(gpos.ptrw(), positions.data(), positions.size() * sizeof(Vector3));
-    }
-
-    // Vertex colors
-    PackedColorArray gcol;
-    gcol.resize(colors.size());
-    if (!colors.empty()) {
-        memcpy(gcol.ptrw(), colors.data(), colors.size() * sizeof(Color));
-    }
-
-    // Vertex indices
-    PackedInt32Array gidx;
-    gidx.resize(indices.size());
-    if (!indices.empty()) {
-        memcpy(gidx.ptrw(), indices.data(), indices.size() * sizeof(int32_t));
-    }
-
-    // Normals
-    PackedVector3Array gnorm;
-    gnorm.resize(normals.size());
-    if (!normals.empty()) {
-        memcpy(gnorm.ptrw(), normals.data(), normals.size() * sizeof(Vector3));
-    }
-
-    arrays[Mesh::ARRAY_VERTEX] = gpos;
-    arrays[Mesh::ARRAY_COLOR] = gcol;
-    arrays[Mesh::ARRAY_INDEX] = gidx;
-    arrays[Mesh::ARRAY_NORMAL] = gnorm;
-
-    return arrays;
-}
-
-Ref<ArrayMesh> GDExample::mesh_chunk(const uint32_t* voxels, int num_threads) {
+Array GDExample::generate_mesh_array(const int32_t* voxels, int num_threads) {
     struct PartialData {
         std::vector<Vector3> positions;
         std::vector<Color> colors;
@@ -570,11 +437,7 @@ Ref<ArrayMesh> GDExample::mesh_chunk(const uint32_t* voxels, int num_threads) {
     memcpy(gnorm.ptrw(), normals.data(), normals.size() * sizeof(Vector3));
     arrays[Mesh::ARRAY_NORMAL] = gnorm;
 
-    Ref<ArrayMesh> mesh = memnew(ArrayMesh);
-    if (gpos.size() > 0) {
-        mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arrays);
-    }
-    return mesh;
+    return arrays;
 }
 
 int cutoff_calc(Vector3 pos, int seed) {
@@ -593,11 +456,11 @@ int cutoff_calc(Vector3 pos, int seed) {
     return p_cutoff;
 }
 
-void generate(uint32_t* data, Vector3 pos, int threads) {
+void generate(int32_t* data, Vector3 pos, int threads) {
     constexpr int SIZE = 66;
 
     std::vector<std::thread> workers;
-    auto worker = [SIZE](uint32_t* data, int z_start, int z_end, Vector3 pos) {
+    auto worker = [SIZE](int32_t* data, int z_start, int z_end, Vector3 pos) {
         auto& biome_map = get_biome_function_map();
 
         for (int k = z_start; k < z_end; k++) {
@@ -626,66 +489,82 @@ void generate(uint32_t* data, Vector3 pos, int threads) {
     }
 }
 
+PackedVector3Array unroll_vertices(const Array &mesh_array, int num_threads) {
+    const PackedVector3Array &vertices = mesh_array[Mesh::ARRAY_VERTEX];
+    const PackedInt32Array &indices = mesh_array[Mesh::ARRAY_INDEX];
 
-Ref<ArrayMesh> GDExample::generate_and_mesh(Vector3 pos) {
-    
-	auto start = std::chrono::high_resolution_clock::now();
-    //std::vector<uint32_t> data(66*66*66);
-    //uint32_t* data = generate(pos, 1);
-    PackedInt32Array v;
-    v.resize(66 * 66 * 66);
-    generate((uint32_t*)v.ptrw(), pos, 1);
-    
-    
-    Array arr = get_mesh_array((uint32_t*)v.ptrw(), 1);
-    Ref<ArrayMesh> mesh = memnew(ArrayMesh);
-    
-    
-    if (((PackedVector3Array)arr[Mesh::ARRAY_VERTEX]).size() > 0) {
-        mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
+    size_t total = indices.size();
+    PackedVector3Array unrolled; // one output per index
+    unrolled.resize(total);
+
+    auto thread_worker = [&](int start, int end) {
+        for (int i = start; i < end; ++i) {
+            int idx = indices[i];
+            if (idx >= 0 && idx < vertices.size()) {
+                unrolled[i] = vertices[idx];
+            }
+        }
+    };
+
+    std::vector<std::thread> threads;
+    int chunk_size = (total + num_threads - 1) / num_threads;
+
+    for (int t = 0; t < num_threads; ++t) {
+        int start = t * chunk_size;
+        int end = std::min<int>(start + chunk_size, total);
+        if (start >= end) break;
+        threads.emplace_back(thread_worker, start, end);
     }
+
+    for (auto &t : threads) {
+        t.join();
+    }
+
+    return unrolled;
+}
+
+PackedInt32Array GDExample::process_chunk(MeshInstance3D* m, const Variant& data, bool generate_data) {
+    auto start = std::chrono::high_resolution_clock::now();
     
+    constexpr int THREADS = 8;
     
+    PackedInt32Array v_arr = data;
+    int32_t* v_data = v_arr.ptrw();
+
+    if (generate_data) {
+        Vector3 pos = m->get_position();
+        generate(v_data, pos, THREADS);
+    }
+    Array arr = generate_mesh_array(v_data, THREADS);
+    Ref<ArrayMesh> mesh;
+    mesh.instantiate();
+    if (((Array)arr[Mesh::ARRAY_VERTEX]).size() > 0) {
+        mesh->add_surface_from_arrays(Mesh::PRIMITIVE_TRIANGLES, arr);
+    } else {
+        //do something, I guess? if there's no faces it'll probably break...
+    }
+    m->set_mesh(mesh);
+
+    PackedVector3Array c_arr = unroll_vertices(arr, THREADS);
+    CollisionShape3D* cs = (CollisionShape3D*)m->get_node_or_null(NodePath("StaticBody3D/CollisionShape3D"));
+    
+    if (cs == nullptr) { //diversion on generation. not sure this is a good idea at all, but we're here
+        StaticBody3D* sb = memnew(StaticBody3D);
+        cs = memnew(CollisionShape3D);
+        Ref<ConcavePolygonShape3D> cps;
+        cps.instantiate();
+        cs->set_shape(cps);
+        sb->add_child(cs);
+        m->call_deferred("add_child", sb);
+    }
+
+    Ref<ConcavePolygonShape3D> cps_ = cs->get_shape();
+    cps_->set_faces(c_arr);
+
     auto elapsed = std::chrono::high_resolution_clock::now() - start;
     print_line_rich(vformat("[color=dimgray]%.2fms[/color]",std::chrono::duration<double, std::milli>(elapsed).count()));
-    return mesh;
-	//return mesh_chunk(data, 4);
-}
-
-void GDExample::process_chunk(MeshInstance3D& m, uint32_t* data = nullptr) {
-
-
-
-    //change function to take in a packedint32array
-    //get .ptr() and do all the shit to it
-    //hopefully that will be reflected on the other side
-
-
-
-
-    //get mesh and data(nullable)
-    //if data == nullptr, generate
-    //unroll vertices for collision (for now, maybe abuse greedy for faster array building)
-    //generate arraymesh, assign
-    //build collision structures, deferred add child
-
-    
-    //unroll the vertex stuff with a loop after the fact for now, I need the game working
-    std::vector<uint32_t> v_data(data, data + 66 * 66 * 66); //seriously?? ok...
-    //start AO investigation
-    //generate(v.ptr(), pos)
-
-    if (data == nullptr) {
-        Vector3 pos = m.get_position();
-        Vector3 chunkCoord = Vector3(
-            floor(pos.x / 64.0f),
-            floor(pos.y / 64.0f),
-            floor(pos.z / 64.0f)
-        );
-        m.set_mesh(generate_and_mesh(chunkCoord));
-    }
-
-}
+    return v_arr;
+}   
 
 void GDExample::_process(double delta) {
 
